@@ -4,6 +4,15 @@ Canlı site: **https://geogozcu.pages.dev**
 
 ---
 
+## SÜRÜM 46 — güvenlik taraması bulguları (11 Ekim 2026)
+Dış tarama (HostedScan: Nmap + OWASP ZAP pasif tarama) bulguları ve durumları:
+- **ZAP 10055 · CSP zayıf (`unsafe-inline`, joker alan adı):** giderildi. `style-src 'self'` (satır içi stil yok — HTML'deki `style="…"` öznitelikleri `data-css="…"` oldu, splash.js bunları CSSOM ile uygular; enjekte edilen `style=` çalışmaz), `script-src 'self'`, `font-src 'self'`; `*.tile.opentopomap.org` yerine a/b/c açıkça yazıldı.
+- **ZAP 90003 · Alt kaynak bütünlüğü (SRI) eksik:** giderildi. Google Fonts artık yerelden sunuluyor (`fonts/`, latin + latin-ext; SIL OFL). Sitede başka sunucudan yüklenen betik ya da stil kalmadı.
+- **ZAP 10098 · Alanlar arası yanlış yapılandırma (`Access-Control-Allow-Origin: *`):** giderildi; Cloudflare'in eklediği başlık `_headers` ile kaldırıldı. Ek: `Cross-Origin-Resource-Policy: same-origin`, `X-Permitted-Cross-Domain-Policies: none`.
+- **ZAP 10015 · Önbellek yönergeleri:** sayfa ve uygulama dosyaları `no-cache, no-store, must-revalidate`; yalnız değişmeyen kütüphane, simge ve yazı tipleri uzun süre (immutable) önbelleğe alınır. Çevrimdışı açılışı service worker sağlar.
+- **ZAP 10031 · Kullanıcı denetimli HTML özniteliği:** yanlış pozitif. Site statik; sunucu isteğe göre HTML üretmez, adres parametresi sayfaya yansıtılmaz. Yine de CSP satır içi betik/stil çalıştırmaz.
+- **Nmap · Açık TCP portları (80, 443, 2052–2096, 8080, 8443, 8880):** site Cloudflare'in paylaşımlı sunucularında çalışır; bu portlar Cloudflare'in standart HTTP/HTTPS vekil portlarıdır ve tüm Cloudflare sitelerinde açıktır. Arkasında bizim çalıştırdığımız bir servis yoktur; hepsi aynı statik siteye yönlenir. Proje tarafından kapatılamaz ve risk oluşturmaz (kabul edilen bulgu).
+
 ## SÜRÜM 45 — güvenlik sıkılaştırma (11 Ekim 2026)
 - **N+1 sorgu:** gözlem gönderirken fotoğraflar artık sırayla değil aynı anda yüklenir; Excel/CSV içe aktarma satır satır değil 50'lik toplu ekleme yapar (hatalı partide yalnız o satırlar tek tek denenir). Diğer tüm listeler zaten tek sorgu (vote_counts, admin_observer_names, leaderboard RPC'leri; bildirimler + okundu bilgisi paralel).
 - **Oturum jetonu:** “Beni hatırla” artık varsayılan KAPALI → jeton sessionStorage'da, tarayıcı kapanınca biter. Açıkken localStorage'da en çok 30 gün. Statik sitede httpOnly çerez kullanılamadığı için asıl koruma XSS'i engellemek: sıkı **Content-Security-Policy** (yalnız kendi betikleri; satır içi betik/olay yok — açılış betiği splash.js'e taşındı), `frame-ancestors 'none'`, `object-src 'none'`.

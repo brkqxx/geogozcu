@@ -9,7 +9,7 @@ node --check sinema.js
 node "$sp\build.js"
 $files = 'index.html','style.css','app.js','harita-araclari.js','sinema.js','splash.js','config.js','sinirlar.js','site-tek-dosya.html','manifest.webmanifest','sw.js','_headers'
 New-Item -ItemType Directory -Force "$sp\cf" | Out-Null; Copy-Item $files "$sp\cf" -Force
-Copy-Item icons,vendor,media "$sp\cf" -Recurse -Force
+Copy-Item icons,vendor,media,fonts "$sp\cf" -Recurse -Force
 node "$sp\medya-boyut.js"
 node "$sp\kaynak.js"
 Compress-Archive -Path "$sp\kaynak-tmp\geogozcu-kaynak" -DestinationPath "$sp\cf\geogozcu-kaynak.zip" -Force

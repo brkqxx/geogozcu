@@ -125,7 +125,7 @@
       '<div class="gd-bar">' +
         '<button type="button" class="gd-btn gd-play" aria-label="Oynat"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>' +
         '<div class="gd-track" role="slider" aria-label="Rehber ilerlemesi" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"><i class="gd-fill"></i>' +
-          CH.map((c, i) => '<span class="gd-tick" style="left:' + (i / CH.length * 100) + '%"></span>').join('') + '</div>' +
+          CH.map((c, i) => '<span class="gd-tick" data-css="left:' + (i / CH.length * 100) + '%"></span>').join('') + '</div>' +
         '<span class="gd-time">0:00</span>' +
         '<button type="button" class="gd-btn gd-snd" aria-pressed="false" aria-label="Sesli anlatım" title="Sesli anlatım"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path class="w" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg></button>' +
         '<button type="button" class="gd-btn gd-fs" aria-label="Tam ekran" title="Tam ekran"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>' +

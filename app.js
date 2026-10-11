@@ -214,7 +214,7 @@
       el.dataset.splitDone = '1';
       const words = el.textContent.trim().split(/\s+/);
       el.setAttribute('aria-label', el.textContent.trim());
-      el.innerHTML = words.map((w, i) => '<span class="w" aria-hidden="true" style="--wi:' + i + '">' + esc(w) + '</span>').join(' ');
+      el.innerHTML = words.map((w, i) => '<span class="w" aria-hidden="true" data-css="--wi:' + i + '">' + esc(w) + '</span>').join(' ');
     });
   }
   // Görünür alana giren .reveal öğeleri sırayla belirsin
@@ -620,7 +620,7 @@
   const markerById = {};
   const pinIcon = (color, score, delay, still) => L.divIcon({
     className: 'pin' + ((score || 0) >= 67 ? ' hot' : '') + (still ? ' still' : ''),
-    html: '<b class="ring" style="--c:' + color + '"></b><span style="--c:' + color + ';--d:' + (delay || 0) + 'ms;opacity:' +
+    html: '<b class="ring" data-css="--c:' + color + '"></b><span data-css="--c:' + color + ';--d:' + (delay || 0) + 'ms;opacity:' +
       (0.55 + Math.min(score || 0, 100) / 100 * 0.45) + '"></span>',
     iconSize: [34, 40], iconAnchor: [17, 38], popupAnchor: [0, -34],
   });
@@ -657,7 +657,7 @@
 
   function catBadge(r) {
     const c = catOf(r);
-    return '<span class="badge" style="--c:' + CATS[c].color + '"><span class="dot"></span>' + esc(CATS[c].short) + '</span>';
+    return '<span class="badge" data-css="--c:' + CATS[c].color + '"><span class="dot"></span>' + esc(CATS[c].short) + '</span>';
   }
   function scoreTag(r) {
     const n = r.risk_score == null ? 0 : r.risk_score;
@@ -703,7 +703,7 @@
         '<button type="button" class="vb yes' + (v.my_vote === 1 ? ' on' : '') + '" data-vote="1"' + (mine ? ' disabled' : '') + '>👍 Evet, düzelmiş <b>' + v.fixed + '</b></button>' +
         '<button type="button" class="vb no' + (v.my_vote === -1 ? ' on' : '') + '" data-vote="-1"' + (mine ? ' disabled' : '') + '>👎 Hayır, hâlâ var <b>' + v.still + '</b></button>' +
       '</div>' +
-      (total ? '<i class="vote-bar" title="%' + pct + ' düzelmiş diyor"><i style="width:' + pct + '%"></i></i>' : '<span class="small muted">Henüz oy yok. Oradan geçtiysen durumu bildir.</span>') +
+      (total ? '<i class="vote-bar" title="%' + pct + ' düzelmiş diyor"><i data-css="width:' + pct + '%"></i></i>' : '<span class="small muted">Henüz oy yok. Oradan geçtiysen durumu bildir.</span>') +
       (r.fix_flagged_at ? '<span class="small vote-flag">🔧 Çoğunluk düzelmiş diyor, yönetici inceliyor.</span>' : '') +
       '</div>';
   }
@@ -813,7 +813,7 @@
     body.innerHTML = '<div class="hbars">' + rows.map((r) =>
       '<div class="hbar" data-tip="' + esc(r.label + ': ' + r.value + ' bildirim' + (r.extra ? ' · ' + r.extra : '')) + '">' +
         '<span class="hbar-l">' + esc(r.label) + '</span>' +
-        '<span class="hbar-t"><i class="' + (r.cls || '') + '" style="width:' + (r.value / max * 100) + '%"></i></span>' +
+        '<span class="hbar-t"><i class="' + (r.cls || '') + '" data-css="width:' + (r.value / max * 100) + '%"></i></span>' +
         '<b class="hbar-v">' + r.value + '</b></div>').join('') + '</div>' + tableOf(rows, opts.col || 'Bildirim');
   }
   // Sütun grafiği. labels: değerleri sütunların üstüne yaz (az sütunda); yoksa en yüksek değer altta not olarak
@@ -822,8 +822,8 @@
     const max = Math.max(1, ...rows.map((r) => r.value));
     const peak = rows.reduce((a, r) => (r.value > a.value ? r : a), rows[0] || { value: 0 });
     const body = $('.chart-body', el);
-    body.innerHTML = '<div class="vcols' + (opts.labels ? ' labeled' : '') + '" style="--n:' + rows.length + '">' + rows.map((r) =>
-      '<div class="vcol" data-tip="' + esc(r.label + ': ' + r.value) + '"><i class="' + (r.cls || '') + '" style="height:' + (r.value ? Math.max(4, r.value / max * 100) : 0) + '%">' +
+    body.innerHTML = '<div class="vcols' + (opts.labels ? ' labeled' : '') + '" data-css="--n:' + rows.length + '">' + rows.map((r) =>
+      '<div class="vcol" data-tip="' + esc(r.label + ': ' + r.value) + '"><i class="' + (r.cls || '') + '" data-css="height:' + (r.value ? Math.max(4, r.value / max * 100) : 0) + '%">' +
       (opts.labels && r.value ? '<b>' + r.value + '</b>' : '') + '</i>' +
       (r.tick ? '<small>' + esc(r.tick) + '</small>' : '') + '</div>').join('') + '</div>' +
       (!opts.labels && peak.value ? '<p class="chart-note">En yoğun gün: ' + esc(peak.label) + ', ' + peak.value + ' bildirim</p>' : '') +
@@ -918,7 +918,7 @@
 
   function buildLegend() {
     $('#legend-body').innerHTML = Object.values(CATS).map((c) =>
-      '<span><i style="background:' + c.color + '"></i>' + esc(c.label) + '</span>').join('') +
+      '<span><i data-css="background:' + c.color + '"></i>' + esc(c.label) + '</span>').join('') +
       '<span class="small muted">Pin ne kadar koyuysa risk puanı o kadar yüksek. Nabız atan pinler yüksek risklidir.</span>' +
       '<span class="small muted"><i class="gz-key"></i>Gaziemir odak alanı</span>';
   }
@@ -1104,7 +1104,7 @@
   function reportViewHtml(r) {
     const ps = photosOf(r), n = r.risk_score == null ? 0 : r.risk_score, c = CATS[catOf(r)] || {};
     const who = esc(observerOf(r)) + whoSuffix(r);
-    return '<article class="rv" style="--c:' + (c.color || 'var(--accent)') + '">' +
+    return '<article class="rv" data-css="--c:' + (c.color || 'var(--accent)') + '">' +
       (ps.length ? '<div class="rv-hero"><div class="rv-shots">' + ps.map((p) =>
         '<img alt="Bildirim fotoğrafı" data-full="' + esc(photoUrl(p)) + '" src="' + esc(photoUrl(p)) + '">').join('') + '</div>' +
         (ps.length > 1 ? '<span class="rv-count">📷 ' + ps.length + ' fotoğraf · kaydır</span>' : '') + '</div>'
@@ -1112,7 +1112,7 @@
       '<div class="rv-main">' +
         '<div class="tags">' + catBadge(r) + scoreTag(r) + (isUrgentOpen(r) ? '<span class="tag rejected">🚨 Acil</span>' : '') + '</div>' +
         '<h2 class="rv-title">' + esc(subLabel(r)) + '</h2>' +
-        '<div class="rv-meter ' + level(n) + '" title="Risk puanı ' + n + '/100"><i style="width:' + Math.max(4, Math.min(100, n)) + '%"></i></div>' +
+        '<div class="rv-meter ' + level(n) + '" title="Risk puanı ' + n + '/100"><i data-css="width:' + Math.max(4, Math.min(100, n)) + '%"></i></div>' +
         '<div class="rv-grid">' +
           '<div><small>📍 Konum</small><b>' + esc(placeOf(r)) + '</b></div>' +
           '<div><small>🕒 Gözlem</small><b>' + esc(fmtDate(r.observed_at)) + '</b></div>' +
@@ -1168,16 +1168,16 @@
   function buildCatPicker() {
     const tile = (k, i) => {
       const c = CATS[k];
-      return '<button type="button" class="cat' + (c.featured ? ' featured' : '') + (c.urgent ? ' urgent' : '') + '" data-cat="' + k + '" style="--c:' + c.color + ';--i:' + i + '">' +
+      return '<button type="button" class="cat' + (c.featured ? ' featured' : '') + (c.urgent ? ' urgent' : '') + '" data-cat="' + k + '" data-css="--c:' + c.color + ';--i:' + i + '">' +
         (c.featured ? '<span class="cat-badge">Ana odak · küresel sorun, yerel çözüm</span>' : '') +
         (c.urgent ? '<span class="cat-badge red">ACİL</span>' : '') +
         '<span class="cat-ico" aria-hidden="true">' + c.ico + '</span><b>' + esc(c.short) + '</b><small>' + esc(c.desc) + '</small><span class="cat-tick" aria-hidden="true">✓</span></button>';
     };
     $('#cat-pick').innerHTML = tile('fire', 0) + tile('urgent', 1) +
-      '<button type="button" class="cat other" data-other style="--c:#475569;--i:2"><span class="cat-ico" aria-hidden="true">🧭</span><b>Başka bir risk</b>' +
+      '<button type="button" class="cat other" data-other data-css="--c:#475569;--i:2"><span class="cat-ico" aria-hidden="true">🧭</span><b>Başka bir risk</b>' +
         '<small>Sel · Atık · Altyapı · Yol</small><span class="cat-chev" aria-hidden="true">⌄</span></button>' +
       '<div class="other-row" id="other-row" hidden>' + OTHER_CATS.map((k, i) =>
-        '<button type="button" class="cat mini" data-cat="' + k + '" style="--c:' + CATS[k].color + ';--i:' + i + '"><span class="cat-ico" aria-hidden="true">' + CATS[k].ico + '</span><b>' + esc(CATS[k].short.replace(' riski', '').replace(' hasarı', '')) + '</b><span class="cat-tick" aria-hidden="true">✓</span></button>').join('') +
+        '<button type="button" class="cat mini" data-cat="' + k + '" data-css="--c:' + CATS[k].color + ';--i:' + i + '"><span class="cat-ico" aria-hidden="true">' + CATS[k].ico + '</span><b>' + esc(CATS[k].short.replace(' riski', '').replace(' hasarı', '')) + '</b><span class="cat-tick" aria-hidden="true">✓</span></button>').join('') +
       '</div>';
     $('#cat-pick').addEventListener('click', (e) => {
       if (e.target.closest('[data-other]')) { toggleOther(); return; }
@@ -1211,7 +1211,7 @@
     if (on && formCat) {
       const c = CATS[formCat], sub = ($('#sub-pick input:checked') || {}).value, sv = SUBS[formCat][sub];
       $('#cat-sum-ico').textContent = sub && SUB_ICO[sub] ? SUB_ICO[sub] : c.ico;
-      $('#cat-sum-text').innerHTML = '<small style="color:' + c.color + '">' + c.ico + ' ' + esc(c.short) + '</small><b>' + esc(sv ? sv[0] : c.label) + '</b>';
+      $('#cat-sum-text').innerHTML = '<small data-css="color:' + c.color + '">' + c.ico + ' ' + esc(c.short) + '</small><b>' + esc(sv ? sv[0] : c.label) + '</b>';
       card.style.setProperty('--c', c.color);
       card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop');
     }
@@ -1270,7 +1270,7 @@
     $('#report-form').dataset.cat = cat;
 
     $('#sub-pick').innerHTML = Object.entries(SUBS[cat]).map(([k, v], i) =>
-      '<label class="sub" style="--c:' + c.color + ';--i:' + i + '"><input type="radio" name="sub" value="' + k + '">' +
+      '<label class="sub" data-css="--c:' + c.color + ';--i:' + i + '"><input type="radio" name="sub" value="' + k + '">' +
       '<span><i class="sub-ico" aria-hidden="true">' + (SUB_ICO[k] || c.ico) + '</i><em>' + esc(v[0]) + '<small>' + esc(v[1]) + '</small></em></span></label>').join('');
     $('#sub-legend').textContent = c.ico + ' ' + c.short + ': tam olarak hangisi?';
     show($('#sub-card'), true);
@@ -1720,7 +1720,7 @@
     if (!rows.length) return '<p class="empty">Kayıt yok.</p>';
     return '<ol class="timeline">' + rows.map((r, i) => {
       const a = ACTIONS[r.action] || ['•', r.action, 'muted'];
-      return '<li class="tl ' + a[2] + '" style="--i:' + Math.min(i, 20) + '">' +
+      return '<li class="tl ' + a[2] + '" data-css="--i:' + Math.min(i, 20) + '">' +
         '<span class="tl-ico" aria-hidden="true">' + a[0] + '</span>' +
         '<div><b>' + (withUser ? '<span class="who">@' + esc(r.username || 'silinmiş kullanıcı') + '</span> ' : '') + esc(a[1]) + '</b>' +
         (r.detail ? '<span class="small">' + esc(prettyDetail(r.detail)) + '</span>' : '') +
@@ -2618,7 +2618,7 @@
     const draw = () => {
       $('#pe-grid').innerHTML = items.map((it, i) =>
         '<figure class="pe-item' + (i === 0 ? ' cover' : '') + '" data-i="' + i + '">' +
-          '<div class="pe-img"><img alt="" src="' + esc(it.url) + '" style="transform:rotate(' + it.rot * 90 + 'deg)">' + (i === 0 ? '<span class="pe-badge">Kapak</span>' : '') + (it.file ? '<span class="pe-badge new">Yeni</span>' : '') + '</div>' +
+          '<div class="pe-img"><img alt="" src="' + esc(it.url) + '" data-css="transform:rotate(' + it.rot * 90 + 'deg)">' + (i === 0 ? '<span class="pe-badge">Kapak</span>' : '') + (it.file ? '<span class="pe-badge new">Yeni</span>' : '') + '</div>' +
           '<figcaption>' +
             (i ? '<button type="button" data-pe="cover">Kapak yap</button>' : '') +
             '<button type="button" data-pe="rot" aria-label="90 derece döndür">Döndür</button>' +
@@ -2707,8 +2707,8 @@
       (risks.length ? '<span class="small muted">Ek unsurlar: ' + esc(risks.join(', ')) + '</span>' : '') +
       (r.notes ? '<span class="small muted">“' + esc(r.notes) + '”</span>' : '') +
       (r.flag_reason ? (r.status === 'pending'
-        ? '<span class="msg small" style="padding:8px 10px"><b>Onay bekliyor:</b> ' + esc(r.flag_reason) + '</span>'
-        : (isAdmin ? '<span class="msg info small" style="padding:8px 10px"><b>📝 Otomatik not:</b> ' + esc(r.flag_reason) + '</span>' : '')) : '') +
+        ? '<span class="msg small" data-css="padding:8px 10px"><b>Onay bekliyor:</b> ' + esc(r.flag_reason) + '</span>'
+        : (isAdmin ? '<span class="msg info small" data-css="padding:8px 10px"><b>📝 Otomatik not:</b> ' + esc(r.flag_reason) + '</span>' : '')) : '') +
       (r.admin_note ? '<span class="small"><b>Yönetici notu:</b> ' + esc(r.admin_note) + '</span>' : '') +
       (isAdmin ? '<textarea data-note="' + esc(r.id) + '" rows="1" placeholder="Yönetici notu ekle, çıkınca kaydedilir">' + esc(r.admin_note || '') + '</textarea>' : '') +
       (acts.length ? '<div class="actions">' + acts.join('') + '</div>' : '') +
@@ -2721,11 +2721,11 @@
     const ps = photosOf(r), n = r.risk_score || 0, c = CATS[catOf(r)] || {};
     const st = r.resolved_at ? ['resolved', 'Çözüldü'] : [r.status, STATUS[r.status] || r.status];
     const v = votes[r.id];
-    return '<button type="button" class="mrow-card" data-mine="' + esc(r.id) + '" style="--c:' + (c.color || 'var(--accent)') + '">' +
+    return '<button type="button" class="mrow-card" data-mine="' + esc(r.id) + '" data-css="--c:' + (c.color || 'var(--accent)') + '">' +
       (ps.length ? '<img alt="" loading="lazy" src="' + esc(photoUrl(ps[0])) + '">' : '<span class="mrow-ph" aria-hidden="true">' + (c.ico || '') + '</span>') +
       '<span class="mrow-body"><span class="mrow-top"><b>' + esc(subLabel(r)) + '</b><i class="st ' + esc(st[0]) + '">' + esc(st[1]) + '</i></span>' +
       '<small>' + esc(placeOf(r)) + ' · ' + esc(timeAgo(r.created_at)) + '</small>' +
-      '<span class="mrow-meter ' + level(n) + '"><span class="mbar"><i style="width:' + Math.max(4, n) + '%"></i></span><em>Risk ' + n + '</em>' +
+      '<span class="mrow-meter ' + level(n) + '"><span class="mbar"><i data-css="width:' + Math.max(4, n) + '%"></i></span><em>Risk ' + n + '</em>' +
         (v && (v.fixed || v.still) ? '<em>' + v.fixed + ' düzelmiş · ' + v.still + ' hâlâ var</em>' : '') + '</span>' +
       (r.status === 'pending' && r.flag_reason ? '<small class="mrow-note">İncelemede: ' + esc(r.flag_reason) + '</small>' : '') +
       '</span><span class="mrow-chev" aria-hidden="true">›</span></button>';
@@ -2777,11 +2777,11 @@
 
     $('#stats').innerHTML =
       '<div class="stat"><span>Toplam bildirim</span><b>' + R.length + '</b></div>' +
-      '<div class="stat"><span>İncelenecek</span><b style="color:var(--fire)">' + cnt('pending') + '</b></div>' +
+      '<div class="stat"><span>İncelenecek</span><b data-css="color:var(--fire)">' + cnt('pending') + '</b></div>' +
       '<div class="stat"><span>Yayında</span><b>' + cnt('approved') + '</b></div>' +
       '<div class="stat"><span>Son 7 gün</span><b>' + week + '</b></div>' +
-      '<div class="stat"><span>Ortalama risk puanı</span><b style="color:var(--' + (level(avg) === 'high' ? 'hi' : level(avg) === 'mid' ? 'mid' : 'lo') + ')">' + avg + '</b></div>' +
-      '<div class="stat"><span>Yüksek riskli (67+)</span><b style="color:var(--hi)">' + R.filter((r) => (r.risk_score || 0) >= 67).length + '</b></div>' +
+      '<div class="stat"><span>Ortalama risk puanı</span><b data-css="color:var(--' + (level(avg) === 'high' ? 'hi' : level(avg) === 'mid' ? 'mid' : 'lo') + ')">' + avg + '</b></div>' +
+      '<div class="stat"><span>Yüksek riskli (67+)</span><b data-css="color:var(--hi)">' + R.filter((r) => (r.risk_score || 0) >= 67).length + '</b></div>' +
       '<div class="stat"><span>Kayıtlı kullanıcı</span><b>' + adminUsers.length + '</b></div>';
 
     // kategori dağılımı
@@ -2789,7 +2789,7 @@
       const inCat = R.filter((r) => ((r.categories && r.categories.length) ? r.categories : [catOf(r)]).includes(k));
       const pend = inCat.filter((r) => r.status === 'pending').length;
       const hi = inCat.filter((r) => (r.risk_score || 0) >= 67).length;
-      return '<div class="stat" style="--c:' + c.color + '"><span>' + esc(c.label) + '</span><b>' + inCat.length + '</b>' +
+      return '<div class="stat" data-css="--c:' + c.color + '"><span>' + esc(c.label) + '</span><b>' + inCat.length + '</b>' +
         '<span class="small">' + pend + ' incelenecek · ' + hi + ' yüksek riskli</span></div>';
     }).join('');
 
@@ -2814,7 +2814,7 @@
           '<div class="tags">' + catBadge(r) + (r.fix_flagged_at ? '<span class="tag pending">🔧 Düzelmiş olabilir</span>' : '') + '</div>' +
           '<b>' + esc(subLabel(r)) + '</b><span class="small muted">' + esc(placeOf(r)) + ' · eklendi ' + esc(timeAgo(r.created_at)) + '</span>' +
           '<div class="fix-votes"><span>👍 Düzelmiş <b>' + v.fixed + '</b></span><span>👎 Hâlâ var <b>' + v.still + '</b></span><span class="muted">%' + pct + '</span></div>' +
-          '<i class="vote-bar"><i style="width:' + pct + '%"></i></i>' +
+          '<i class="vote-bar"><i data-css="width:' + pct + '%"></i></i>' +
           '<div class="actions">' +
             '<button class="btn green sm" data-act="resolve" data-id="' + esc(r.id) + '">✅ Çözüldü, haritadan kaldır</button>' +
             '<button class="btn ghost sm" data-resetvotes="' + esc(r.id) + '">👎 Hâlâ var, oyları sıfırla</button>' +
@@ -3038,7 +3038,7 @@
     const bg = (p && p.avatar_color) || hueColor(name);
     const inner = p && p.avatar_url ? '<img src="' + esc(p.avatar_url) + '" alt="" loading="lazy">'
       : esc((p && p.avatar_emoji) || name.charAt(0).toUpperCase());
-    return '<span class="avatar ' + (cls || '') + '" style="background:' + esc(bg) + '">' + inner + '</span>';
+    return '<span class="avatar ' + (cls || '') + '" data-css="background:' + esc(bg) + '">' + inner + '</span>';
   }
   const TIERS = [['Yeni Gözlemci', 0, '🌱'], ['Mahalle Gözcüsü', 20, '👀'], ['Doğa Dostu', 60, '🍃'], ['Orman Bekçisi', 100, '🌲'],
     ['Risk Avcısı', 200, '🎯'], ['Yangın Kalkanı', 400, '🛡️'], ['Gaziemir Efsanesi', 800, '👑']];
@@ -3183,7 +3183,7 @@
     // podyum sırası: 2 - 1 - 3
     $('#podium').innerHTML = rows.length ? [1, 0, 2].filter((i) => top[i]).map((i) => {
       const r = top[i];
-      return '<a class="pod p' + (i + 1) + (r.is_me ? ' me' : '') + '" href="#/profil/' + encodeURIComponent(r.username) + '" style="--d:' + ([1, 0, 2].indexOf(i) * 120) + 'ms">' +
+      return '<a class="pod p' + (i + 1) + (r.is_me ? ' me' : '') + '" href="#/profil/' + encodeURIComponent(r.username) + '" data-css="--d:' + ([1, 0, 2].indexOf(i) * 120) + 'ms">' +
         '<span class="medal">' + medal[i] + '</span>' + avatarHtml(r, 'xl') +
         '<b>@' + esc(r.username) + verifiedMark(r.badges) + '</b><span class="badge-row">' + badgesHtml(r.badges, { compact: true, max: 4 }) + '</span>' + tagHtml(r.nametag) +
         '<span class="pts"><b data-c="' + r.points + '">0</b> puan</span>' +
@@ -3192,7 +3192,7 @@
     }).join('') : '<p class="empty">Bu dönemde henüz yayında bildirim yok. İlk sırayı sen al! <a href="#/bildir">Riskli alan bildir</a></p>';
     $$('#podium [data-c]').forEach((b) => countTo(b, Number(b.dataset.c), 1200));
     $('#lb-list').innerHTML = rest.map((r, i) =>
-      '<li style="--i:' + Math.min(i, 15) + '"><a class="lb-row' + (r.is_me ? ' me' : '') + '" href="#/profil/' + encodeURIComponent(r.username) + '">' +
+      '<li data-css="--i:' + Math.min(i, 15) + '"><a class="lb-row' + (r.is_me ? ' me' : '') + '" href="#/profil/' + encodeURIComponent(r.username) + '">' +
       '<span class="rk">' + r.rank + '</span>' + avatarHtml(r) +
       '<span class="who"><b>@' + esc(r.username) + verifiedMark(r.badges) + '</b>' +
       '<span class="badge-row">' + badgesHtml(r.badges, { compact: true, max: 5 }) + tagHtml(r.nametag) + '</span>' +
@@ -3217,7 +3217,7 @@
     $('#tag-ladder').innerHTML = TIERS.map(([t, need, ico]) =>
       '<div class="tier' + (have.has(t) ? ' got' : '') + '"><span class="ti">' + ico + '</span><b>' + esc(t) + '</b>' +
       '<small>' + (need ? need + ' puan' : 'Başlangıç') + '</small>' +
-      (!have.has(t) && myTags ? '<i class="prog"><i style="width:' + Math.min(100, Math.round(pts / need * 100)) + '%"></i></i>' : '') + '</div>').join('') +
+      (!have.has(t) && myTags ? '<i class="prog"><i data-css="width:' + Math.min(100, Math.round(pts / need * 100)) + '%"></i></i>' : '') + '</div>').join('') +
       EXTRA_TAGS.map(([t, ico, how]) => '<div class="tier extra' + (have.has(t) ? ' got' : '') + '"><span class="ti">' + ico + '</span><b>' + esc(t) + '</b><small>' + esc(how) + '</small></div>').join('');
   }
 
@@ -3235,7 +3235,7 @@
     avDraft = { emoji: profile.avatar_emoji || null, color: profile.avatar_color || null, url: profile.avatar_url || null,
       tag: profile.nametag || null, bio: profile.bio || '' };
     $('#av-emoji').innerHTML = AV_EMOJIS.map((e) => '<button type="button" data-e="' + e + '">' + e + '</button>').join('');
-    $('#av-color').innerHTML = AV_COLORS.map((c) => '<button type="button" class="sw" data-c="' + c + '" style="--s:' + c + '" aria-label="Renk ' + c + '"></button>').join('');
+    $('#av-color').innerHTML = AV_COLORS.map((c) => '<button type="button" class="sw" data-c="' + c + '" data-css="--s:' + c + '" aria-label="Renk ' + c + '"></button>').join('');
     $('#av-bio').value = avDraft.bio;
     renderAvatarPreview();
     $('#set-tag').innerHTML = profile.nametag ? tagIcon(profile.nametag) + ' ' + esc(profile.nametag) : '';
@@ -3248,7 +3248,7 @@
       const pct = nx ? Math.round((myTags.points - prevNeed) / (nx.need - prevNeed) * 100) : 100;
       $('#set-points').innerHTML = '<div class="row-between small"><b>⭐ ' + myTags.points + ' puan</b><span class="muted">' +
         (nx ? 'Sonraki rozet: ' + tagIcon(nx.tag) + ' ' + esc(nx.tag) + ' (' + nx.need + ')' : 'Tüm seviye rozetlerini kazandın!') + '</span></div>' +
-        '<i class="bar"><i style="width:' + pct + '%"></i></i><a class="small" href="#/liderler">Lider tablosunu gör →</a>';
+        '<i class="bar"><i data-css="width:' + pct + '%"></i></i><a class="small" href="#/liderler">Lider tablosunu gör →</a>';
     }
   }
   // Kare kırp + 256 px'e küçült
@@ -3493,7 +3493,7 @@
 
   /* =================== KARŞILAMA EKRANLARI + TANITIM TURU =================== */
   // Her ekranda animasyonlu bir çizim (art) ve kısa metin. İki ekranda kendin deneyebileceğin mini demo var.
-  const pinSvg = (c, d) => '<svg class="art-pin" style="--d:' + d + 'ms" viewBox="0 0 24 30"><path d="M12 29C5 20 2 15 2 11a10 10 0 0 1 20 0c0 4-3 9-10 18z" fill="' + c + '" stroke="#fff" stroke-width="2"/><circle cx="12" cy="11" r="3.5" fill="#fff"/></svg>';
+  const pinSvg = (c, d) => '<svg class="art-pin" data-css="--d:' + d + 'ms" viewBox="0 0 24 30"><path d="M12 29C5 20 2 15 2 11a10 10 0 0 1 20 0c0 4-3 9-10 18z" fill="' + c + '" stroke="#fff" stroke-width="2"/><circle cx="12" cy="11" r="3.5" fill="#fff"/></svg>';
   const SLIDES = [
     { art: () => '<div class="art map"><i class="g"></i><i class="g h"></i><i class="ring"></i>' +
         '<span class="p1">' + pinSvg('#B42318', 200) + '</span><span class="p2">' + pinSvg('#1D4ED8', 450) + '</span><span class="p3">' + pinSvg('#0F766E', 700) + '</span>' +
@@ -3502,18 +3502,18 @@
       text: 'Orman yangınları küresel bir sorun. Biz bu soruna <b>mahallemizden</b> çözüm üretiyoruz: yangın çıkmadan önce riskli alanları birlikte haritalıyoruz.' },
 
     { art: () => '<div class="art cats">' + [['🔥', 'Yangın riski', '#B42318', 'ana odak'], ['🚨', 'Acil arıza', '#E11D48'], ['🌊', 'Sel', '#1D4ED8'], ['🗑️', 'Atık', '#7C5A00'], ['⚡', 'Altyapı', '#6D28D9'], ['🚧', 'Yol çukuru', '#0F766E']]
-        .map((c, i) => '<span class="cat-chip' + (c[3] ? ' big' : '') + '" style="--c:' + c[2] + ';--d:' + i * 110 + 'ms"><i>' + c[0] + '</i>' + c[1] + (c[3] ? '<small>' + c[3] + '</small>' : '') + '</span>').join('') + '</div>',
+        .map((c, i) => '<span class="cat-chip' + (c[3] ? ' big' : '') + '" data-css="--c:' + c[2] + ';--d:' + i * 110 + 'ms"><i>' + c[0] + '</i>' + c[1] + (c[3] ? '<small>' + c[3] + '</small>' : '') + '</span>').join('') + '</div>',
       title: () => 'Neleri haritalıyoruz?',
       text: 'Ana odağımız <b>orman yangını riski taşıyan alanlar</b>: kuru ot birikimi, ormana bitişik evler, yangın altyapısı eksikliği. Ayrıca patlak boru gibi acil arızalar, sel, atık ve yol hasarı.' },
 
     { art: () => '<div class="art steps4">' + [['📍', 'Konum'], ['📷', 'Fotoğraf'], ['📝', 'Birkaç soru'], ['✅', 'Gönder']]
-        .map((s, i) => '<span class="st" style="--i:' + i + '"><i>' + s[0] + '</i><b>' + (i + 1) + '</b>' + s[1] + '</span>').join('<u></u>') + '</div>',
+        .map((s, i) => '<span class="st" data-css="--i:' + i + '"><i>' + s[0] + '</i><b>' + (i + 1) + '</b>' + s[1] + '</span>').join('<u></u>') + '</div>',
       title: () => '4 adımda bildir',
       text: 'Ne gördüğünü seç, konumu işaretle (ilçe ve mahalle <b>otomatik</b> bulunur), fotoğraf ekle ve kısa soruları yanıtla. Bir dakikadan kısa sürer.' },
 
     { art: () => '<div class="art demo" id="demo-risk"><div class="demo-chips">' +
         '<button type="button" data-dr="30">🌿 Kuru ot çok</button><button type="button" data-dr="25">🌲 Ormana 50 m</button><button type="button" data-dr="20">🚒 Hidrant yok</button><button type="button" data-dr="15">⛰️ Dik yamaç</button></div>' +
-        '<div class="demo-meter"><b id="dr-val">10</b><span id="dr-lbl">Düşük risk</span><i><em id="dr-bar" style="width:10%"></em></i></div></div>',
+        '<div class="demo-meter"><b id="dr-val">10</b><span id="dr-lbl">Düşük risk</span><i><em id="dr-bar" data-css="width:10%"></em></i></div></div>',
       title: () => 'Risk puanını sen de dene',
       text: 'Cevapların <b>0-100</b> arası bir risk puanına dönüşür. Yukarıdakilere dokunarak puanın nasıl yükseldiğini gör. <b>67+</b> “yüksek risk” sayılır ve haritada nabız gibi atar.' },
 
@@ -3526,7 +3526,7 @@
 
     { art: () => '<div class="art demo" id="demo-vote"><div class="demo-pop"><b>Kuru ot ve yanıcı atık</b><small>Gaziemir · 2 gün önce</small>' +
         '<div class="demo-vb"><button type="button" data-dv="1">👍 Düzelmiş <em id="dv-y">2</em></button><button type="button" data-dv="-1">👎 Hâlâ var <em id="dv-n">1</em></button></div>' +
-        '<i class="demo-bar"><em id="dv-bar" style="width:66%"></em></i></div></div>',
+        '<i class="demo-bar"><em id="dv-bar" data-css="width:66%"></em></i></div></div>',
       title: () => 'Sorun çözüldü mü? Sen de oy ver',
       text: 'Haritada bir yerden geçtin mi? Orası düzelmişse 👍, hâlâ duruyorsa 👎 de. <b>Çoğunluk “düzelmiş” derse</b> yöneticilere haber gider; yoksa bildirim haritada kalır.' },
 
@@ -3767,7 +3767,7 @@
       '</div>' +
       '<div class="ov-grid">' +
         '<div class="card"><h2>Son 14 gün yeni kayıt</h2><div class="spark">' + s.signups_14d.map((x) =>
-          '<i style="--h:' + Math.round(x.n / max * 100) + '%" title="' + esc(new Date(x.d).toLocaleDateString('tr-TR')) + ': ' + x.n + '"><b>' + (x.n || '') + '</b></i>').join('') + '</div></div>' +
+          '<i data-css="--h:' + Math.round(x.n / max * 100) + '%" title="' + esc(new Date(x.d).toLocaleDateString('tr-TR')) + ': ' + x.n + '"><b>' + (x.n || '') + '</b></i>').join('') + '</div></div>' +
         '<div class="card"><h2>En aktif kullanıcılar <small class="muted">(30 gün)</small></h2><ol class="top-users">' + (s.top || []).map((u, i) =>
           '<li><span class="rk">' + (i + 1) + '</span>' + avatarHtml(u, 'sm') + '<a href="#/profil/' + encodeURIComponent(u.username) + '">@' + esc(u.username) + '</a>' +
           '<small class="muted">' + u.reports_30d + ' bildirim' + (u.last_seen ? ' · ' + esc(timeAgo(u.last_seen)) : '') + '</small></li>').join('') + '</ol></div>' +
@@ -4273,7 +4273,7 @@
 
     // harita filtreleri
     $('#f-cat').innerHTML = '<button type="button" class="chip on" data-cat="all">Tümü</button>' +
-      Object.entries(CATS).map(([k, c]) => '<button type="button" class="chip" data-cat="' + k + '" style="--c:' + c.color + '"><span class="dot"></span>' + esc(c.short) + '</button>').join('');
+      Object.entries(CATS).map(([k, c]) => '<button type="button" class="chip" data-cat="' + k + '" data-css="--c:' + c.color + '"><span class="dot"></span>' + esc(c.short) + '</button>').join('');
     $('#f-cat').addEventListener('click', (e) => {
       const b = e.target.closest('[data-cat]'); if (!b) return;
       filt.cat = b.dataset.cat;

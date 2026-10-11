@@ -1,24 +1,30 @@
 /*
-  Cache-Control: no-cache
+  Cache-Control: no-cache, no-store, must-revalidate
+  ! Access-Control-Allow-Origin
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY
+  X-Permitted-Cross-Domain-Policies: none
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
   Permissions-Policy: geolocation=(self), camera=(self), microphone=(), payment=(), usb=(), interest-cohort=(), browsing-topics=()
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://ogrkwkefbhofmxeukuhe.supabase.co https://tile.openstreetmap.org https://*.tile.opentopomap.org https://server.arcgisonline.com https://services.arcgisonline.com; media-src 'self' blob:; connect-src 'self' https://ogrkwkefbhofmxeukuhe.supabase.co wss://ogrkwkefbhofmxeukuhe.supabase.co https://nominatim.openstreetmap.org https://services.arcgisonline.com blob:; worker-src 'self'; manifest-src 'self'; frame-src 'none'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: blob: https://ogrkwkefbhofmxeukuhe.supabase.co https://tile.openstreetmap.org https://a.tile.opentopomap.org https://b.tile.opentopomap.org https://c.tile.opentopomap.org https://server.arcgisonline.com https://services.arcgisonline.com; media-src 'self' blob:; connect-src 'self' https://ogrkwkefbhofmxeukuhe.supabase.co wss://ogrkwkefbhofmxeukuhe.supabase.co https://nominatim.openstreetmap.org https://services.arcgisonline.com blob:; worker-src 'self'; manifest-src 'self'; frame-src 'none'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
 /site-tek-dosya.html
   ! Content-Security-Policy
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://ogrkwkefbhofmxeukuhe.supabase.co https://tile.openstreetmap.org https://*.tile.opentopomap.org https://server.arcgisonline.com https://services.arcgisonline.com; media-src 'self' blob:; connect-src 'self' https://ogrkwkefbhofmxeukuhe.supabase.co wss://ogrkwkefbhofmxeukuhe.supabase.co https://nominatim.openstreetmap.org https://services.arcgisonline.com blob:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://ogrkwkefbhofmxeukuhe.supabase.co https://tile.openstreetmap.org https://a.tile.opentopomap.org https://b.tile.opentopomap.org https://c.tile.opentopomap.org https://server.arcgisonline.com https://services.arcgisonline.com; media-src 'self' blob:; connect-src 'self' https://ogrkwkefbhofmxeukuhe.supabase.co wss://ogrkwkefbhofmxeukuhe.supabase.co https://nominatim.openstreetmap.org https://services.arcgisonline.com blob:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'
 /sw.js
   ! Cache-Control
   Cache-Control: no-cache, no-store, must-revalidate
 /icons/*
   ! Cache-Control
-  Cache-Control: public, max-age=604800
+  Cache-Control: public, max-age=604800, immutable
+/fonts/*
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable
 /vendor/*
   ! Cache-Control
-  Cache-Control: public, max-age=2592000
+  Cache-Control: public, max-age=2592000, immutable
 /media/*
   ! Cache-Control
   Cache-Control: public, max-age=86400

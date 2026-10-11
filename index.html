@@ -15,12 +15,10 @@
 <meta name="apple-mobile-web-app-title" content="GeoGözcü">
 <meta name="format-detection" content="telephone=no">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231F4D3A'/%3E%3Cpath d='M16 6c1.5 4 5 6 5 11a5 5 0 0 1-10 0c0-2.5 1.2-4 2.5-5 0 2.5 1 3 1 3 0-4 0-6 1.5-9z' fill='%23fff'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Poppins:wght@300;400;500;600&display=swap" media="print" data-font>
+<link rel="stylesheet" href="fonts/fonts.css?v=46">
 <link rel="stylesheet" href="vendor/leaflet.css">
 <link rel="stylesheet" href="vendor/markercluster.css">
-<link rel="stylesheet" href="style.css?v=45">
+<link rel="stylesheet" href="style.css?v=46">
 </head>
 <body>
 
@@ -34,7 +32,7 @@
     <button type="button" id="splash-retry">Yeniden dene</button>
   </div>
 </div>
-<script src="splash.js?v=45"></script>
+<script src="splash.js?v=46"></script>
 <div id="topbar" aria-hidden="true"><i></i></div>
 
 <header class="top">
@@ -73,12 +71,12 @@
     </div>
     <span class="menu-title">Vurgu rengi</span>
     <div class="swatches" id="accent-swatches">
-      <button type="button" class="sw" data-accent="forest" style="--s:#1F4D3A" aria-label="Orman yeşili"></button>
-      <button type="button" class="sw" data-accent="ember" style="--s:#C2410C" aria-label="Kor turuncusu"></button>
-      <button type="button" class="sw" data-accent="sky" style="--s:#1D4ED8" aria-label="Gök mavisi"></button>
-      <button type="button" class="sw" data-accent="plum" style="--s:#6D28D9" aria-label="Mor"></button>
-      <button type="button" class="sw" data-accent="slate" style="--s:#334155" aria-label="Füme"></button>
-      <label class="sw custom" id="sw-custom" style="--s:var(--accent)" title="Kendi rengini seç">
+      <button type="button" class="sw" data-accent="forest" data-css="--s:#1F4D3A" aria-label="Orman yeşili"></button>
+      <button type="button" class="sw" data-accent="ember" data-css="--s:#C2410C" aria-label="Kor turuncusu"></button>
+      <button type="button" class="sw" data-accent="sky" data-css="--s:#1D4ED8" aria-label="Gök mavisi"></button>
+      <button type="button" class="sw" data-accent="plum" data-css="--s:#6D28D9" aria-label="Mor"></button>
+      <button type="button" class="sw" data-accent="slate" data-css="--s:#334155" aria-label="Füme"></button>
+      <label class="sw custom" id="sw-custom" data-css="--s:var(--accent)" title="Kendi rengini seç">
         <input type="color" id="accent-custom" value="#1F4D3A" aria-label="Kendi vurgu rengini seç">
       </label>
     </div>
@@ -224,9 +222,9 @@
   <section id="view-home" class="view page home" hidden>
     <div class="home-hero hx">
       <div class="hero-film" aria-hidden="true">
-        <video id="hero-video" muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=45" disablepictureinpicture>
-          <source src="media/hero.webm?v=45" type="video/webm">
-          <source src="media/hero.mp4?v=45" type="video/mp4">
+        <video id="hero-video" muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=46" disablepictureinpicture>
+          <source src="media/hero.webm?v=46" type="video/webm">
+          <source src="media/hero.mp4?v=46" type="video/mp4">
         </video>
       </div>
       <div class="hx-shade" aria-hidden="true"><i class="h"></i><i class="v"></i><i class="r"></i></div>
@@ -267,8 +265,8 @@
 
     <section class="gd-wrap" id="rehber" aria-labelledby="gd-h">
       <header class="gd-head"><span class="mono-k">TANITIM · 1 DAKİKA</span><h2 id="gd-h">Bir kıvılcımdan önce.</h2><p>GeoGözcü'nün sahadan haritaya nasıl çalıştığını izle: sitenin gerçek kaydı, Türkçe anlatım ve altyazıyla.</p></header>
-      <video class="pv" controls preload="none" playsinline width="1920" height="1080" poster="media/tanitim-kapak.jpg?v=45" aria-describedby="hm-pv-not">
-        <source src="media/tanitim.mp4?v=45" type="video/mp4">
+      <video class="pv" controls preload="none" playsinline width="1920" height="1080" poster="media/tanitim-kapak.jpg?v=46" aria-describedby="hm-pv-not">
+        <source src="media/tanitim.mp4?v=46" type="video/mp4">
         Tarayıcın videoyu oynatamıyor. <a href="media/tanitim.mp4" download>Videoyu indir (MP4)</a>.
       </video>
       <p class="small muted pv-not" id="hm-pv-not">Tüm görüntüler bu sitenin gerçek kaydıdır. <a href="media/tanitim.mp4" download="GeoGozcu-tanitim.mp4">MP4 indir</a></p>
@@ -288,7 +286,7 @@
         <h2>Neleri haritalıyoruz?</h2>
         <div>
           <p>Ana odağımız <b>orman yangını riski</b>: kuru ot birikimi, ormana bitişik evler, kontrolsüz yakım, eksik hidrant. Ayrıca patlak boru gibi <b>acil arızalar</b>, sel, atık, altyapı ve yol hasarları.</p>
-          <div class="home-chips"><span style="--c:#B42318">Yangın riski</span><span style="--c:#E11D48">Acil arıza</span><span style="--c:#1D4ED8">Sel</span><span style="--c:#A16207">Atık</span><span style="--c:#6D28D9">Altyapı</span><span style="--c:#0F766E">Yol</span></div>
+          <div class="home-chips"><span data-css="--c:#B42318">Yangın riski</span><span data-css="--c:#E11D48">Acil arıza</span><span data-css="--c:#1D4ED8">Sel</span><span data-css="--c:#A16207">Atık</span><span data-css="--c:#6D28D9">Altyapı</span><span data-css="--c:#0F766E">Yol</span></div>
         </div>
       </section>
       <section class="home-row">
@@ -615,7 +613,7 @@
       <div class="card score-card" id="score-card">
         <span class="label">Hesaplanan risk puanı</span>
         <div class="score"><b id="score-val">—</b><span id="score-text" class="muted small">Soruları doldurdukça güncellenir.</span></div>
-        <div class="bar"><i id="score-bar" style="width:0%"></i></div>
+        <div class="bar"><i id="score-bar" data-css="width:0%"></i></div>
         <span class="small muted" id="cat-out"></span>
       </div>
 
@@ -628,7 +626,7 @@
   <!-- KAYIT / GİRİŞ -->
   <section id="view-auth" class="view auth" hidden>
     <div class="auth-side">
-      <div class="auth-film" aria-hidden="true"><video data-film muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=45" disablepictureinpicture><source src="media/hero.webm?v=45" type="video/webm"><source src="media/hero.mp4?v=45" type="video/mp4"></video><i></i></div>
+      <div class="auth-film" aria-hidden="true"><video data-film muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=46" disablepictureinpicture><source src="media/hero.webm?v=46" type="video/webm"><source src="media/hero.mp4?v=46" type="video/mp4"></video><i></i></div>
       <div class="brand"><span class="logo" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-2 1-3 2-4 0 2 1 2 1 2 0-3 0-5 1-7z"/></svg></span><span class="brand-name" data-appname>GeoGözcü</span></div>
       <div class="about">
         <span class="kicker reveal">Küresel sorun · Yerel çözüm</span>
@@ -804,7 +802,7 @@
       <h2>Tanıtım videosu</h2>
       <div>
         <video class="pv" controls preload="none" playsinline width="1920" height="1080" poster="media/tanitim-kapak.jpg" aria-describedby="pv-not">
-          <source src="media/tanitim.mp4?v=45" type="video/mp4">
+          <source src="media/tanitim.mp4?v=46" type="video/mp4">
           Tarayıcın videoyu oynatamıyor. <a href="media/tanitim.mp4" download>Videoyu indir (MP4)</a>.
         </video>
         <p class="small muted pv-not" id="pv-not">1 dk · Türkçe anlatımlı ve altyazılı. Tüm görüntüler bu sitenin gerçek kaydıdır.
@@ -1186,13 +1184,13 @@
 <script src="vendor/leaflet.js"></script>
 <script src="vendor/markercluster.js"></script>
 <script src="vendor/supabase.js"></script>
-<script src="config.js?v=45"></script>
-<script src="sinirlar.js?v=45"></script>
-<script src="harita-araclari.js?v=45"></script>
-  <script src="app.js?v=45"></script>
+<script src="config.js?v=46"></script>
+<script src="sinirlar.js?v=46"></script>
+<script src="harita-araclari.js?v=46"></script>
+  <script src="app.js?v=46"></script>
 <script src="vendor/gsap.min.js"></script>
 <script src="vendor/ScrollTrigger.min.js"></script>
 <script src="vendor/SplitText.min.js"></script>
-<script src="sinema.js?v=45"></script>
+<script src="sinema.js?v=46"></script>
 </body>
 </html>
