@@ -1,27 +1,39 @@
 # GeoGözcü tanıtım videosu — anlatım metni ve zaman kodları
 
 Ses: araclar/video/ses/*.mp3
-Toplam süre: **49.1 sn**. Görüntü: canlı siteden (https://geogozcu.pages.dev/) gerçek tarayıcı kaydı.
+Toplam süre: **69.4 sn**. Görüntü: canlı siteden (https://geogozcu.pages.dev/) gerçek tarayıcı kaydı.
 
 | Sahne | Zaman | Görüntü | Anlatım |
 |---|---|---|---|
-| 01-acilis | 00:00.–00:06. | Açılış — temsilî sinematik klip | Gaziemir’de evler ormanla iç içe. Büyük bir yangın, çoğu zaman tek bir kıvılcımla başlar. |
-| 02-site | 00:06.–00:17. | GeoGözcü nedir — ana sayfa ve haritaya geçiş | GeoGözcü, EGEV 100. Yıl Lisesi öğrencilerinin geliştirdiği bir vatandaş bilimi haritası. Gönüllüler, gördükleri riski fotoğraflayıp konumuyla haritaya ekliyor. |
-| 03-harita | 00:17.–00:27. | Harita — risk türleri, puan renkleri, kümeler | Haritadaki her nokta bir saha gözlemi. Renk risk türünü, pinin koyuluğu risk puanını gösterir; kümeler, riskin biriktiği mahalleleri ortaya koyar. |
-| 04-puan | 00:27.–00:35. | Gözlem ayrıntısı — puan ve topluluk oylaması | Her bildirim aynı sorularla 0–100 arası puanlanır. Oradan geçenler de sorunun düzelip düzelmediğini oylar. |
-| 05-veri | 00:35.–00:42. | Veriler — proje grafikleri ve liderlik tablosu | Veriler proje sayfasında grafiklerle özetlenir; en çok katkı verenler liderlik tablosunda yer alır. |
-| 06-kapanis | 00:42.–00:49. | Kapanış — proje kimliği | Mahalleni sen koru. GeoGözcü — yangını, çıkmadan önce görmek için. |
+| 01-giris | 00:00.–00:07. | Ana sayfa — film arka planı, başlık | GeoGözcü, orman yangını riskini yangın çıkmadan önce görmek için kurulmuş bir vatandaş bilimi haritası. |
+| 02-gosterge | 00:07.–00:14. | Canlı durum — risk göstergesi | Ana sayfadaki canlı gösterge, haritadaki yangın bildirimlerinin ortanca risk puanını anında gösterir. |
+| 03-harita | 00:14.–00:23. | Harita — noktalar ve kümeler | Haritada her nokta, bir gönüllünün sahada fotoğrafladığı bir risk. Kümeler, riskin hangi mahallelerde biriktiğini gösterir. |
+| 04-araclar | 00:23.–00:32. | Risk türleri ve ölçüm araçları (canlı mesafe ölçümü) | Risk türleri anahtarı ve ölçüm araçları tek dokunuşla açılır; mesafe, alan ve koordinat kolayca ölçülür. |
+| 05-gozlem | 00:32.–00:39. | Gözlem ayrıntısı — puan ve oylama | Her gözlemin 0–100 arası bir risk puanı var. Oradan geçenler, sorunun düzelip düzelmediğini oylar. |
+| 06-liste | 00:39.–00:45. | Bildirim listesi ve filtreler | Bildirim listesinde kayıtlar; türüne, risk puanına ve tarihine göre süzülebilir. |
+| 07-katil | 00:45.–00:52. | Giriş / kayıt ekranı | Katılmak için kısa bir kayıt yeterli. Her gönüllünün kendi profili, puanı ve rozetleri olur. |
+| 08-liderler | 00:52.–00:57. | Liderlik tablosu | En çok katkı veren gönüllüler, liderlik tablosunda öne çıkar. |
+| 09-proje | 00:57.–01:03. | Proje sayfası — yöntem, bulgular, veri seti | Proje sayfasında yöntemi, canlı bulguları ve indirilebilir veri setini bulursun. |
+| 10-kapanis | 01:03.–01:09. | Kapanış — proje kimliği | Mahalleni sen koru. GeoGözcü — yangını, çıkmadan önce görmek için. |
 
 ## Okuma metni (öğrenci sesiyle kaydetmek için)
 
-**01-acilis** (5.8 sn): Gaziemir’de evler ormanla iç içe. Büyük bir yangın, çoğu zaman tek bir kıvılcımla başlar.
+**01-giris** (6.2 sn): GeoGözcü, orman yangını riskini, yangın çıkmadan önce görmek için kurulmuş bir vatandaş bilimi haritası.
 
-**02-site** (10.1 sn): GeoGözcü, Egev Yüzüncü Yıl Lisesi öğrencilerinin geliştirdiği bir vatandaş bilimi haritası. Gönüllüler, gördükleri riski fotoğraflayıp konumuyla haritaya ekliyor.
+**02-gosterge** (6.2 sn): Ana sayfadaki canlı gösterge, haritadaki yangın bildirimlerinin ortanca risk puanını anında gösterir.
 
-**03-harita** (9.3 sn): Haritadaki her nokta bir saha gözlemi. Renk risk türünü, pinin koyuluğu risk puanını gösterir; kümeler, riskin biriktiği mahalleleri ortaya koyar.
+**03-harita** (7.7 sn): Haritada her nokta, bir gönüllünün sahada fotoğrafladığı bir risk. Kümeler, riskin hangi mahallelerde biriktiğini gösterir.
 
-**04-puan** (6.7 sn): Her bildirim aynı sorularla, sıfırdan yüze puanlanır. Oradan geçenler de sorunun düzelip düzelmediğini oylar.
+**04-araclar** (6.6 sn): Risk türleri anahtarı ve ölçüm araçları tek dokunuşla açılır; mesafe, alan ve koordinat kolayca ölçülür.
 
-**05-veri** (6.2 sn): Veriler proje sayfasında grafiklerle özetlenir; en çok katkı verenler liderlik tablosunda yer alır.
+**05-gozlem** (6.2 sn): Her gözlemin sıfırdan yüze bir risk puanı var. Oradan geçenler, sorunun düzelip düzelmediğini oylar.
 
-**06-kapanis** (5.3 sn): Mahalleni sen koru. GeoGözcü; yangını, çıkmadan önce görmek için.
+**06-liste** (5.2 sn): Bildirim listesinde kayıtlar; türüne, risk puanına ve tarihine göre süzülebilir.
+
+**07-katil** (5.8 sn): Katılmak için kısa bir kayıt yeterli. Her gönüllünün kendi profili, puanı ve rozetleri olur.
+
+**08-liderler** (3.5 sn): En çok katkı veren gönüllüler, liderlik tablosunda öne çıkar.
+
+**09-proje** (4.8 sn): Proje sayfasında yöntemi, canlı bulguları ve indirilebilir veri setini bulursun.
+
+**10-kapanis** (5.0 sn): Mahalleni sen koru. GeoGözcü; yangını, çıkmadan önce görmek için.

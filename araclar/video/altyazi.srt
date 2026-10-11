@@ -1,59 +1,75 @@
 1
-00:00:00,350 --> 00:00:02,470
-Gaziemir’de evler ormanla iç içe.
+00:00:00,350 --> 00:00:03,491
+GeoGözcü, orman yangını riskini yangın çıkmadan önce
 
 2
-00:00:02,510 --> 00:00:06,360
-Büyük bir yangın, çoğu zaman tek bir kıvılcımla başlar.
+00:00:03,531 --> 00:00:06,840
+görmek için kurulmuş bir vatandaş bilimi haritası.
 
 3
-00:00:07,010 --> 00:00:10,718
-GeoGözcü, EGEV 100. Yıl Lisesi öğrencilerinin geliştirdiği
+00:00:07,490 --> 00:00:11,331
+Ana sayfadaki canlı gösterge, haritadaki yangın bildirimlerinin
 
 4
-00:00:10,758 --> 00:00:12,592
-bir vatandaş bilimi haritası.
+00:00:11,371 --> 00:00:13,900
+ortanca risk puanını anında gösterir.
 
 5
-00:00:12,632 --> 00:00:15,305
-Gönüllüler, gördükleri riski fotoğraflayıp
+00:00:14,550 --> 00:00:18,665
+Haritada her nokta, bir gönüllünün sahada fotoğrafladığı bir risk.
 
 6
-00:00:15,345 --> 00:00:17,340
-konumuyla haritaya ekliyor.
+00:00:18,705 --> 00:00:22,480
+Kümeler, riskin hangi mahallelerde biriktiğini gösterir.
 
 7
-00:00:17,990 --> 00:00:20,399
-Haritadaki her nokta bir saha gözlemi.
+00:00:23,550 --> 00:00:27,395
+Risk türleri anahtarı ve ölçüm araçları tek dokunuşla açılır;
 
 8
-00:00:20,439 --> 00:00:23,943
-Renk risk türünü, pinin koyuluğu risk puanını gösterir;
+00:00:27,435 --> 00:00:30,360
+mesafe, alan ve koordinat kolayca ölçülür.
 
 9
-00:00:23,983 --> 00:00:27,520
-kümeler, riskin biriktiği mahalleleri ortaya koyar.
+00:00:32,550 --> 00:00:35,304
+Her gözlemin 0–100 arası bir risk puanı var.
 
 10
-00:00:28,170 --> 00:00:31,330
-Her bildirim aynı sorularla 0–100 arası puanlanır.
+00:00:35,344 --> 00:00:38,960
+Oradan geçenler, sorunun düzelip düzelmediğini oylar.
 
 11
-00:00:31,370 --> 00:00:35,140
-Oradan geçenler de sorunun düzelip düzelmediğini oylar.
+00:00:39,610 --> 00:00:42,861
+Bildirim listesinde kayıtlar; türüne, risk puanına
 
 12
-00:00:36,170 --> 00:00:39,123
-Veriler proje sayfasında grafiklerle özetlenir;
+00:00:42,901 --> 00:00:45,060
+ve tarihine göre süzülebilir.
 
 13
-00:00:39,163 --> 00:00:42,660
-en çok katkı verenler liderlik tablosunda yer alır.
+00:00:45,710 --> 00:00:48,012
+Katılmak için kısa bir kayıt yeterli.
 
 14
-00:00:43,310 --> 00:00:44,813
-Mahalleni sen koru.
+00:00:48,052 --> 00:00:51,720
+Her gönüllünün kendi profili, puanı ve rozetleri olur.
 
 15
-00:00:44,853 --> 00:00:48,840
+00:00:52,710 --> 00:00:56,480
+En çok katkı veren gönüllüler, liderlik tablosunda öne çıkar.
+
+16
+00:00:57,710 --> 00:01:00,161
+Proje sayfasında yöntemi, canlı bulguları
+
+17
+00:01:00,201 --> 00:01:02,760
+ve indirilebilir veri setini bulursun.
+
+18
+00:01:03,710 --> 00:01:05,143
+Mahalleni sen koru.
+
+19
+00:01:05,183 --> 00:01:09,000
 GeoGözcü — yangını, çıkmadan önce görmek için.

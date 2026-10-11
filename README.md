@@ -4,6 +4,11 @@ Canlı site: **https://geogozcu.pages.dev**
 
 ---
 
+## SÜRÜM 44 — yeni tanıtım videosu (11 Ekim 2026)
+- 69 sn, yalnız sitenin gerçek kaydı (yeni arayüz), açılış klibi yok. 10 sahne: ana sayfa → canlı gösterge → harita/kümeler → risk türleri + canlı mesafe ölçümü → gözlem ayrıntısı (puan, oylama) → liste filtreleri → giriş ekranı → liderlik → proje → kapanış.
+- Anlatım: Ayarlar'daki turla aynı sakin erkek ses (araclar/video/ses2/); anlatımda ve altyazıda yer adı yok. -16 LUFS.
+- Üretim: araclar/tanitim.js (kayit / birlestir).
+
 ## SÜRÜM 43 — harita kontrolleri sadeleşti (11 Ekim 2026)
 - **Araç sütunu:** yalnız Ara, Konumum ve "Araçlar" (cetvel). Masaüstünde Araçlar'ın üstüne gelince sola doğru büyüyen hap açılır (Yakınımdakiler, Mesafe, Alan, Koordinat); fare çekilince küçülür; tıklama ve klavye odağıyla da açılır, Esc kapatır. Telefonda dokununca açıklamalı menü.
 - **Sol üst:** yakınlaştırma (− +) ve ikonlu Gaziemir / İzmir aynı satırda iki hap.
