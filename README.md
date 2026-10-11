@@ -4,6 +4,13 @@ Canlı site: **https://geogozcu.pages.dev**
 
 ---
 
+## SÜRÜM 45 — güvenlik sıkılaştırma (11 Ekim 2026)
+- **N+1 sorgu:** gözlem gönderirken fotoğraflar artık sırayla değil aynı anda yüklenir; Excel/CSV içe aktarma satır satır değil 50'lik toplu ekleme yapar (hatalı partide yalnız o satırlar tek tek denenir). Diğer tüm listeler zaten tek sorgu (vote_counts, admin_observer_names, leaderboard RPC'leri; bildirimler + okundu bilgisi paralel).
+- **Oturum jetonu:** “Beni hatırla” artık varsayılan KAPALI → jeton sessionStorage'da, tarayıcı kapanınca biter. Açıkken localStorage'da en çok 30 gün. Statik sitede httpOnly çerez kullanılamadığı için asıl koruma XSS'i engellemek: sıkı **Content-Security-Policy** (yalnız kendi betikleri; satır içi betik/olay yok — açılış betiği splash.js'e taşındı), `frame-ancestors 'none'`, `object-src 'none'`.
+- **Yönetici denetimi sunucuda:** arayüzdeki `is_admin` yalnız menü göstermek için. Her yönetici işlemi veritabanında RLS kuralları + `is_admin()` ile, SECURITY DEFINER fonksiyonlarda içeride, edge function'larda (admin-user, resolve-maps) sunucuda doğrulanır. Kullanıcı kendi profilini yalnız `update_my_profile` ile değiştirebilir (is_admin alanına erişemez).
+- **Giriş sınırı:** aynı tarayıcıda 5 hatalı denemeden sonra 30 sn kilit, her yeni hatada ikiye katlanır (en çok 15 dk). Sunucuda Supabase Auth IP başına istek sınırı uygular; oturumsuz çağrılabilen `ban_lookup` için IP başına 10 dk/10 sorgu sınırı (guncelleme15.sql, `rpc_throttle` tablosu).
+- **Session replay / takip yok:** sitede analitik, reklam, oturum kaydı ya da takip çerezi yok; CSP bunu zorunlu kılar. Ek başlıklar: HSTS, X-Frame-Options DENY, COOP, Permissions-Policy (mikrofon, ödeme, FLoC/Topics kapalı). Gizlilik politikasına “Takip ve güvenlik” bölümü eklendi.
+
 ## SÜRÜM 44 — yeni tanıtım videosu (11 Ekim 2026)
 - 69 sn, yalnız sitenin gerçek kaydı (yeni arayüz), açılış klibi yok. 10 sahne: ana sayfa → canlı gösterge → harita/kümeler → risk türleri + canlı mesafe ölçümü → gözlem ayrıntısı (puan, oylama) → liste filtreleri → giriş ekranı → liderlik → proje → kapanış.
 - Anlatım: Ayarlar'daki turla aynı sakin erkek ses (araclar/video/ses2/); anlatımda ve altyazıda yer adı yok. -16 LUFS.

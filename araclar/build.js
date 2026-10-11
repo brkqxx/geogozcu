@@ -7,9 +7,9 @@ for (const css of ['vendor/leaflet.css', 'vendor/markercluster.css']) {
   h = h.replace(new RegExp('<link rel="stylesheet" href="' + esc(css) + '">'), () => '<style>\n' + f.readFileSync(css, 'utf8') + '\n</style>');
 }
 h = h.replace(/<link rel="stylesheet" href="style\.css(\?v=\d+)?">/, () => '<style>\n' + f.readFileSync('style.css', 'utf8') + '</style>');
-for (const js of ['vendor/leaflet.js', 'vendor/markercluster.js', 'vendor/supabase.js', 'config.js', 'sinirlar.js', 'harita-araclari.js', 'app.js', 'vendor/gsap.min.js', 'vendor/ScrollTrigger.min.js', 'vendor/SplitText.min.js', 'sinema.js']) {
+for (const js of ['splash.js', 'vendor/leaflet.js', 'vendor/markercluster.js', 'vendor/supabase.js', 'config.js', 'sinirlar.js', 'harita-araclari.js', 'app.js', 'vendor/gsap.min.js', 'vendor/ScrollTrigger.min.js', 'vendor/SplitText.min.js', 'sinema.js']) {
   h = h.replace(new RegExp('<script src="' + esc(js) + '(\\?v=\\d+)?"><\\/script>'), () => '<script>\n' + inline(js) + '\n</script>');
 }
-if (/href="(style\.css|vendor\/)|src="(vendor\/|app|config|sinirlar|harita-araclari|sinema)/.test(h)) throw new Error('not inlined');
+if (/href="(style\.css|vendor\/)|src="(vendor\/|app|config|sinirlar|harita-araclari|sinema|splash)/.test(h)) throw new Error('not inlined');
 f.writeFileSync('site-tek-dosya.html', h);
 console.log('site-tek-dosya.html', h.length);

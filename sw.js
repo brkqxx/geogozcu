@@ -2,7 +2,7 @@
 // - Sayfanın kendisi (index.html): önce ağ; ağ 4 sn'de cevap vermezse önbellekteki sürüm açılır.
 // - Sürüm numaralı dosyalar (app.js?v=…) ve vendor/ kütüphaneleri: önce önbellek (adı değişince yenisi indirilir).
 // - Supabase, harita karoları gibi başka sunuculara giden istekler hiç önbelleğe alınmaz.
-const CACHE = 'risk-haritasi-v44';
+const CACHE = 'risk-haritasi-v45';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'vendor/leaflet.js', 'vendor/leaflet.css', 'vendor/markercluster.js',
   'vendor/markercluster.css', 'vendor/supabase.js', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 const NAV_TIMEOUT = 4000;

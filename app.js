@@ -357,7 +357,17 @@
   // "Beni hatırla": açıksa oturum kalıcı (localStorage), kapalıysa tarayıcı kapanınca biter (sessionStorage)
   const REMEMBER_KEY = 'gyrh-remember';
   const safe = (fn, fb) => { try { return fn(); } catch (_) { return fb; } };
-  const remembering = () => safe(() => localStorage.getItem(REMEMBER_KEY) !== 'no', true);
+  // Varsayılan: hatırlama KAPALI (okul / ortak bilgisayarlarda oturum açık kalmasın). Açıkken bile en çok 30 gün sürer.
+  const REMEMBER_AT = 'gyrh-remember-at', REMEMBER_MAX = 30 * 24 * 3600e3;
+  const remembering = () => safe(() => localStorage.getItem(REMEMBER_KEY) === 'yes', false);
+  safe(() => {
+    const at = Number(localStorage.getItem(REMEMBER_AT) || 0);
+    if (remembering() && !at) localStorage.setItem(REMEMBER_AT, String(Date.now()));
+    if (remembering() && at && Date.now() - at > REMEMBER_MAX) {
+      Object.keys(localStorage).filter((k) => /^sb-.*-auth-token/.test(k)).forEach((k) => localStorage.removeItem(k));
+      localStorage.removeItem(REMEMBER_AT);
+    }
+  });
   const authStorage = {
     getItem: (k) => safe(() => sessionStorage.getItem(k) ?? localStorage.getItem(k), null),
     setItem: (k, v) => safe(() => {
@@ -1381,14 +1391,19 @@
     const btn = $('#btn-send'); btn.disabled = true; btn.textContent = 'Gönderiliyor…';
     const uploaded = [];
     try {
-      for (const [i, s] of shots.entries()) {
-        btn.textContent = 'Fotoğraf yükleniyor ' + (i + 1) + '/' + shots.length + '…';
+      // fotoğraflar tek tek sırayla değil, aynı anda yüklenir (N+1 bekleme yok); sıra korunur
+      let done = 0;
+      btn.textContent = 'Fotoğraf yükleniyor 0/' + shots.length + '…';
+      const paths = await Promise.all(shots.map(async (s) => {
         const img = await compress(s.file);
         const path = session.user.id + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + img.ext;
         const up = await sb.storage.from(BUCKET).upload(path, img.blob, { contentType: img.type });
         if (up.error) throw up.error;
         uploaded.push(path);
-      }
+        btn.textContent = 'Fotoğraf yükleniyor ' + (++done) + '/' + shots.length + '…';
+        return path;
+      }));
+      uploaded.length = 0; uploaded.push(...paths);
       btn.textContent = 'Kaydediliyor…';
       const riskScore = scoreOf(d).score, sentCat = formCat;
       const ins = await sb.from('reports').insert({
@@ -2158,6 +2173,25 @@
     const t = setInterval(() => { left--; btn.textContent = 'Tekrar göndermek için ' + left + ' sn'; if (left <= 0) { clearInterval(t); btn.disabled = false; btn.textContent = 'Maili tekrar gönder'; } }, 1000);
   }
 
+  // Giriş denemesi sınırı (kaba kuvvet / şifre deneme koruması). Sunucu tarafında Supabase Auth da IP başına
+  // istek sınırı uygular; bu katman aynı tarayıcıdan art arda yanlış şifre denemelerini kademeli olarak yavaşlatır:
+  // 5 hatalı denemeden sonra 30 sn, sonra her hatada süre ikiye katlanır (en çok 15 dk). Başarılı girişte sıfırlanır.
+  const LOGIN_RL_KEY = 'gg-login-rl';
+  const loginRl = {
+    read() { return safe(() => JSON.parse(localStorage.getItem(LOGIN_RL_KEY) || '{}'), {}) || {}; },
+    write(v) { safe(() => localStorage.setItem(LOGIN_RL_KEY, JSON.stringify(v))); },
+    waitMs() { const v = this.read(); return Math.max(0, (v.until || 0) - Date.now()); },
+    fail() {
+      const v = this.read(), now = Date.now();
+      if (!v.first || now - v.first > 15 * 60e3) { v.first = now; v.n = 0; }
+      v.n = (v.n || 0) + 1;
+      if (v.n >= 5) v.until = now + Math.min(15 * 60e3, 30e3 * Math.pow(2, v.n - 5));
+      this.write(v);
+    },
+    reset() { safe(() => localStorage.removeItem(LOGIN_RL_KEY)); },
+  };
+  const waitText = (ms) => { const sn = Math.ceil(ms / 1000); return sn >= 60 ? Math.ceil(sn / 60) + ' dakika' : sn + ' saniye'; };
+
   async function onLogin(e) {
     e.preventDefault();
     if (!sb) return setMsg('#login-msg', 'Site henüz Supabase’e bağlanmadı (config.js).');
@@ -2165,9 +2199,12 @@
     const email = $('#l-mail').value.trim();
     if (!/^\S+@\S+\.\S+$/.test(email)) return setMsg('#login-msg', 'Geçerli bir e-posta yaz.');
     if (!$('#l-pass').value) return setMsg('#login-msg', 'Şifreni yaz.');
+    const lockMs = loginRl.waitMs();
+    if (lockMs) return setMsg('#login-msg', 'Çok fazla hatalı deneme yapıldı. Güvenliğin için ' + waitText(lockMs) + ' sonra tekrar dene.');
     try {
       localStorage.setItem('gyrh-last-mail', email);
       localStorage.setItem(REMEMBER_KEY, $('#l-remember').checked ? 'yes' : 'no');
+      if ($('#l-remember').checked) localStorage.setItem(REMEMBER_AT, String(Date.now())); else localStorage.removeItem(REMEMBER_AT);
     } catch (_) { /* yok say */ }
     loginMethod = 'Şifre ile' + ($('#l-remember').checked ? ' · beni hatırla' : '');
     const { error } = await withBusy(sb.auth.signInWithPassword({ email, password: $('#l-pass').value }));
@@ -2185,9 +2222,15 @@
         return setMsg('#login-msg', 'Bu hesap askıya alınmış.');
       }
       // ağ hatası / çok deneme gibi durumlar "şifre hatalı" diye gösterilmesin
+      if (/invalid.*credentials|invalid login/i.test(error.message)) {
+        loginRl.fail();
+        const w = loginRl.waitMs();
+        if (w) return setMsg('#login-msg', 'E-posta veya şifre hatalı. Çok fazla hatalı deneme yapıldığı için giriş ' + waitText(w) + ' kilitlendi.');
+      }
       if (/invalid.*credentials|invalid login/i.test(error.message)) return setMsg('#login-msg', 'E-posta veya şifre hatalı. Şifreni unuttuysan “Şifremi unuttum”a bas.');
       return setMsg('#login-msg', authErrTr(error));
     }
+    loginRl.reset();
     afterLogin();
   }
 
@@ -2428,11 +2471,12 @@
     if (!ok.length) return toast('Eklenecek hazır satır yok.');
     if (!confirm(ok.length + ' gözlem haritaya eklensin mi? Gözlemci adları maskeli görünecek.')) return;
     imp.busy = true; renderImport();
+    // satır satır değil, 50'lik toplu ekleme (N+1 yok); bir parti hata verirse yalnız o partideki satırlar tek tek denenir
     let n = 0;
-    for (const r of ok) {
+    const rowOf = (r) => {
       const pl = r.place || {};
       const adminNote = 'İçe aktarıldı: ' + imp.file + ', satır ' + r.line + (r.photo ? '\nÖzgün fotoğraf: ' + r.photo : '');
-      const { error } = await sb.from('reports').insert({
+      return {
         observer_name: r.observer || 'Saha ekibi',
         observed_at: (r.date || new Date()).toISOString(),
         lat: r.lat, lng: r.lng, district: pl.district || null, neighborhood: pl.hood || null,
@@ -2441,8 +2485,18 @@
         category: imp.cat, subcategory: imp.sub, categories: derivedCats({ cat: imp.cat, checks: r.checks }),
         vegetation: r.veg, access_score: r.acc, risks: r.checks, risk_score: impScore(r),
         notes: r.notes || null, admin_note: adminNote, source: 'import', source_ref: r.ref,
-      });
-      if (error) { r.state = 'err'; r.err = error.message; } else { r.state = 'done'; n++; }
+      };
+    };
+    for (let k = 0; k < ok.length; k += 50) {
+      const part = ok.slice(k, k + 50);
+      const { error } = await sb.from('reports').insert(part.map(rowOf));
+      if (!error) { part.forEach((r) => { r.state = 'done'; }); n += part.length; }
+      else {
+        for (const r of part) {
+          const { error: e1 } = await sb.from('reports').insert(rowOf(r));
+          if (e1) { r.state = 'err'; r.err = e1.message; } else { r.state = 'done'; n++; }
+        }
+      }
       const e = $('#imp-prog'); if (e) e.textContent = 'Ekleniyor… ' + n + '/' + ok.length;
     }
     imp.busy = false;
@@ -3835,7 +3889,7 @@
   }
 
   /* =================== GİZLİLİK VE KOŞULLAR =================== */
-  const LEGAL_DATE = '3 Ekim 2026';
+  const LEGAL_DATE = '11 Ekim 2026';
   const contact = () => cfg.CONTACT_EMAIL ? '<a href="mailto:' + esc(cfg.CONTACT_EMAIL) + '">' + esc(cfg.CONTACT_EMAIL) + '</a>' : 'EGEV 100. Yıl Lisesi proje ekibi (okul yönetimi aracılığıyla)';
   const LEGAL = {
     gizlilik: ['Gizlilik Politikası', () => `
@@ -3846,6 +3900,7 @@
       <ul><li><b>Görünür:</b> kullanıcı adın, avatarın, rozetlerin, puanın, yayındaki bildirimlerin (fotoğraf, konum, anket cevapları, notlar).</li>
       <li><b>Gizlenir:</b> gözlemci ad-soyadın herkese <b>“B---r U---l”</b> gibi maskeli gösterilir; gerçek adı sadece yöneticiler görür. E-posta adresin hiçbir kullanıcıya gösterilmez.</li>
       <li><b>Sadece sana ve yöneticilere:</b> giriş kayıtların, cihaz listen, gönderdiğin şikâyetler.</li></ul>
+      <h3>Takip ve güvenlik</h3><ul><li><b>Oturum kaydı (session replay), reklam, analitik ya da takip çerezi yoktur.</b> Sitede hiçbir üçüncü taraf izleme betiği çalışmaz; fare hareketlerin, tıklamaların ve yazdıkların kaydedilmez. Bunu sunucunun içerik güvenlik politikası da (CSP) zorunlu kılar: site yalnızca kendi dosyalarını ve harita/veritabanı sunucularını yükleyebilir.</li><li><b>Oturum:</b> “Beni hatırla” kapalıyken oturum tarayıcıyı kapatınca biter (sessionStorage); açıkken en çok 30 gün sürer. Ortak bilgisayarda kapalı bırak.</li><li><b>Şifre:</b> şifren bizde açık hâliyle saklanmaz; doğrulamayı Supabase Auth yapar. Art arda hatalı girişlerde giriş geçici olarak kilitlenir.</li><li><b>Yetki:</b> yönetici işlemleri tarayıcıda değil, veritabanında (satır düzeyi güvenlik kuralları) denetlenir.</li></ul>
       <h3>Haklarında</h3><p>6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) m.11 kapsamında; verilerinin işlenip işlenmediğini öğrenme, bilgi isteme, düzeltilmesini veya silinmesini isteme ve itiraz etme hakkın vardır. Hesabını ve tüm bildirimlerini <b>Ayarlar → Hesabı sil</b> ile istediğin an kalıcı olarak silebilirsin. Diğer talepler için: ${contact()}.</p>
       <h3>Çocuklar</h3><p>Site öğrencilere yöneliktir. 13 yaşından küçükler veli izniyle kullanmalıdır. Konum ve fotoğraf paylaşırken kendi güvenliğini ve başkalarının mahremiyetini koru.</p>
       <p class="muted small">Bu metin bir okul projesi için hazırlanmış bilgilendirme metnidir; hukuki danışmanlık yerine geçmez.</p>`],

@@ -17,10 +17,10 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231F4D3A'/%3E%3Cpath d='M16 6c1.5 4 5 6 5 11a5 5 0 0 1-10 0c0-2.5 1.2-4 2.5-5 0 2.5 1 3 1 3 0-4 0-6 1.5-9z' fill='%23fff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Poppins:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Poppins:wght@300;400;500;600&display=swap" media="print" data-font>
 <link rel="stylesheet" href="vendor/leaflet.css">
 <link rel="stylesheet" href="vendor/markercluster.css">
-<link rel="stylesheet" href="style.css?v=44">
+<link rel="stylesheet" href="style.css?v=45">
 </head>
 <body>
 
@@ -31,19 +31,10 @@
   <div class="splash-bar"><i></i></div>
   <div class="splash-fail" id="splash-fail" hidden>
     <p>Site açılamadı. Bağlantın yavaş ya da kesik olabilir.</p>
-    <button type="button" onclick="location.reload()">Yeniden dene</button>
+    <button type="button" id="splash-retry">Yeniden dene</button>
   </div>
 </div>
-<script>
-  // Uygulama 12 saniyede açılmazsa açılış ekranında yeniden deneme seçeneği çıkar
-  setTimeout(function () {
-    var s = document.getElementById('splash');
-    if (s && !s.classList.contains('out')) {
-      var f = document.getElementById('splash-fail'); if (f) f.hidden = false;
-      var m = document.getElementById('splash-msg'); if (m) m.textContent = !window.L ? 'Harita kütüphanesi yüklenemedi.' : !window.supabase ? 'Sunucu bağlantısı kurulamadı.' : 'Açılış beklenenden uzun sürdü.';
-    }
-  }, 12000);
-</script>
+<script src="splash.js?v=45"></script>
 <div id="topbar" aria-hidden="true"><i></i></div>
 
 <header class="top">
@@ -233,9 +224,9 @@
   <section id="view-home" class="view page home" hidden>
     <div class="home-hero hx">
       <div class="hero-film" aria-hidden="true">
-        <video id="hero-video" muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=44" disablepictureinpicture>
-          <source src="media/hero.webm?v=44" type="video/webm">
-          <source src="media/hero.mp4?v=44" type="video/mp4">
+        <video id="hero-video" muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=45" disablepictureinpicture>
+          <source src="media/hero.webm?v=45" type="video/webm">
+          <source src="media/hero.mp4?v=45" type="video/mp4">
         </video>
       </div>
       <div class="hx-shade" aria-hidden="true"><i class="h"></i><i class="v"></i><i class="r"></i></div>
@@ -276,8 +267,8 @@
 
     <section class="gd-wrap" id="rehber" aria-labelledby="gd-h">
       <header class="gd-head"><span class="mono-k">TANITIM · 1 DAKİKA</span><h2 id="gd-h">Bir kıvılcımdan önce.</h2><p>GeoGözcü'nün sahadan haritaya nasıl çalıştığını izle: sitenin gerçek kaydı, Türkçe anlatım ve altyazıyla.</p></header>
-      <video class="pv" controls preload="none" playsinline width="1920" height="1080" poster="media/tanitim-kapak.jpg?v=44" aria-describedby="hm-pv-not">
-        <source src="media/tanitim.mp4?v=44" type="video/mp4">
+      <video class="pv" controls preload="none" playsinline width="1920" height="1080" poster="media/tanitim-kapak.jpg?v=45" aria-describedby="hm-pv-not">
+        <source src="media/tanitim.mp4?v=45" type="video/mp4">
         Tarayıcın videoyu oynatamıyor. <a href="media/tanitim.mp4" download>Videoyu indir (MP4)</a>.
       </video>
       <p class="small muted pv-not" id="hm-pv-not">Tüm görüntüler bu sitenin gerçek kaydıdır. <a href="media/tanitim.mp4" download="GeoGozcu-tanitim.mp4">MP4 indir</a></p>
@@ -637,7 +628,7 @@
   <!-- KAYIT / GİRİŞ -->
   <section id="view-auth" class="view auth" hidden>
     <div class="auth-side">
-      <div class="auth-film" aria-hidden="true"><video data-film muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=44" disablepictureinpicture><source src="media/hero.webm?v=44" type="video/webm"><source src="media/hero.mp4?v=44" type="video/mp4"></video><i></i></div>
+      <div class="auth-film" aria-hidden="true"><video data-film muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=45" disablepictureinpicture><source src="media/hero.webm?v=45" type="video/webm"><source src="media/hero.mp4?v=45" type="video/mp4"></video><i></i></div>
       <div class="brand"><span class="logo" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-2 1-3 2-4 0 2 1 2 1 2 0-3 0-5 1-7z"/></svg></span><span class="brand-name" data-appname>GeoGözcü</span></div>
       <div class="about">
         <span class="kicker reveal">Küresel sorun · Yerel çözüm</span>
@@ -736,7 +727,7 @@
           <div class="row-between"><label for="l-pass">Şifre</label><button type="button" class="linkish small" id="btn-forgot2">Unuttum</button></div>
           <div class="pass"><input id="l-pass" type="password" autocomplete="current-password" required><button type="button" class="eye" data-eye="l-pass" aria-label="Şifreyi göster">👁</button></div>
           <p class="caps small" id="caps" hidden>Caps Lock açık</p>
-          <label class="switch"><input type="checkbox" id="l-remember" checked><span></span>Beni hatırla</label>
+          <label class="switch" title="Kendi cihazında aç. Ortak / okul bilgisayarında kapalı bırak; oturum tarayıcı kapanınca biter."><input type="checkbox" id="l-remember"><span></span>Beni hatırla</label>
           <p class="muted small remember-help">Kapalıysa tarayıcıyı kapattığında oturumun kapanır. Ortak bilgisayarlarda kapat.</p>
           <p class="msg" id="login-msg" role="alert" hidden></p>
           <button class="btn green big" type="submit">Giriş yap</button>
@@ -813,7 +804,7 @@
       <h2>Tanıtım videosu</h2>
       <div>
         <video class="pv" controls preload="none" playsinline width="1920" height="1080" poster="media/tanitim-kapak.jpg" aria-describedby="pv-not">
-          <source src="media/tanitim.mp4?v=44" type="video/mp4">
+          <source src="media/tanitim.mp4?v=45" type="video/mp4">
           Tarayıcın videoyu oynatamıyor. <a href="media/tanitim.mp4" download>Videoyu indir (MP4)</a>.
         </video>
         <p class="small muted pv-not" id="pv-not">1 dk · Türkçe anlatımlı ve altyazılı. Tüm görüntüler bu sitenin gerçek kaydıdır.
@@ -888,6 +879,7 @@
       <h2>Gizlilik ve etik</h2>
       <div>
         <p>Haritada gözlemci adları kısaltılmış (ör. “A---i K---a”) gösterilir; gerçek adları yalnızca yöneticiler görür. Gönüllülerden yüz ve plaka içeren fotoğraf çekmemeleri istenir. Harita aktif yangınları göstermez ve resmi kurumlara otomatik bildirim yapmaz; acil durumlarda 112 aranmalıdır.</p>
+        <p>Sitede analitik, reklam, oturum kaydı (session replay) ya da takip çerezi yoktur. Yönetici yetkileri tarayıcıda değil veritabanında denetlenir; art arda hatalı girişler geçici olarak kilitlenir.</p>
         <p><button type="button" class="linkish" data-legal="privacy">Gizlilik politikası</button> · <button type="button" class="linkish" data-legal="data">Verilerin kullanımı</button></p>
       </div>
     </section>
@@ -1194,13 +1186,13 @@
 <script src="vendor/leaflet.js"></script>
 <script src="vendor/markercluster.js"></script>
 <script src="vendor/supabase.js"></script>
-<script src="config.js?v=44"></script>
-<script src="sinirlar.js?v=44"></script>
-<script src="harita-araclari.js?v=44"></script>
-  <script src="app.js?v=44"></script>
+<script src="config.js?v=45"></script>
+<script src="sinirlar.js?v=45"></script>
+<script src="harita-araclari.js?v=45"></script>
+  <script src="app.js?v=45"></script>
 <script src="vendor/gsap.min.js"></script>
 <script src="vendor/ScrollTrigger.min.js"></script>
 <script src="vendor/SplitText.min.js"></script>
-<script src="sinema.js?v=44"></script>
+<script src="sinema.js?v=45"></script>
 </body>
 </html>

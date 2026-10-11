@@ -7,6 +7,7 @@ site-tek-dosya.html
 # yerel test sayfaları ve araç izleri
 test-live.html
 test-harness.html
+test-csp.html
 .playwright-cli/
 .claude/settings.local.json
 
