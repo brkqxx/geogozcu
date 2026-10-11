@@ -365,7 +365,7 @@
       const top = $('.top');
       t.from($('.brand', top), { opacity: 0, duration: 0.5, ease: 'power4.out' }, 0)
         .from($('.nav', top) || [], { opacity: 0, y: -d(8), duration: 0.7 }, 0.12)
-        .from($$('.nav > *', top), { opacity: 0, y: -d(4), duration: 0.6, stagger: 0.045 }, 0.26)
+        .from($$('.nav > :not(.nav-ind)', top), { opacity: 0, y: -d(4), duration: 0.6, stagger: 0.045 }, 0.26)
         .from($$('.top .icon-btn'), { opacity: 0, y: -d(8), duration: 0.7 }, 0.2)
         .from($('.hx-brand', hero), { opacity: 0, y: d(10), duration: 0.65 }, 0.3)
         .from($$('.hx-ln > span', hero), { yPercent: 115, duration: 1.05, stagger: 0.09 }, 0.38)
@@ -664,19 +664,105 @@
     run().catch(() => { /* kullanıcı turu kesti */ });
   }
 
-  // ilk ziyarette küçük davet (tur kendiliğinden başlamaz: ses için kullanıcı dokunuşu gerekir)
-  function tourInvite() {
-    let seen = false; try { seen = !!localStorage.getItem(TOUR_SEEN); } catch (e) { seen = true; }
-    if (seen || tour || root.dataset.route !== 'ana' || $('.gtour-invite')) return;
+  // Tur daveti: yalnız YENİ HESAPLARA, ilk girişte sorulur (app.js → startOnboarding(true)).
+  // Tur kendiliğinden başlamaz: ses için kullanıcı dokunuşu gerekir. Ayarlar → "Turu tekrar izle" doğrudan başlatır.
+  function inviteTour(opt) {
+    opt = opt || {};
+    if (tour || $('.gtour-invite')) return;
     const box = document.createElement('div');
     box.className = 'gtour-invite';
     box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Tanıtım turu');
-    box.innerHTML = '<b>GeoGözcü’yü 1 dakikada tanı</b><span>Sesli, altyazılı kısa tur: harita, gözlemler, bildirim, liderlik tablosu.</span>' +
-      '<div><button type="button" class="btn fire sm" data-tour>Turu başlat</button><button type="button" class="gtour-later">Şimdi değil</button></div>';
+    box.innerHTML = '<b>Hoş geldin! GeoGözcü’yü 1 dakikada tanı</b><span>Sesli, altyazılı kısa tur: harita, gözlemler, bildirim, liderlik tablosu. İstediğin zaman Ayarlar’dan yeniden izleyebilirsin.</span>' +
+      '<div><button type="button" class="btn fire sm gtour-go">Turu başlat</button><button type="button" class="gtour-later">Şimdi değil</button></div>';
     document.body.appendChild(box);
-    if (!calm()) g.from(box, { y: 24, opacity: 0, duration: 0.7, ease: 'power3.out', delay: 1.2 });
-    $('.gtour-later', box).addEventListener('click', () => { try { localStorage.setItem(TOUR_SEEN, '1'); } catch (e) {} box.remove(); });
-    addEventListener('hashchange', () => { if (root.dataset.route !== 'ana') box.remove(); }, { once: true });
+    if (!calm()) g.from(box, { y: 24, opacity: 0, duration: 0.7, ease: 'expo.out', clearProps: 'all' });
+    $('.gtour-go', box).focus({ preventScroll: true });
+    $('.gtour-go', box).addEventListener('click', () => { box.remove(); startTour(opt); });
+    $('.gtour-later', box).addEventListener('click', () => {
+      try { localStorage.setItem(TOUR_SEEN, '1'); } catch (e) {}
+      box.remove();
+      if (typeof opt.onEnd === 'function') { try { opt.onEnd(false); } catch (e) {} }
+    });
+  }
+
+  /* =================== SAYFA HAREKETİ (geçiş, başlık açılışı, menü göstergesi) =================== */
+  const EXPO = 'expo.out', REVEAL = 'cubic-bezier(0.16,1,0.3,1)', SOFT = 'cubic-bezier(0.25,0.8,0.3,1)';
+  // görünen sayfa: üst bileşenler sırayla hafifçe yükselir (harita yalnız solar: Leaflet boyutu bozulmasın)
+  function pageIn(view) {
+    if (!view || calm()) return;
+    if (view.id === 'view-map') { g.fromTo(view, { opacity: 0 }, { opacity: 1, duration: 0.35, ease: 'power1.out', clearProps: 'opacity' }); return; }
+    if (view.id === 'view-home' || view.id === 'view-auth') return; // kendi giriş animasyonları var
+    const kids = [...view.children].filter((el) => { const p = getComputedStyle(el).position; return p !== 'fixed' && p !== 'sticky' && el.offsetHeight; }).slice(0, 6);
+    g.fromTo(kids, { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.05, ease: EXPO, clearProps: 'opacity,transform' });
+    const h1 = $('h1', view);
+    // data-split başlıkları app.js kelime kelime açar; çakışmasın diye onlara dokunulmaz
+    if (h1 && window.SplitText && !h1.hasAttribute('data-split') && !h1.dataset.gsSplit) {
+      h1.dataset.gsSplit = '1';
+      SplitText.create(h1, { type: 'lines', mask: 'lines', autoSplit: true, onSplit: (self) => g.from(self.lines, { yPercent: 105, duration: 0.9, stagger: 0.08, ease: REVEAL }) });
+    }
+  }
+  // menü hapında etkin sayfanın altında kayan gösterge
+  function navIndicator() {
+    const nav = $('.top .nav'); if (!nav || root.dataset.ui === 'mobile') return;
+    let ind = $('.nav-ind', nav);
+    if (!ind) { ind = document.createElement('span'); ind.className = 'nav-ind'; ind.setAttribute('aria-hidden', 'true'); nav.prepend(ind); }
+    const a = $('a.active', nav);
+    if (!a || a.offsetParent === null) { g.to(ind, { opacity: 0, duration: 0.2 }); return; }
+    const x = a.offsetLeft - 12, w = a.offsetWidth + 24;
+    if (calm() || !+ind.style.opacity) g.set(ind, { x, width: w });
+    g.to(ind, { x, width: w, opacity: 1, duration: 0.55, ease: EXPO });
+  }
+  // film arka planları (giriş sayfası vb.): yalnız görünen sayfada, az hareket / veri tasarrufu yoksa oynar
+  function films() {
+    const saveData = navigator.connection && navigator.connection.saveData;
+    $$('video[data-film]').forEach((v) => {
+      const on = !calm() && !saveData && !document.hidden && v.closest('.view:not([hidden])');
+      v.muted = true; v.playsInline = true;
+      if (on) { if (v.preload !== 'auto') v.preload = 'auto'; const p = v.play(); if (p && p.catch) p.catch(() => {}); } else if (!v.paused) v.pause();
+    });
+  }
+  document.addEventListener('visibilitychange', films);
+  addEventListener('resize', () => { clearTimeout(navIndicator.t); navIndicator.t = setTimeout(navIndicator, 150); });
+
+  // giriş / kayıt sayfası girişi (motionsites "Sellix" dilinden): başlık satırları maskeden yükselir,
+  // açıklama bulanıklıktan netleşir, kartlar ve haplar hafif büyüyerek yerine oturur. Bitince satır içi stil kalmaz.
+  function authIntro() {
+    const v = $('#view-auth'); if (!v || calm()) return;
+    const side = $('.auth-side', v), box = $('.auth-box', v);
+    const t = g.timeline({ defaults: { ease: SOFT, clearProps: 'all' } });
+    const title = $('.auth-title', side);
+    if (title && window.SplitText && !title.hasAttribute('data-split')) {
+      if (!title.dataset.gsSplit) { title.dataset.gsSplit = '1'; SplitText.create(title, { type: 'lines', mask: 'lines', linesClass: 'al' }); }
+      t.from($$('.al', title), { yPercent: 105, duration: 1.05, stagger: 0.1, ease: REVEAL, clearProps: 'transform' }, 0.12);
+    }
+    t.from($('.kicker', side), { opacity: 0, y: 9, duration: 0.55 }, 0.05)
+      .from($('.auth-sub', side), { opacity: 0, y: 14, filter: 'blur(4px)', duration: 0.85, ease: REVEAL }, 0.5)
+      .from($$('.about-card', side), { opacity: 0, y: 16, scale: 0.97, duration: 0.7, stagger: 0.08, ease: REVEAL }, 0.66)
+      .from($$('.about-stats > div, .warn112', side), { opacity: 0, y: 10, duration: 0.6, stagger: 0.06 }, 0.9);
+    if (box) {
+      t.from($('.seg', box), { opacity: 0, y: 8, scale: 0.972, duration: 0.55 }, 0.3)
+        .from($$('form:not([hidden]) > *', box).slice(0, 12), { opacity: 0, y: 10, duration: 0.5, stagger: 0.035 }, 0.42);
+    }
+  }
+
+  // giriş başarılı olunca kısa perde: gece siyahı perde yükselir, "Hoş geldin" satırı maskeden çıkar, perde kalkar.
+  // Sayfa geçişi perde altında hemen olur; kullanıcı hiç bekletilmez (tıklama perdeyi anında kaldırır).
+  function welcome(name) {
+    if (calm() || !g) return;
+    const el = document.createElement('div');
+    el.className = 'gwelcome'; el.setAttribute('aria-hidden', 'true');
+    el.innerHTML = '<div class="gw-in"><span class="gw-logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-2 1-3 2-4 0 2 1 2 1 2 0-3 0-5 1-7z"/></svg></span>' +
+      '<p class="gw-t"><span>Hoş geldin' + (name ? ', <b></b>' : '') + '</span></p><p class="gw-s"><span>Gaziemir’in dijital yangın gözcüsü</span></p></div>';
+    if (name) $('.gw-t b', el).textContent = '@' + name;
+    document.body.appendChild(el);
+    const kill = () => { t.kill(); el.remove(); };
+    el.addEventListener('pointerdown', kill);
+    const t = g.timeline({ onComplete: () => el.remove() });
+    t.fromTo(el, { yPercent: 100 }, { yPercent: 0, duration: 0.55, ease: 'power3.inOut' })
+      .from($('.gw-logo', el), { scale: 0.6, opacity: 0, duration: 0.5, ease: REVEAL }, 0.35)
+      .from($('.gw-t span', el), { yPercent: 110, duration: 0.8, ease: REVEAL }, 0.42)
+      .from($('.gw-s span', el), { yPercent: 110, duration: 0.8, ease: REVEAL }, 0.52)
+      .to(el, { yPercent: -100, duration: 0.6, ease: 'power3.inOut' }, 1.55);
   }
   document.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('[data-tour]'); if (b) { e.preventDefault(); startTour(); } });
 
@@ -707,13 +793,15 @@
     const r = root.dataset.route;
     $$('[data-guide]').forEach((h) => { if (h._guide && !h.closest('.view:not([hidden])')) h._guide.pause(); });
     heroChrome();
-    if (root.dataset.route === 'ana') setTimeout(tourInvite, 1500);
+    films(); navIndicator();
     // tanıtım videoları: başka sayfaya geçilince dursun (gizli görünümde sesli çalmasın)
     $$('video.pv').forEach((v) => { if (!v.paused && !v.closest('.view:not([hidden])')) v.pause(); });
     if (calm()) { $$('[data-guide]').forEach((h) => { if (h.closest('.view:not([hidden])')) mountGuide(h); }); return; }
     setTimeout(() => {
       const view = $('.view:not([hidden])');
       if (r === 'ana') heroIntro();
+      if (r === 'giris') authIntro();
+      pageIn(view);
       marquee();
       $$('[data-guide]', view || document).forEach(mountGuide);
       reveals(view);
@@ -738,5 +826,5 @@
     onRoute();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
-  window.GGSinema = Object.assign(window.GGSinema || {}, { mountGuide, startTour });
+  window.GGSinema = Object.assign(window.GGSinema || {}, { mountGuide, startTour, inviteTour, welcome });
 })();

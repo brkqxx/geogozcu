@@ -2228,7 +2228,11 @@
   }
 
   let nextHash = null;
-  function afterLogin() { const go = nextHash || '#/harita'; nextHash = null; location.hash = go; }
+  function afterLogin() {
+    const go = nextHash || '#/harita'; nextHash = null;
+    if (window.GGSinema && window.GGSinema.welcome) window.GGSinema.welcome(profile && profile.username);
+    location.hash = go;
+  }
 
   /* =================== YÖNETİCİ: VERİ İÇE AKTAR =================== */
   // Proje öncesi toplanan saha gözlemlerini (Excel / CSV / GeoJSON) haritaya ekler.
@@ -3483,9 +3487,15 @@
       text: 'Şimdi sana uygulamanın önemli yerlerini tek tek göstereceğiz. Ardından <b>ilk görevlerini</b> tamamla: profilini düzenle, haritayı gez, ilk bildirimini yap.' },
   ];
   let wlIdx = 0;
-  function startOnboarding() {
-    // sinematik sesli tur (sinema.js) varsa onu aç; bitince ya da kesilince ilk görevler başlar
-    if (window.GGSinema && window.GGSinema.startTour && window.gsap) { show($('#install'), false); window.GGSinema.startTour({ onEnd: () => finishOnboarding() }); return; }
+  function startOnboarding(ask) {
+    // sinematik sesli tur (sinema.js) varsa onu aç; bitince ya da kesilince ilk görevler başlar.
+    // ask === true: yeni hesabın ilk girişi → önce sorulur (davet kartı); Ayarlar'daki düğme doğrudan başlatır.
+    if (window.GGSinema && window.GGSinema.startTour && window.gsap) {
+      show($('#install'), false);
+      const opt = { onEnd: () => finishOnboarding() };
+      if (ask === true && window.GGSinema.inviteTour) window.GGSinema.inviteTour(opt); else window.GGSinema.startTour(opt);
+      return;
+    }
     wlIdx = 0;
     show($('#install'), false);
     const name = profile ? profile.username : '';
@@ -3623,7 +3633,7 @@
   function maybeOnboard() {
     if (!profile || profile.onboarded_at || banned) return;
     if (safe(() => localStorage.getItem('gyrh-onboarded-' + session.user.id), null)) return;
-    setTimeout(startOnboarding, 900);
+    setTimeout(() => startOnboarding(true), 2200); // "hoş geldin" perdesi bittikten sonra
   }
 
   /* =================== HERKESE AÇIK PROFİL + ŞİKÂYET =================== */
@@ -4229,7 +4239,11 @@
       $$('#f-days .chip').forEach((x) => x.classList.toggle('on', x === b));
       renderMap({ fit: true });
     });
-    $('#f-open').addEventListener('change', (e) => { filt.open = e.target.checked; renderMap({ fit: true }); });
+    $('#f-open').addEventListener('change', (e) => {
+      filt.open = e.target.checked; renderMap({ fit: true });
+      // hiç kapanmış kayıt yoksa liste değişmez; kullanıcı bunun hata olmadığını bilsin
+      if (filt.open && !approved.some((r) => r.resolved_at || r.fix_flagged_at)) toast('Şu an çözülmüş ya da “düzelmiş olabilir” işaretli bildirim yok; listedekilerin hepsi hâlâ açık.');
+    });
     $('#f-view').addEventListener('change', (e) => { filt.view = e.target.checked; renderList(); });
     $('#f-reset').addEventListener('click', (e) => { e.preventDefault(); resetFilters(); });
     $('#btn-near').addEventListener('click', showNearby);

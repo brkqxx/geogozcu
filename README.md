@@ -4,6 +4,17 @@ Canlı site: **https://geogozcu.pages.dev**
 
 ---
 
+## SÜRÜM 42 — yeni tasarım dili tüm sitede, giriş animasyonu, harita düzeltmesi (11 Ekim 2026)
+- **Tasarım token'ları:** gece siyahı #03080B, krem #EEF1EA, çam #122B2A, teal #88DECC; koyu temada daha derin zeminler. Birincil eylem açık temada gece siyahı, koyu temada krem hap.
+- **Yazı:** Bricolage tamamen kalktı; başlıklar ince Poppins, metin Instrument Sans, küçük etiketler Instrument Sans büyük harf.
+- **Üst çubuk her sayfada:** cam logo hapı, siyah menü hapı (etkin sayfanın altında kayan gösterge), krem "Riskli alan bildir" hapı; yapışkan, bulanık zemin.
+- **Giriş / kayıt:** solda sinematik film + cam kartlar (emoji yerine çizgi ikon), sağda sabit form; motionsites "Sellix" dilinden giriş animasyonu (başlık satırları maskeden yükselir, açıklama bulanıklıktan netleşir, haplar oturur).
+- **Giriş sonrası:** "Hoş geldin, @kullanıcı" perdesi (tıklayınca anında kalkar).
+- **Sayfa geçişi:** üst bileşenler sırayla yükselir (harita yalnız solar); sayfa başlıkları satır satır açılır.
+- **Tur:** ana sayfadaki "Turu izle" ve misafir daveti kaldırıldı; tur yalnız yeni hesaba ilk girişte sorulur ("Turu başlat / Şimdi değil"); Ayarlar → "Turu tekrar izle" doğrudan başlatır.
+- **Hata:** "Sadece hâlâ açık olanlar" anahtarına basınca harita sayfası kayıyordu (gizli kutu etiket dışında konumlanıyordu) → düzeltildi; harita sayfasında belge kaydırması tamamen kapalı (overflow:clip). Hiç kapanmış kayıt yoksa bilgi mesajı çıkar.
+- Açılış ekranı yeni dilde.
+
 ## SÜRÜM 41 — yeni hero, erkek anlatıcı, GitHub (11 Ekim 2026)
 - **Ana sayfa hero yeniden:** tam ekran yeni alacakaranlık orman klibi (sol alt koyu, sağda kasaba ışıkları; `media/hero.*`), 3 katmanlı gölge, sol altta "geogözcü" künyesi + 3 satırlık ince başlık (Poppins 300) + 2 satır açıklama, krem "Haritayı aç" hapı, "Turu izle" bağlantısı, sağ altta "Kaydır". Ölçek 1280×960 referanslı `--u` birimiyle; telefon, kısa yatay ekran ve tablet kuralları ayrı.
 - **Üst çubuk (ana sayfa):** cam logo hapı, siyah menü hapı, krem "Riskli alan bildir" hapı; hero geçilince buzlu cam.
