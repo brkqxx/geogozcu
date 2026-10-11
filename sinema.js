@@ -354,23 +354,32 @@
   function heroIntro() {
     const hero = $('#view-home .home-hero'); if (!hero || heroDone) return;
     heroDone = true;
-    const title = $('.home-title', hero);
-    // başlık kelime kelime bulanıktan netleşir (yazı tipi geç yüklenirse kelimeler yeniden bölünür)
-    if (window.SplitText) SplitText.create(title, { type: 'words', wordsClass: 'wd', autoSplit: true,
-      onSplit: (self) => g.from(self.words, { opacity: 0, yPercent: 42, filter: 'blur(10px)', duration: 1.15, stagger: 0.085, ease: 'power3.out', delay: 0.15, clearProps: 'filter' }) });
-    else g.from(title, { y: 30, opacity: 0, duration: 1, ease: 'expo.out' });
-    const t = g.timeline({ defaults: { ease: 'expo.out' } });
-    t.from($$('.home-school, .home-sub, .home-cta, .home-facts', hero), { y: 24, opacity: 0, filter: 'blur(8px)', duration: 1, stagger: 0.09 }, 0.35)
-      .from('#hm-dial', { y: 40, opacity: 0, scale: 0.94, duration: 1.3 }, 0.5)
-      .from($$('.home-topo use', hero), { opacity: 0, duration: 1.6, stagger: { each: 0.05, from: 'end' }, ease: 'power2.out' }, 0);
-    // film kaydırınca yavaşça uzaklaşır (paralaks); imleç ışığı
+    // Giriş: yazı tipleri hazır olunca tek geçiş. Mesafeler düğme yüksekliğine göre ölçeklenir (telefonda 0,8×).
+    // Bitince satır içi stil kalmaz (clearProps), sayfa statik tasarımda kalır.
+    const run = () => {
+      const cta = $('.hx-cta', hero);
+      const k = ((cta ? cta.getBoundingClientRect().height : 46) / 46) * (innerWidth < 650 ? 0.8 : 1);
+      const d = (px) => Math.round(px * k);
+      const quart = 'cubic-bezier(0.25,1,0.5,1)', expo = 'expo.out';
+      const t = g.timeline({ defaults: { ease: expo, clearProps: 'all' } });
+      const top = $('.top');
+      t.from($('.brand', top), { opacity: 0, duration: 0.5, ease: 'power4.out' }, 0)
+        .from($('.nav', top) || [], { opacity: 0, y: -d(8), duration: 0.7 }, 0.12)
+        .from($$('.nav > *', top), { opacity: 0, y: -d(4), duration: 0.6, stagger: 0.045 }, 0.26)
+        .from($$('.top .icon-btn'), { opacity: 0, y: -d(8), duration: 0.7 }, 0.2)
+        .from($('.hx-brand', hero), { opacity: 0, y: d(10), duration: 0.65 }, 0.3)
+        .from($$('.hx-ln > span', hero), { yPercent: 115, duration: 1.05, stagger: 0.09 }, 0.38)
+        .from($$('.hx-lede span', hero), { opacity: 0, y: d(14), duration: 0.8, stagger: 0.06 }, 0.8)
+        .from($('.hx-cta', hero), { opacity: 0, y: d(12), duration: 0.8 }, 1.0)
+        .from($$('.hx-link:not([hidden])', hero), { opacity: 0, y: d(8), duration: 0.6, ease: quart, stagger: 0.06 }, 1.1)
+        .from($('.hx-cue', hero), { opacity: 0, y: -d(6), duration: 0.7 }, 1.25)
+        .from($('.hero-note', hero), { opacity: 0, duration: 0.8 }, 1.3);
+    };
+    const fontsReady = document.fonts && document.fonts.ready ? Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1200))]) : Promise.resolve();
+    fontsReady.then(run);
+    // film kaydırınca yavaşça uzaklaşır (paralaks)
     const vid = $('#hero-video', hero);
-    if (vid && window.ScrollTrigger) g.to(vid, { yPercent: 10, scale: 1.14, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true } });
-    if (matchMedia('(pointer:fine)').matches) {
-      g.set(hero, { '--mx': 70, '--my': 30 });
-      const xTo = g.quickTo(hero, '--mx', { duration: 0.6, ease: 'power3' }), yTo = g.quickTo(hero, '--my', { duration: 0.6, ease: 'power3' });
-      hero.addEventListener('pointermove', (e) => { const r = hero.getBoundingClientRect(); xTo((e.clientX - r.left) / r.width * 100); yTo((e.clientY - r.top) / r.height * 100); });
-    }
+    if (vid && window.ScrollTrigger) g.to(vid, { yPercent: 8, scale: 1.08, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true } });
   }
 
   /* =================== HERO FİLMİ, ÜST ÇUBUK, İMLEÇ =================== */
@@ -455,6 +464,8 @@
     { f: 6, t: 'Sen de gördüğün riski ekle. Mahalleni, yangın çıkmadan önce birlikte koruyalım.' },
   ];
   const TOUR_SEEN = 'gg-tur-gordu';
+  // ses dosyaları her yayında yeni sürümle istenir (tarayıcı önbelleğinde eski ses kalmasın)
+  const MEDIA_V = (() => { const sc = document.querySelector('script[src*="sinema.js"]'); const m = sc && /[?&]v=(\d+)/.exec(sc.getAttribute('src')); return m ? '?v=' + m[1] : ''; })();
   const authed = () => { const gEl = document.querySelector('[data-guest]'); return !!gEl && gEl.hidden; };
   let tour = null;
 
@@ -478,7 +489,7 @@
     const steps = TOUR.filter((s) => !s.auth || authed());
     const ui = tourUI();
     const cur = $('.gtour-cursor', ui), cap = $('.gtour-t', ui), no = $('.gtour-no', ui), prog = $('.gtour-prog b', ui);
-    const clips = steps.map((s) => { const a = new Audio('media/tur/' + s.f + '.mp3'); a.preload = 'auto'; return a; });
+    const clips = steps.map((s) => { const a = new Audio('media/tur/' + s.f + '.mp3' + MEDIA_V); a.preload = 'auto'; return a; });
     const st = { alive: true, sound: true, tweens: [], cur: -1 };
     tour = st;
     root.classList.add('gtour-on');

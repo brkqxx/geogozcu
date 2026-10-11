@@ -153,7 +153,7 @@ function kayit() {
   mark('site'); await page.goto(SITE + '#/ana'); await page.mouse.move(1500, 300);
   await sleep(1600); await glide(1180, 420, 50);
   await scrollTo(840); await sleep(2900); await scrollTo(0); await sleep(1100);
-  const cta = page.locator('#view-home a.btn[href="#/harita"]').first();
+  const cta = page.locator('#view-home .hx-cta').first();
   await at(T[0] + D[0] - 2600); await cta.click();
   // 3 · harita: Gaziemir odağı, kümeye yakınlaş
   await at(T[1]); mark('harita');

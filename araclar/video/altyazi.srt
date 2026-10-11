@@ -1,59 +1,59 @@
 1
-00:00:00,350 --> 00:00:03,190
+00:00:00,350 --> 00:00:02,470
 Gaziemir’de evler ormanla iç içe.
 
 2
-00:00:03,230 --> 00:00:08,280
+00:00:02,510 --> 00:00:06,360
 Büyük bir yangın, çoğu zaman tek bir kıvılcımla başlar.
 
 3
-00:00:08,930 --> 00:00:13,827
+00:00:07,010 --> 00:00:10,718
 GeoGözcü, EGEV 100. Yıl Lisesi öğrencilerinin geliştirdiği
 
 4
-00:00:13,867 --> 00:00:16,296
+00:00:10,758 --> 00:00:12,592
 bir vatandaş bilimi haritası.
 
 5
-00:00:16,336 --> 00:00:19,872
+00:00:12,632 --> 00:00:15,305
 Gönüllüler, gördükleri riski fotoğraflayıp
 
 6
-00:00:19,912 --> 00:00:22,460
+00:00:15,345 --> 00:00:17,340
 konumuyla haritaya ekliyor.
 
 7
-00:00:23,110 --> 00:00:26,490
+00:00:17,990 --> 00:00:20,399
 Haritadaki her nokta bir saha gözlemi.
 
 8
-00:00:26,530 --> 00:00:31,440
+00:00:20,439 --> 00:00:23,943
 Renk risk türünü, pinin koyuluğu risk puanını gösterir;
 
 9
-00:00:31,480 --> 00:00:36,320
+00:00:23,983 --> 00:00:27,520
 kümeler, riskin biriktiği mahalleleri ortaya koyar.
 
 10
-00:00:36,970 --> 00:00:41,463
+00:00:28,170 --> 00:00:31,330
 Her bildirim aynı sorularla 0–100 arası puanlanır.
 
 11
-00:00:41,503 --> 00:00:46,740
+00:00:31,370 --> 00:00:35,140
 Oradan geçenler de sorunun düzelip düzelmediğini oylar.
 
 12
-00:00:47,390 --> 00:00:51,072
+00:00:36,170 --> 00:00:39,123
 Veriler proje sayfasında grafiklerle özetlenir;
 
 13
-00:00:51,112 --> 00:00:55,400
+00:00:39,163 --> 00:00:42,660
 en çok katkı verenler liderlik tablosunda yer alır.
 
 14
-00:00:56,050 --> 00:00:57,928
+00:00:43,310 --> 00:00:44,813
 Mahalleni sen koru.
 
 15
-00:00:57,968 --> 00:01:02,860
+00:00:44,853 --> 00:00:48,840
 GeoGözcü — yangını, çıkmadan önce görmek için.

@@ -4,6 +4,15 @@ Canlı site: **https://geogozcu.pages.dev**
 
 ---
 
+## SÜRÜM 41 — yeni hero, erkek anlatıcı, GitHub (11 Ekim 2026)
+- **Ana sayfa hero yeniden:** tam ekran yeni alacakaranlık orman klibi (sol alt koyu, sağda kasaba ışıkları; `media/hero.*`), 3 katmanlı gölge, sol altta "geogözcü" künyesi + 3 satırlık ince başlık (Poppins 300) + 2 satır açıklama, krem "Haritayı aç" hapı, "Turu izle" bağlantısı, sağ altta "Kaydır". Ölçek 1280×960 referanslı `--u` birimiyle; telefon, kısa yatay ekran ve tablet kuralları ayrı.
+- **Üst çubuk (ana sayfa):** cam logo hapı, siyah menü hapı, krem "Riskli alan bildir" hapı; hero geçilince buzlu cam.
+- **Giriş animasyonu:** logo → menü → künye → başlık satırları maskeden yükselir → açıklama → düğmeler → "Kaydır"; bitince satır içi stil kalmaz. Az hareket tercihinde yok.
+- **Canlı durum:** risk kadranı ve canlı sayılar hero'nun hemen altında ayrı bölümde.
+- **Anlatıcı:** tur ve tanıtım videosu yeniden sakin erkek sesinde (tur doğal hızda ~1 dk). Medya dosyaları sürüm numarasıyla istenir (önbellekte eski ses kalmaz).
+- Görüntü başlıkları Poppins 300.
+- Kaynak kod özel GitHub deposunda (brkqxx/geogozcu).
+
 ## SÜRÜM 40 — harita sayfası, 1 dakikalık tur, yeni anlatıcı (11 Ekim 2026)
 - **Harita (masaüstü):** sayfa artık kaymıyor; üst çubuk + harita/panel ekranı tam doldurur, alt bilgi gizli (panel kendi içinde kayar).
 - **Harita kontrolleri:** yakınlaştırma, odak düğmeleri, araç çubuğu, katman seçici, açıklama kutusu, ölçek ve kaynak satırı her temada aynı koyu buzlu cam; "+ Bildir" tek satır.

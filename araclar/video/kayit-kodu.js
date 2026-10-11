@@ -1,5 +1,5 @@
 async (page) => {
-  const SITE = "http://localhost:8000/test-live.html", T = [0,14180,28040,38460,47120], D = [14180,13860,10420,8660,7460], END = 54580, SW = 42232;
+  const SITE = "http://localhost:8000/test-live.html", T = [0,10980,21160,29160,36300], D = [10980,10180,8000,7140,6180], END = 42480, SW = 32203;
   const sleep = (ms) => page.waitForTimeout(ms);
   await page.setViewportSize({ width: 1920, height: 1080 });
   // kurulum önerisi kayıtta görünmesin; harita karolarını önceden ısıt
@@ -26,7 +26,7 @@ async (page) => {
   mark('site'); await page.goto(SITE + '#/ana'); await page.mouse.move(1500, 300);
   await sleep(1600); await glide(1180, 420, 50);
   await scrollTo(840); await sleep(2900); await scrollTo(0); await sleep(1100);
-  const cta = page.locator('#view-home a.btn[href="#/harita"]').first();
+  const cta = page.locator('#view-home .hx-cta').first();
   await at(T[0] + D[0] - 2600); await cta.click();
   // 3 · harita: Gaziemir odağı, kümeye yakınlaş
   await at(T[1]); mark('harita');

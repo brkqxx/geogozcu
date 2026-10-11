@@ -17,10 +17,10 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231F4D3A'/%3E%3Cpath d='M16 6c1.5 4 5 6 5 11a5 5 0 0 1-10 0c0-2.5 1.2-4 2.5-5 0 2.5 1 3 1 3 0-4 0-6 1.5-9z' fill='%23fff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Instrument+Serif:ital@0;1&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Poppins:wght@300;400;500&display=swap" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="vendor/leaflet.css">
 <link rel="stylesheet" href="vendor/markercluster.css">
-<link rel="stylesheet" href="style.css?v=40">
+<link rel="stylesheet" href="style.css?v=41">
 </head>
 <body>
 
@@ -231,30 +231,35 @@
   <!-- HARİTA -->
   <!-- KARŞILAMA SAYFASI -->
   <section id="view-home" class="view page home" hidden>
-    <div class="home-hero">
+    <div class="home-hero hx">
       <div class="hero-film" aria-hidden="true">
-        <video id="hero-video" muted loop playsinline preload="none" poster="media/hero-kapak.jpg" disablepictureinpicture>
-          <source src="media/hero.webm" type="video/webm">
-          <source src="media/hero.mp4" type="video/mp4">
+        <video id="hero-video" muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=41" disablepictureinpicture>
+          <source src="media/hero.webm?v=41" type="video/webm">
+          <source src="media/hero.mp4?v=41" type="video/mp4">
         </video>
       </div>
+      <div class="hx-shade" aria-hidden="true"><i class="h"></i><i class="v"></i><i class="r"></i></div>
       <span class="hero-note">Temsilî görüntü</span>
-      <svg class="home-topo" viewBox="-500 -340 1000 680" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <defs><path id="gg-hill" d="M0-100C38-104 74-82 92-46 110-9 100 33 78 62 52 96 10 108-30 98-70 88-104 58-108 18-112-24-88-62-56-82-38-94-20-98 0-100Z"/></defs>
-        <g transform="translate(250 -40)"><use href="#gg-hill" transform="translate(0 0) scale(0.28 0.230)" stroke-width="5.00"/><use href="#gg-hill" transform="translate(0 3) scale(0.46 0.377)" stroke-width="3.04"/><use href="#gg-hill" transform="translate(0 6) scale(0.64 0.525)" stroke-width="2.19"/><use href="#gg-hill" transform="translate(0 9) scale(0.82 0.672)" stroke-width="1.71"/><use href="#gg-hill" transform="translate(0 12) scale(1 0.820)" stroke-width="1.40" class="idx"/><use href="#gg-hill" transform="translate(0 15) scale(1.2 0.984)" stroke-width="1.17"/><use href="#gg-hill" transform="translate(0 18) scale(1.42 1.164)" stroke-width="0.99"/><use href="#gg-hill" transform="translate(0 21) scale(1.66 1.361)" stroke-width="0.84"/><use href="#gg-hill" transform="translate(0 24) scale(1.92 1.574)" stroke-width="0.73"/><use href="#gg-hill" transform="translate(0 27) scale(2.2 1.804)" stroke-width="0.64" class="idx"/></g>
-        <g transform="translate(-330 260) rotate(28)"><use href="#gg-hill" transform="translate(0 0) scale(0.28 0.230)" stroke-width="5.00"/><use href="#gg-hill" transform="translate(0 3) scale(0.46 0.377)" stroke-width="3.04"/><use href="#gg-hill" transform="translate(0 6) scale(0.64 0.525)" stroke-width="2.19"/><use href="#gg-hill" transform="translate(0 9) scale(0.82 0.672)" stroke-width="1.71"/><use href="#gg-hill" transform="translate(0 12) scale(1 0.820)" stroke-width="1.40" class="idx"/><use href="#gg-hill" transform="translate(0 15) scale(1.2 0.984)" stroke-width="1.17"/><use href="#gg-hill" transform="translate(0 18) scale(1.42 1.164)" stroke-width="0.99"/><use href="#gg-hill" transform="translate(0 21) scale(1.66 1.361)" stroke-width="0.84"/><use href="#gg-hill" transform="translate(0 24) scale(1.92 1.574)" stroke-width="0.73"/><use href="#gg-hill" transform="translate(0 27) scale(2.2 1.804)" stroke-width="0.64" class="idx"/></g>
-      </svg>
-      <div class="home-copy">
-        <a class="home-school" href="#/proje">EGEV 100. Yıl Lisesi TÜBİTAK projesi</a>
-        <h1 class="home-title">Gaziemir'in dijital <em>yangın gözcüsü</em></h1>
-        <p class="home-sub">Kuru ot birikimi, ormana bitişik evler, eksik hidrantlar… Yangın riskini <b>yangın çıkmadan önce</b> fotoğraflayıp haritaya ekliyoruz. Gördüğün her risk mahallenin haritasını tamamlar.</p>
-        <div class="home-cta">
-          <a class="btn fire big" href="#/harita">Haritayı aç</a>
-          <a class="btn ghost big" href="#/giris" data-guest>Giriş yap ya da hesap aç</a>
-          <a class="btn ghost big" href="#/bildir" data-auth hidden>Riskli alan bildir</a>
-          <button type="button" class="gtour-btn" data-tour><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Turu izle <small>1 dk · sesli</small></button>
+      <div class="hx-copy">
+        <a class="hx-brand" href="#/proje">geogözcü<span> · EGEV 100. Yıl Lisesi TÜBİTAK projesi</span></a>
+        <h1 class="home-title hx-title" aria-label="Gaziemir'in dijital yangın gözcüsü"><span class="hx-ln" aria-hidden="true"><span>Gaziemir'in</span></span><span class="hx-ln" aria-hidden="true"><span>dijital yangın</span></span><span class="hx-ln" aria-hidden="true"><span>gözcüsü</span></span></h1>
+        <p class="hx-lede"><span>Kuru ot, ormana bitişik evler, eksik hidrantlar…</span> <span>Riski, yangın çıkmadan önce birlikte haritalıyoruz.</span></p>
+        <div class="home-cta hx-act">
+          <a class="hx-cta" href="#/harita"><span>Haritayı aç</span><i aria-hidden="true"><svg viewBox="0 0 5 8"><path d="M.6.6 4 4 .6 7.4"/></svg></i></a>
+          <a class="hx-link" href="#/bildir" data-auth hidden>Riskli alan bildir</a>
+          <button type="button" class="hx-link gtour-btn" data-tour><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Turu izle <small>1 dk · sesli</small></button>
         </div>
+      </div>
+      <button type="button" class="home-down hx-cue" id="home-down" aria-label="Nasıl çalıştığını görmek için aşağı kaydır"><span>Kaydır</span><svg viewBox="0 0 11 6" aria-hidden="true"><path d="M.7.7 5.5 5.3 10.3.7"/></svg></button>
+    </div>
+
+    <section class="home-live" aria-labelledby="live-h">
+      <div class="live-copy">
+        <span class="mono-k">CANLI DURUM</span>
+        <h2 id="live-h">Haritada şu an</h2>
         <p class="home-facts" id="hm-facts">Bildirimler yükleniyor.</p>
+        <p class="live-note">Gösterge, haritadaki orman yangını bildirimlerinin ortanca risk puanını gösterir. Puan, her bildirimde aynı sorulardan hesaplanır.</p>
+        <div class="live-act"><a class="btn fire" href="#/harita">Haritayı aç</a><a class="btn ghost" href="#/giris" data-guest>Giriş yap ya da hesap aç</a></div>
       </div>
       <figure class="home-dial" id="hm-dial" aria-labelledby="hm-dial-cap">
         <svg viewBox="0 -8 240 160" role="img" aria-label="Yangın tehlike göstergesi">
@@ -266,15 +271,14 @@
         </svg>
         <figcaption id="hm-dial-cap"><b id="hm-score">–</b><span id="hm-score-lbl">Yangın riski göstergesi</span></figcaption>
       </figure>
-      <button type="button" class="home-down" id="home-down" aria-label="Nasıl çalıştığını görmek için aşağı kaydır"><span>Kaydır</span><s aria-hidden="true"></s></button>
-    </div>
+    </section>
 
     <div class="mq" aria-hidden="true"><div class="mq-track"><span>KURU OT BİRİKİMİ</span><i>✦</i><span>ORMAN–YERLEŞİM ARAYÜZÜ</span><i>✦</i><span>KONTROLSÜZ YAKIM</span><i>✦</i><span>HİDRANT EKSİKLİĞİ</span><i>✦</i><span>CAM ŞİŞE · MERCEK ETKİSİ</span><i>✦</i><span>SARKMIŞ ELEKTRİK HATTI</span><i>✦</i><span>TAHLİYE YOLU ENGELİ</span><i>✦</i></div></div>
 
     <section class="gd-wrap" id="rehber" aria-labelledby="gd-h">
-      <header class="gd-head"><span class="mono-k">TANITIM · 1 DAKİKA</span><h2 id="gd-h">Bir kıvılcımdan önce.</h2><p>GeoGözcü'nün sahadan haritaya nasıl çalıştığını izle: sitenin gerçek kaydı, Türkçe anlatım ve altyazıyla.</p></header>
-      <video class="pv" controls preload="none" playsinline width="1920" height="1080" poster="media/tanitim-kapak.jpg" aria-describedby="hm-pv-not">
-        <source src="media/tanitim.mp4" type="video/mp4">
+      <header class="gd-head"><span class="mono-k">TANITIM · 49 SANİYE</span><h2 id="gd-h">Bir kıvılcımdan önce.</h2><p>GeoGözcü'nün sahadan haritaya nasıl çalıştığını izle: sitenin gerçek kaydı, Türkçe anlatım ve altyazıyla.</p></header>
+      <video class="pv" controls preload="none" playsinline width="1920" height="1080" poster="media/tanitim-kapak.jpg?v=41" aria-describedby="hm-pv-not">
+        <source src="media/tanitim.mp4?v=41" type="video/mp4">
         Tarayıcın videoyu oynatamıyor. <a href="media/tanitim.mp4" download>Videoyu indir (MP4)</a>.
       </video>
       <p class="small muted pv-not" id="hm-pv-not">Açılıştaki orman görüntüsü <b>temsilîdir</b>; sonraki tüm görüntüler bu sitenin gerçek kaydıdır. <a href="media/tanitim.mp4" download="GeoGozcu-tanitim.mp4">MP4 indir</a></p>
@@ -809,10 +813,10 @@
       <h2>Tanıtım videosu</h2>
       <div>
         <video class="pv" controls preload="none" playsinline width="1920" height="1080" poster="media/tanitim-kapak.jpg" aria-describedby="pv-not">
-          <source src="media/tanitim.mp4" type="video/mp4">
+          <source src="media/tanitim.mp4?v=41" type="video/mp4">
           Tarayıcın videoyu oynatamıyor. <a href="media/tanitim.mp4" download>Videoyu indir (MP4)</a>.
         </video>
-        <p class="small muted pv-not" id="pv-not">1 dk · Türkçe anlatımlı ve altyazılı. Açılıştaki orman görüntüsü <b>temsilîdir</b>; sonraki tüm görüntüler bu sitenin gerçek kaydıdır.
+        <p class="small muted pv-not" id="pv-not">49 sn · Türkçe anlatımlı ve altyazılı. Açılıştaki orman görüntüsü <b>temsilîdir</b>; sonraki tüm görüntüler bu sitenin gerçek kaydıdır.
           <a href="media/tanitim.mp4" download="GeoGozcu-tanitim.mp4">MP4 indir</a> · <a href="media/altyazi.srt" download="GeoGozcu-tanitim.srt">Altyazı (SRT)</a></p>
       </div>
     </section>
@@ -1190,13 +1194,13 @@
 <script src="vendor/leaflet.js"></script>
 <script src="vendor/markercluster.js"></script>
 <script src="vendor/supabase.js"></script>
-<script src="config.js?v=40"></script>
-<script src="sinirlar.js?v=40"></script>
-<script src="harita-araclari.js?v=40"></script>
-  <script src="app.js?v=40"></script>
+<script src="config.js?v=41"></script>
+<script src="sinirlar.js?v=41"></script>
+<script src="harita-araclari.js?v=41"></script>
+  <script src="app.js?v=41"></script>
 <script src="vendor/gsap.min.js"></script>
 <script src="vendor/ScrollTrigger.min.js"></script>
 <script src="vendor/SplitText.min.js"></script>
-<script src="sinema.js?v=40"></script>
+<script src="sinema.js?v=41"></script>
 </body>
 </html>
