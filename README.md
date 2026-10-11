@@ -4,6 +4,14 @@ Canlı site: **https://geogozcu.pages.dev**
 
 ---
 
+## SÜRÜM 43 — harita kontrolleri sadeleşti (11 Ekim 2026)
+- **Araç sütunu:** yalnız Ara, Konumum ve "Araçlar" (cetvel). Masaüstünde Araçlar'ın üstüne gelince sola doğru büyüyen hap açılır (Yakınımdakiler, Mesafe, Alan, Koordinat); fare çekilince küçülür; tıklama ve klavye odağıyla da açılır, Esc kapatır. Telefonda dokununca açıklamalı menü.
+- **Sol üst:** yakınlaştırma (− +) ve ikonlu Gaziemir / İzmir aynı satırda iki hap.
+- **Ölçek:** Leaflet'in beyaz yazı gölgesi kaldırıldı (açık yazıda "500 m / 2 km" çift görünüyordu); net cam etiket, genişlik yumuşak değişir.
+- **Renk anahtarı:** "Ana risk başlığı" → "Risk türleri"; her ekranda kapalı başlar (masaüstünde 6 renk noktalı küçük hap), açılınca yukarı doğru büyür.
+- type özniteliği olmayan metin kutuları da form stilinde (bakım modu mesajı koyu temada gri kalıyordu).
+- Telefonda test edildi: misafir akışları (otomatik) + giriş yapmış hesapla Ayarlar → tur (11 adım), bildirim formu, yönetici paneli.
+
 ## SÜRÜM 42 — yeni tasarım dili tüm sitede, giriş animasyonu, harita düzeltmesi (11 Ekim 2026)
 - **Tasarım token'ları:** gece siyahı #03080B, krem #EEF1EA, çam #122B2A, teal #88DECC; koyu temada daha derin zeminler. Birincil eylem açık temada gece siyahı, koyu temada krem hap.
 - **Yazı:** Bricolage tamamen kalktı; başlıklar ince Poppins, metin Instrument Sans, küçük etiketler Instrument Sans büyük harf.

@@ -239,7 +239,7 @@
     area: '<svg viewBox="0 0 24 24"><path d="M4 7 12 3l8 5-2 11H6z"/><circle cx="4" cy="7" r="1.6"/><circle cx="12" cy="3" r="1.6"/><circle cx="20" cy="8" r="1.6"/><circle cx="18" cy="19" r="1.6"/><circle cx="6" cy="19" r="1.6"/></svg>',
     coords: '<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><path d="M9 9h6M12 6v6"/></svg>',
     nearby: '<svg viewBox="0 0 24 24"><path d="M12 21s-6-5.4-6-10a6 6 0 0 1 12 0c0 4.6-6 10-6 10z"/><circle cx="12" cy="11" r="2"/><path d="M3 21h18" stroke-dasharray="2 3"/></svg>',
-    more: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/></svg>',
+    more: '<svg viewBox="0 0 24 24"><path d="M3.5 15.5 15.5 3.5l5 5-12 12z"/><path d="M7.5 11.5 9.5 13.5M10.5 8.5l1.5 1.5M13.5 5.5l2 2"/></svg>',
   };
 
   /**
@@ -253,9 +253,19 @@
     const bar = L.DomUtil.create('div', 'gg-tools', root);
     L.DomEvent.disableClickPropagation(bar); L.DomEvent.disableScrollPropagation(bar);
     /** @type {[string, string, string][]} */
-    const items = [['search', 'Yer ara', 'Ara'], ['locate', 'Konumuma git', 'Konum'], ['more', 'Diğer araçlar', 'Araçlar'], ['nearby', 'Yakınımdaki sorunlar', 'Yakınımdakiler'], ['measure', 'Mesafe ölç', 'Mesafe'], ['area', 'Alan hesapla', 'Alan'], ['coords', 'Koordinat al', 'Koordinat']];
-    bar.innerHTML = items.map(([k, title, short]) =>
-      '<button type="button" data-tool="' + k + '" title="' + title + '" aria-label="' + title + '">' + /** @type {any} */ (ICONS)[k] + '<span>' + short + '</span></button>').join('');
+    // Sütunda yalnız Ara, Konum ve "Araçlar"; ölçüm araçları "Araçlar"ın yanındaki hap grubunda:
+    // masaüstünde fare gelince sola doğru büyüyerek açılır (tıklama / klavye odağıyla da), telefonda açıklamalı menü açılır.
+    /** @type {(it: [string, string, string]) => string} */
+    const btn = ([k, title, short]) => '<button type="button" data-tool="' + k + '" title="' + title + '" aria-label="' + title + '">' + /** @type {any} */ (ICONS)[k] + '<span>' + short + '</span></button>';
+    /** @type {[string, string, string][]} */
+    const flyItems = [['nearby', 'Yakınımdaki sorunlar', 'Yakınımdakiler'], ['measure', 'Mesafe ölç', 'Mesafe'], ['area', 'Alan hesapla', 'Alan'], ['coords', 'Koordinat al', 'Koordinat']];
+    bar.innerHTML = btn(['search', 'Yer ara', 'Ara']) + btn(['locate', 'Konumuma git', 'Konum']) +
+      '<div class="gg-group">' + btn(['more', 'Ölçüm ve diğer araçlar', 'Araçlar']).replace('<button ', '<button aria-expanded="false" aria-haspopup="true" ') +
+      '<div class="gg-fly" role="group" aria-label="Ölçüm ve diğer araçlar">' + flyItems.map(btn).join('') + '</div></div>';
+    const group = /** @type {HTMLElement} */ (bar.querySelector('.gg-group'));
+    const openGroup = (/** @type {boolean} */ on) => { group.classList.toggle('open', on); bar.querySelector('[data-tool=more]').setAttribute('aria-expanded', String(on)); };
+    group.addEventListener('mouseleave', () => { if (group.classList.contains('open')) openGroup(false); });
+    group.addEventListener('keydown', (e) => { if (e.key === 'Escape') { openGroup(false); /** @type {HTMLElement} */ (bar.querySelector('[data-tool=more]')).focus(); } });
 
     // Telefonda az kullanılan araçlar tek bir "Araçlar" menüsünde, açıklamalarıyla
     const more = L.DomUtil.create('div', 'gg-more', root); more.hidden = true;
@@ -479,8 +489,13 @@
     const onTool = (/** @type {Event} */ e) => {
       const b = /** @type {HTMLElement} */ (e.target).closest('[data-tool]'); if (!b) return;
       const t = b.getAttribute('data-tool');
-      if (t === 'more') { openMore(more.hidden); return; }
+      if (t === 'more') {
+        if (document.documentElement.dataset.ui === 'mobile') openMore(more.hidden); else openGroup(!group.classList.contains('open'));
+        return;
+      }
       openMore(false);
+      // bir araç seçilince hap grubu küçülerek kapanır
+      if (group.contains(b)) { openGroup(false); b.blur(); }
       if (t === 'search') { openSearch(sbox.hidden); return; }
       if (t === 'locate') { locate(); return; }
       if (t === 'nearby') { const cb = GG.hooks().onNearby; if (cb) cb(); return; }

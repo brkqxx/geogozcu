@@ -553,8 +553,8 @@
       onAdd: function () {
         const d = L.DomUtil.create('div', 'leaflet-bar focus-btn');
         L.DomEvent.disableClickPropagation(d);
-        d.innerHTML = '<a href="#" role="button" data-f="g" title="Gaziemir\'e odaklan">Gaziemir</a>' +
-          '<a href="#" role="button" data-f="i" title="Tüm İzmir\'i göster">İzmir</a>';
+        d.innerHTML = '<a href="#" role="button" data-f="g" title="Gaziemir\'e odaklan"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg><span>Gaziemir</span></a>' +
+          '<a href="#" role="button" data-f="i" title="Tüm İzmir\'i göster"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>İzmir</span></a>';
         L.DomEvent.on(d, 'click', (e) => {
           L.DomEvent.stop(e);
           const f = e.target.closest('[data-f]'); if (!f) return;
@@ -4112,8 +4112,9 @@
     if (/access_token=/.test(location.hash)) loginMethod = /provider_token=/.test(location.hash) ? 'Google' : 'E-posta bağlantısı';
     setTimeout(hideSplash, 6000); // ağ çok yavaşsa bile yükleme ekranı sonsuza kadar kalmasın
 
-    // gösterge aç/kapa (telefonda kapalı başlar)
-    if (window.innerWidth < 860) { $('#legend').classList.add('closed'); $('#legend-toggle').setAttribute('aria-expanded', 'false'); }
+    // gösterge aç/kapa
+    // renk anahtarı her ekranda kapalı başlar (küçük "Risk türleri" hapı); dokununca açılır
+    $('#legend').classList.add('closed'); $('#legend-toggle').setAttribute('aria-expanded', 'false');
     if (document.documentElement.dataset.ui === 'mobile') {
       $('#filter-box').open = false;
       $('#legend').classList.add('closed'); $('#legend-toggle').setAttribute('aria-expanded', 'false');
