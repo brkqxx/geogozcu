@@ -1,0 +1,59 @@
+1
+00:00:00,350 --> 00:00:03,190
+Gaziemir’de evler ormanla iç içe.
+
+2
+00:00:03,230 --> 00:00:08,280
+Büyük bir yangın, çoğu zaman tek bir kıvılcımla başlar.
+
+3
+00:00:08,930 --> 00:00:13,827
+GeoGözcü, EGEV 100. Yıl Lisesi öğrencilerinin geliştirdiği
+
+4
+00:00:13,867 --> 00:00:16,296
+bir vatandaş bilimi haritası.
+
+5
+00:00:16,336 --> 00:00:19,872
+Gönüllüler, gördükleri riski fotoğraflayıp
+
+6
+00:00:19,912 --> 00:00:22,460
+konumuyla haritaya ekliyor.
+
+7
+00:00:23,110 --> 00:00:26,490
+Haritadaki her nokta bir saha gözlemi.
+
+8
+00:00:26,530 --> 00:00:31,440
+Renk risk türünü, pinin koyuluğu risk puanını gösterir;
+
+9
+00:00:31,480 --> 00:00:36,320
+kümeler, riskin biriktiği mahalleleri ortaya koyar.
+
+10
+00:00:36,970 --> 00:00:41,463
+Her bildirim aynı sorularla 0–100 arası puanlanır.
+
+11
+00:00:41,503 --> 00:00:46,740
+Oradan geçenler de sorunun düzelip düzelmediğini oylar.
+
+12
+00:00:47,390 --> 00:00:51,072
+Veriler proje sayfasında grafiklerle özetlenir;
+
+13
+00:00:51,112 --> 00:00:55,400
+en çok katkı verenler liderlik tablosunda yer alır.
+
+14
+00:00:56,050 --> 00:00:57,928
+Mahalleni sen koru.
+
+15
+00:00:57,968 --> 00:01:02,860
+GeoGözcü — yangını, çıkmadan önce görmek için.

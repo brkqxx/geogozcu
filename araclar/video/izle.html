@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GeoGözcü tanıtım videosu</title>
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;background:#050806;color:#EAF2EC;font:15px/1.5 system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;padding:16px;box-sizing:border-box}
+  main{width:min(100%,1280px)}
+  video{width:100%;aspect-ratio:16/9;background:#000;border-radius:12px}
+  video::cue{font-size:26px;background:rgba(0,0,0,.7);color:#fff}
+  p{color:#A9BDB1}
+  code{color:#F5A524}
+</style>
+</head>
+<body>
+<main>
+  <video id="v" controls preload="auto" src="tanitim.webm"></video>
+  <p id="durum">Görüntü: canlı siteden gerçek tarayıcı kaydı. Altyazı: <code>altyazi.vtt</code>. Anlatım: <span id="ses">yükleniyor…</span></p>
+</main>
+<script src="zaman.js"></script>
+<script>
+  // Önizleme: altyazı zaman.js'ten kurulur; anlatım sesleri (varsa) sahne anlarında videoyla birlikte çalınır
+  const v = document.getElementById('v');
+  let scenes = [], clips = [];
+  Promise.resolve(window.ZAMAN).then((z) => {
+    const tr = v.addTextTrack('subtitles', 'Türkçe', 'tr');
+    z.cues.forEach((c) => { const q = new VTTCue(c.from, c.to, c.text); q.line = -2; tr.addCue(q); });
+    tr.mode = 'showing';
+    scenes = z.scenes;
+    clips = scenes.map((s) => { const a = new Audio('ses/' + s.id + '.mp3'); a.preload = 'auto'; a.ok = false; a.oncanplaythrough = () => { a.ok = true; }; return a; });
+    setTimeout(() => {
+      const n = clips.filter((a) => a.ok).length;
+      document.getElementById('ses').textContent = n ? n + '/' + clips.length + ' sahnenin sesi hazır' : 'ses dosyası henüz yok (yalnız görüntü + altyazı)';
+    }, 1500);
+  });
+  function syncAudio() {
+    const t = v.currentTime;
+    scenes.forEach((s, i) => {
+      const a = clips[i]; if (!a || !a.ok) return;
+      const local = t - s.voiceAt;
+      if (!v.paused && local >= 0 && local < a.duration) {
+        if (a.paused || Math.abs(a.currentTime - local) > 0.25) { a.currentTime = local; a.play().catch(() => {}); }
+      } else if (!a.paused) a.pause();
+    });
+  }
+  ['play', 'pause', 'seeked', 'timeupdate'].forEach((e) => v.addEventListener(e, syncAudio));
+</script>
+</body>
+</html>

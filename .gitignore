@@ -1,0 +1,28 @@
+# derleme / yayın çıktıları (araclar/deploy.ps1 üretir)
+araclar/cf/
+araclar/kaynak-tmp/
+site-tek-dosya.html
+*.zip
+
+# yerel test sayfaları ve araç izleri
+test-live.html
+test-harness.html
+.playwright-cli/
+.claude/settings.local.json
+
+# video üretim ara dosyaları (büyük ham kayıtlar, eski/deneme sesler)
+araclar/video/*.webm
+araclar/video/tanitim.mp4
+araclar/video/tanitim-kapak.jpg
+araclar/video/tur-ham/
+araclar/video/tur-ham-kadin/
+araclar/video/ses-erkek-eski/
+araclar/video/not.txt
+ses-ornekleri/
+
+# sistem
+Thumbs.db
+.DS_Store
+node_modules/
+.env
+.env.*

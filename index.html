@@ -1,0 +1,1202 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GeoGözcü · Gaziemir yangın risk haritası</title>
+<meta name="description" content="Orman yangını riski taşıyan alanları ve acil altyapı sorunlarını birlikte haritalıyoruz. EGEV 100. Yıl Lisesi TÜBİTAK projesi.">
+<meta name="theme-color" content="#1F4D3A" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1613" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GeoGözcü">
+<meta name="format-detection" content="telephone=no">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231F4D3A'/%3E%3Cpath d='M16 6c1.5 4 5 6 5 11a5 5 0 0 1-10 0c0-2.5 1.2-4 2.5-5 0 2.5 1 3 1 3 0-4 0-6 1.5-9z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Instrument+Serif:ital@0;1&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="vendor/leaflet.css">
+<link rel="stylesheet" href="vendor/markercluster.css">
+<link rel="stylesheet" href="style.css?v=40">
+</head>
+<body>
+
+<div id="splash" aria-hidden="true">
+  <div class="splash-logo"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-2 1-3 2-4 0 2 1 2 1 2 0-3 0-5 1-7z"/></svg></div>
+  <b class="splash-name" data-appname>GeoGözcü</b><span class="splash-tag">Gaziemir'in dijital yangın gözcüsü</span>
+  <span class="splash-msg" id="splash-msg">Harita hazırlanıyor…</span>
+  <div class="splash-bar"><i></i></div>
+  <div class="splash-fail" id="splash-fail" hidden>
+    <p>Site açılamadı. Bağlantın yavaş ya da kesik olabilir.</p>
+    <button type="button" onclick="location.reload()">Yeniden dene</button>
+  </div>
+</div>
+<script>
+  // Uygulama 12 saniyede açılmazsa açılış ekranında yeniden deneme seçeneği çıkar
+  setTimeout(function () {
+    var s = document.getElementById('splash');
+    if (s && !s.classList.contains('out')) {
+      var f = document.getElementById('splash-fail'); if (f) f.hidden = false;
+      var m = document.getElementById('splash-msg'); if (m) m.textContent = !window.L ? 'Harita kütüphanesi yüklenemedi.' : !window.supabase ? 'Sunucu bağlantısı kurulamadı.' : 'Açılış beklenenden uzun sürdü.';
+    }
+  }, 12000);
+</script>
+<div id="topbar" aria-hidden="true"><i></i></div>
+
+<header class="top">
+  <a class="brand" href="#/ana">
+    <span class="logo" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-2 1-3 2-4 0 2 1 2 1 2 0-3 0-5 1-7z"/></svg></span>
+    <span class="brand-name" data-appname>GeoGözcü</span>
+  </a>
+  <nav class="nav" aria-label="Ana menü">
+    <a href="#/harita" data-nav="harita">Harita</a>
+    <a href="#/liderler" data-nav="liderler">Liderler</a>
+    <a href="#/proje" data-nav="proje">Proje</a>
+    <a href="#/bildirimlerim" data-nav="bildirimlerim" data-auth hidden>Bildirimlerim</a>
+    <a href="#/yonetici" data-nav="yonetici" data-admin hidden>Yönetici paneli</a>
+    <a href="#/giris" data-nav="giris" data-guest>Giriş yap</a>
+    <a href="#/yonetici" class="icon-btn admin-ico" data-admin data-nav="yonetici" hidden aria-label="Yönetici paneli" title="Yönetici paneli">🛡️</a>
+    <button type="button" id="btn-bell" class="icon-btn bell" data-auth hidden aria-label="Bildirimler" aria-expanded="false" aria-controls="bell-panel">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      <span class="count" id="bell-count" hidden>0</span>
+    </button>
+    <a href="#/ayarlar" data-nav="ayarlar" class="icon-btn" data-auth hidden aria-label="Ayarlar" title="Ayarlar">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </a>
+    <button type="button" id="btn-logout" class="linkish hide-sm" data-auth hidden>Çıkış yap</button>
+    <button type="button" id="btn-theme" class="icon-btn" aria-label="Görünüm ayarları" aria-expanded="false" aria-controls="theme-menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+    </button>
+    <a href="#/bildir" class="btn fire">Riskli alan bildir</a>
+  </nav>
+
+  <div id="theme-menu" class="menu" hidden>
+    <span class="menu-title">Tema</span>
+    <div class="chips" id="mode-chips">
+      <button type="button" class="chip" data-mode="light">Açık</button>
+      <button type="button" class="chip" data-mode="dark">Koyu</button>
+      <button type="button" class="chip" data-mode="auto">Sistem</button>
+    </div>
+    <span class="menu-title">Vurgu rengi</span>
+    <div class="swatches" id="accent-swatches">
+      <button type="button" class="sw" data-accent="forest" style="--s:#1F4D3A" aria-label="Orman yeşili"></button>
+      <button type="button" class="sw" data-accent="ember" style="--s:#C2410C" aria-label="Kor turuncusu"></button>
+      <button type="button" class="sw" data-accent="sky" style="--s:#1D4ED8" aria-label="Gök mavisi"></button>
+      <button type="button" class="sw" data-accent="plum" style="--s:#6D28D9" aria-label="Mor"></button>
+      <button type="button" class="sw" data-accent="slate" style="--s:#334155" aria-label="Füme"></button>
+      <label class="sw custom" id="sw-custom" style="--s:var(--accent)" title="Kendi rengini seç">
+        <input type="color" id="accent-custom" value="#1F4D3A" aria-label="Kendi vurgu rengini seç">
+      </label>
+    </div>
+    <label class="check"><input type="checkbox" id="chk-contrast">Yüksek kontrast</label>
+  </div>
+
+</header>
+
+<!-- BİLDİRİM KUTUSU (başlık çubuğunun dışında: üst üste binme ve bulanıklık hatalarını önler) -->
+<div class="bell-scrim" id="bell-scrim" hidden></div>
+<section id="bell-panel" class="bell-panel" hidden role="dialog" aria-label="Bildirimler">
+  <div class="bell-head">
+    <b>🔔 Bildirimler</b>
+    <button type="button" class="linkish small" id="btn-readall">Tümünü okundu say</button>
+    <button type="button" class="bell-x" id="bell-x" aria-label="Kapat">×</button>
+  </div>
+  <ul id="bell-list" class="bell-list"></ul>
+  <a class="bell-all" href="#/gelen" id="bell-all">Tüm bildirimleri gör →</a>
+</section>
+
+<!-- TELEFON: alt sekme çubuğu -->
+<nav class="tabbar" id="tabbar" aria-label="Alt menü">
+  <a href="#/harita" data-nav="harita"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg><span>Harita</span></a>
+  <a href="#/bildirimlerim" data-nav="bildirimlerim"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM8 9h8M8 13h5"/></svg><span>Bildirimlerim</span></a>
+  <a href="#/bildir" data-nav="bildir" class="fab" aria-label="Riskli alan bildir"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></a>
+  <a href="#/liderler" data-nav="liderler"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg><span>Liderler</span></a>
+  <a href="#/ayarlar" data-nav="ayarlar" id="tb-me"><span class="tb-avatar" id="tb-avatar"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span><span id="tb-me-label">Profil</span><b class="count" id="tb-count" hidden>0</b></a>
+</nav>
+
+<!-- TELEFON: ana ekrana ekle kartı -->
+<div class="install" id="install" hidden>
+  <img src="icons/icon-192.png" alt="" width="48" height="48">
+  <div class="install-text">
+    <b>Uygulama gibi kullan</b>
+    <span id="install-how">Ana ekrana ekle, tek dokunuşla aç.</span>
+  </div>
+  <button type="button" class="btn green sm" id="install-go">Ekle</button>
+  <button type="button" class="install-x" id="install-x" aria-label="Kapat">×</button>
+</div>
+
+<!-- YASAK EKRANI -->
+<div class="ban-screen" id="ban-screen" hidden role="alertdialog" aria-labelledby="ban-title">
+  <div class="ban-box">
+    <span class="ban-ico" aria-hidden="true">⛔</span>
+    <h2 id="ban-title">Erişimin kısıtlandı</h2>
+    <p id="ban-text">Bu hesap veya cihaz yöneticiler tarafından kısıtlandı.</p>
+    <div class="ban-count" id="ban-count" hidden><small>Kalan süre</small><b id="ban-left">—</b></div>
+    <p class="small muted" id="ban-until"></p>
+    <p class="small muted">Kısıtlama süresince sadece haritayı görüntüleyebilirsin; bildirim gönderme, oy verme, profil ve ayarlar kilitlidir. Bir hata olduğunu düşünüyorsan okul yöneticinle iletişime geç.</p>
+    <button type="button" class="btn green big" id="ban-ok">Tamam, haritayı görüntüle</button>
+    <button type="button" class="linkish small" id="ban-logout" data-auth hidden>Çıkış yap</button>
+  </div>
+</div>
+<button type="button" class="ban-banner" id="ban-banner" hidden>⛔ Hesabın kısıtlı: sadece haritayı görebilirsin. <u>Ayrıntı</u></button>
+
+<!-- BAKIM EKRANI: site güncellenirken yöneticiler dışında kimse kullanamaz -->
+<div class="maint-screen" id="maint-screen" hidden role="alertdialog" aria-labelledby="maint-title">
+  <div class="ban-box">
+    <span class="ban-ico maint-ico" aria-hidden="true">🛠️</span>
+    <h2 id="maint-title">Site güncelleniyor</h2>
+    <p id="maint-text">Yeni özellikler ekliyoruz. Kısa süre içinde geri döneceğiz.</p>
+    <p class="small muted">Bu sayfa bakım bitince kendiliğinden açılır, yenilemene gerek yok.</p>
+    <button type="button" class="linkish small" id="maint-admin">Yönetici girişi</button>
+  </div>
+</div>
+<div class="maint-banner" id="maint-banner" hidden>🛠️ Bakım modu açık: kullanıcılar siteyi şu an kullanamıyor. <a href="#/yonetici">Kapat</a></div>
+
+<!-- KARŞILAMA EKRANLARI + TANITIM TURU -->
+<div class="welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="wl-title">
+  <div class="welcome-box glass">
+    <div class="wl-progress"><i id="wl-bar"></i></div>
+    <button type="button" class="wl-skip" id="wl-skip">Geç</button>
+    <span class="wl-count" id="wl-count"></span>
+    <div class="wl-slides" id="wl-slides"></div>
+    <div class="wl-dots" id="wl-dots"></div>
+    <div class="wl-actions">
+      <button type="button" class="btn ghost" id="wl-prev">Geri</button>
+      <button type="button" class="btn green" id="wl-next">İleri</button>
+    </div>
+  </div>
+</div>
+<div class="tour" id="tour" hidden>
+  <div class="tour-hole" id="tour-hole"></div>
+  <div class="tour-tip glass" id="tour-tip" role="dialog" aria-live="polite">
+    <div class="wl-progress"><i id="tour-bar"></i></div>
+    <small class="muted" id="tour-step"></small>
+    <b id="tour-title"></b>
+    <p id="tour-text"></p>
+    <div class="wl-actions">
+      <button type="button" class="linkish" id="tour-skip">Turu geç</button>
+      <button type="button" class="btn ghost sm" id="tour-prev">Geri</button>
+      <button type="button" class="btn green sm" id="tour-next">İleri</button>
+    </div>
+  </div>
+</div>
+
+<!-- GÖNDERİLDİ EKRANI -->
+<div class="success" id="success" hidden role="dialog" aria-modal="true" aria-labelledby="sx-title">
+  <div class="success-box">
+    <div class="sx-burst" aria-hidden="true"></div>
+    <svg class="sx-check" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="M14 27l8 8 16-17"/></svg>
+    <svg class="sx-clock" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24"/><path d="M26 13v14l9 5"/></svg>
+    <h2 id="sx-title">Gönderildi!</h2>
+    <p id="sx-text"></p>
+    <div class="sx-points"><span class="plus">+<b id="sx-plus">0</b></span><span>puan</span></div>
+    <div class="sx-total">
+      <div class="row-between"><span class="small muted">Toplam puanın</span><b id="sx-total">…</b></div>
+      <i class="bar"><i id="sx-bar"></i></i>
+      <small class="muted" id="sx-next">Puanın güncelleniyor…</small>
+    </div>
+    <div class="sx-actions">
+      <a class="btn green" href="#/harita" id="sx-map">Haritada gör</a>
+      <a class="btn ghost" href="#/bildir" id="sx-again">Yeni bildirim</a>
+    </div>
+  </div>
+</div>
+
+<!-- GENEL PENCERE (yasakla, rozet ver vb.) -->
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-box">
+    <button type="button" class="modal-x" id="modal-x" aria-label="Kapat">×</button>
+    <h2 id="modal-title"></h2>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- Telefonda bildirim ayrıntısı: ekranın üstünde, tam ekran açılır -->
+<div class="report-view" id="report-view" hidden role="dialog" aria-modal="true" aria-label="Bildirim ayrıntısı">
+  <div class="rv-bar">
+    <span class="rv-dot" aria-hidden="true"></span><b>Bildirim ayrıntısı</b>
+    <button type="button" class="rv-close" id="rv-close" aria-label="Kapat" title="Kapat">✕</button>
+  </div>
+  <div class="rv-body" id="rv-body"></div>
+</div>
+
+<div id="setup-banner" class="banner" hidden>
+  Site henüz bağlanmadı: <code>config.js</code> dosyasına Supabase adresini ve anahtarını yaz. Ayrıntılar README.md içinde.
+</div>
+
+<main>
+  <!-- HARİTA -->
+  <!-- KARŞILAMA SAYFASI -->
+  <section id="view-home" class="view page home" hidden>
+    <div class="home-hero">
+      <div class="hero-film" aria-hidden="true">
+        <video id="hero-video" muted loop playsinline preload="none" poster="media/hero-kapak.jpg" disablepictureinpicture>
+          <source src="media/hero.webm" type="video/webm">
+          <source src="media/hero.mp4" type="video/mp4">
+        </video>
+      </div>
+      <span class="hero-note">Temsilî görüntü</span>
+      <svg class="home-topo" viewBox="-500 -340 1000 680" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <defs><path id="gg-hill" d="M0-100C38-104 74-82 92-46 110-9 100 33 78 62 52 96 10 108-30 98-70 88-104 58-108 18-112-24-88-62-56-82-38-94-20-98 0-100Z"/></defs>
+        <g transform="translate(250 -40)"><use href="#gg-hill" transform="translate(0 0) scale(0.28 0.230)" stroke-width="5.00"/><use href="#gg-hill" transform="translate(0 3) scale(0.46 0.377)" stroke-width="3.04"/><use href="#gg-hill" transform="translate(0 6) scale(0.64 0.525)" stroke-width="2.19"/><use href="#gg-hill" transform="translate(0 9) scale(0.82 0.672)" stroke-width="1.71"/><use href="#gg-hill" transform="translate(0 12) scale(1 0.820)" stroke-width="1.40" class="idx"/><use href="#gg-hill" transform="translate(0 15) scale(1.2 0.984)" stroke-width="1.17"/><use href="#gg-hill" transform="translate(0 18) scale(1.42 1.164)" stroke-width="0.99"/><use href="#gg-hill" transform="translate(0 21) scale(1.66 1.361)" stroke-width="0.84"/><use href="#gg-hill" transform="translate(0 24) scale(1.92 1.574)" stroke-width="0.73"/><use href="#gg-hill" transform="translate(0 27) scale(2.2 1.804)" stroke-width="0.64" class="idx"/></g>
+        <g transform="translate(-330 260) rotate(28)"><use href="#gg-hill" transform="translate(0 0) scale(0.28 0.230)" stroke-width="5.00"/><use href="#gg-hill" transform="translate(0 3) scale(0.46 0.377)" stroke-width="3.04"/><use href="#gg-hill" transform="translate(0 6) scale(0.64 0.525)" stroke-width="2.19"/><use href="#gg-hill" transform="translate(0 9) scale(0.82 0.672)" stroke-width="1.71"/><use href="#gg-hill" transform="translate(0 12) scale(1 0.820)" stroke-width="1.40" class="idx"/><use href="#gg-hill" transform="translate(0 15) scale(1.2 0.984)" stroke-width="1.17"/><use href="#gg-hill" transform="translate(0 18) scale(1.42 1.164)" stroke-width="0.99"/><use href="#gg-hill" transform="translate(0 21) scale(1.66 1.361)" stroke-width="0.84"/><use href="#gg-hill" transform="translate(0 24) scale(1.92 1.574)" stroke-width="0.73"/><use href="#gg-hill" transform="translate(0 27) scale(2.2 1.804)" stroke-width="0.64" class="idx"/></g>
+      </svg>
+      <div class="home-copy">
+        <a class="home-school" href="#/proje">EGEV 100. Yıl Lisesi TÜBİTAK projesi</a>
+        <h1 class="home-title">Gaziemir'in dijital <em>yangın gözcüsü</em></h1>
+        <p class="home-sub">Kuru ot birikimi, ormana bitişik evler, eksik hidrantlar… Yangın riskini <b>yangın çıkmadan önce</b> fotoğraflayıp haritaya ekliyoruz. Gördüğün her risk mahallenin haritasını tamamlar.</p>
+        <div class="home-cta">
+          <a class="btn fire big" href="#/harita">Haritayı aç</a>
+          <a class="btn ghost big" href="#/giris" data-guest>Giriş yap ya da hesap aç</a>
+          <a class="btn ghost big" href="#/bildir" data-auth hidden>Riskli alan bildir</a>
+          <button type="button" class="gtour-btn" data-tour><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Turu izle <small>1 dk · sesli</small></button>
+        </div>
+        <p class="home-facts" id="hm-facts">Bildirimler yükleniyor.</p>
+      </div>
+      <figure class="home-dial" id="hm-dial" aria-labelledby="hm-dial-cap">
+        <svg viewBox="0 -8 240 160" role="img" aria-label="Yangın tehlike göstergesi">
+          <path class="dial-band low" d="M24 126 A96 96 0 0 1 69.1 44.6"/>
+          <path class="dial-band mid" d="M74.9 41.2 A96 96 0 0 1 165.1 41.2"/>
+          <path class="dial-band high" d="M170.9 44.6 A96 96 0 0 1 216 126"/>
+          <text x="40" y="146" class="dial-lbl">düşük</text><text x="120" y="2" class="dial-lbl" text-anchor="middle">orta</text><text x="200" y="146" class="dial-lbl" text-anchor="end">yüksek</text>
+          <g class="dial-needle" id="hm-needle"><path d="M120 126 L116 122 L120 44 L124 122 Z"/><circle cx="120" cy="126" r="8"/></g>
+        </svg>
+        <figcaption id="hm-dial-cap"><b id="hm-score">–</b><span id="hm-score-lbl">Yangın riski göstergesi</span></figcaption>
+      </figure>
+      <button type="button" class="home-down" id="home-down" aria-label="Nasıl çalıştığını görmek için aşağı kaydır"><span>Kaydır</span><s aria-hidden="true"></s></button>
+    </div>
+
+    <div class="mq" aria-hidden="true"><div class="mq-track"><span>KURU OT BİRİKİMİ</span><i>✦</i><span>ORMAN–YERLEŞİM ARAYÜZÜ</span><i>✦</i><span>KONTROLSÜZ YAKIM</span><i>✦</i><span>HİDRANT EKSİKLİĞİ</span><i>✦</i><span>CAM ŞİŞE · MERCEK ETKİSİ</span><i>✦</i><span>SARKMIŞ ELEKTRİK HATTI</span><i>✦</i><span>TAHLİYE YOLU ENGELİ</span><i>✦</i></div></div>
+
+    <section class="gd-wrap" id="rehber" aria-labelledby="gd-h">
+      <header class="gd-head"><span class="mono-k">TANITIM · 1 DAKİKA</span><h2 id="gd-h">Bir kıvılcımdan önce.</h2><p>GeoGözcü'nün sahadan haritaya nasıl çalıştığını izle: sitenin gerçek kaydı, Türkçe anlatım ve altyazıyla.</p></header>
+      <video class="pv" controls preload="none" playsinline width="1920" height="1080" poster="media/tanitim-kapak.jpg" aria-describedby="hm-pv-not">
+        <source src="media/tanitim.mp4" type="video/mp4">
+        Tarayıcın videoyu oynatamıyor. <a href="media/tanitim.mp4" download>Videoyu indir (MP4)</a>.
+      </video>
+      <p class="small muted pv-not" id="hm-pv-not">Açılıştaki orman görüntüsü <b>temsilîdir</b>; sonraki tüm görüntüler bu sitenin gerçek kaydıdır. <a href="media/tanitim.mp4" download="GeoGozcu-tanitim.mp4">MP4 indir</a></p>
+    </section>
+
+    <div class="home-rows" id="home-more">
+      <section class="home-row">
+        <h2>Nasıl çalışır?</h2>
+        <ol class="home-steps">
+          <li><b>Konumu işaretle</b><small>Telefonun konumu alınır; ilçe ve mahalle kendiliğinden bulunur.</small></li>
+          <li><b>Fotoğraf çek</b><small>Güvenli bir mesafeden. Yüz ve plaka görünmesin.</small></li>
+          <li><b>Birkaç soruyu yanıtla</b><small>Bitki örtüsü, ormana uzaklık, eğim, su kaynağı. Cevaplar 0-100 arası risk puanına dönüşür.</small></li>
+          <li><b>Haritada gör</b><small>Bildirim hemen yayına girer. Oradan geçenler “düzeldi mi?” diye oy verir.</small></li>
+        </ol>
+      </section>
+      <section class="home-row">
+        <h2>Neleri haritalıyoruz?</h2>
+        <div>
+          <p>Ana odağımız <b>orman yangını riski</b>: kuru ot birikimi, ormana bitişik evler, kontrolsüz yakım, eksik hidrant. Ayrıca patlak boru gibi <b>acil arızalar</b>, sel, atık, altyapı ve yol hasarları.</p>
+          <div class="home-chips"><span style="--c:#B42318">Yangın riski</span><span style="--c:#E11D48">Acil arıza</span><span style="--c:#1D4ED8">Sel</span><span style="--c:#A16207">Atık</span><span style="--c:#6D28D9">Altyapı</span><span style="--c:#0F766E">Yol</span></div>
+        </div>
+      </section>
+      <section class="home-row">
+        <h2>Birlikte takip</h2>
+        <p>Haritadaki bir yerden geçtin mi? <b>Düzelmiş</b> ya da <b>Hâlâ var</b> de. Çoğunluk “düzelmiş” derse yöneticiler inceler. Her bildirim puan kazandırır; rozetler topla, lider tablosunda yüksel.</p>
+      </section>
+      <section class="home-row">
+        <h2>Önce güvenlik</h2>
+        <p>Bu harita <b>aktif yangınları göstermez</b>. Yanan bir yer görürsen bildirim yapma, hemen <a href="tel:112">112</a>'yi ara. Patlak boru için 185, elektrik için 186, doğalgaz için 187.</p>
+      </section>
+      <section class="home-row">
+        <h2>Proje</h2>
+        <p>Yöntem, risk puanının nasıl hesaplandığı, canlı bulgular ve indirilebilir veri seti <a href="#/proje">proje sayfasında</a>.</p>
+      </section>
+      <div class="home-final">
+        <h2>Mahalleni sen koru.</h2>
+        <a class="btn fire big" href="#/harita">Haritayı aç</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-map" class="view">
+    <div class="map-wrap">
+      <div id="map" aria-label="Gaziemir uydu haritası"></div>
+      <button type="button" class="map-list-btn" id="btn-list" aria-controls="panel" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span id="btn-list-n">Liste</span><i class="urg" aria-label="Acil durum var" hidden></i></button>
+      <div class="legend" id="legend" aria-label="Harita göstergesi">
+        <button type="button" class="legend-head" id="legend-toggle" aria-expanded="true"><strong>Ana risk başlığı</strong><span aria-hidden="true">▾</span></button>
+        <div class="legend-body" id="legend-body"></div>
+      </div>
+    </div>
+    <aside class="panel" id="panel" data-sheet="peek">
+      <button type="button" class="sheet-handle" id="sheet-handle" aria-label="Listeyi aç veya kapat"><i></i></button>
+      <div class="panel-head">
+        <div>
+          <h2>Bildirimler</h2>
+          <p class="muted small" id="count">Yükleniyor…</p>
+        </div>
+        <div class="panel-acts">
+          <button type="button" class="btn ghost sm near-btn" id="btn-near"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="12" r="6.5" stroke-dasharray="3 3"/></svg>Yakınımdakiler</button>
+          <a href="#/bildir" class="btn fire sm only-desktop">+ Bildir</a>
+          <button type="button" class="sheet-close" id="sheet-close" aria-label="Listeyi kapat, haritaya dön">✕</button>
+        </div>
+      </div>
+      <div class="near-bar" id="near-bar" hidden><span>Liste konumuna göre sıralandı</span><button type="button" class="linkish small" id="near-x">Normal sıraya dön</button></div>
+      <div class="quest" id="quest" hidden>
+        <div class="quest-head"><b>🎯 İlk görevlerin</b><span id="quest-count">0 / 5</span><button type="button" id="quest-x" aria-label="Görevleri gizle">×</button></div>
+        <i class="quest-prog"><em id="quest-bar"></em></i>
+        <div class="quest-list" id="quest-list"></div>
+      </div>      <div class="urgent-strip" id="urgent-strip" hidden>
+        <span class="label"><i class="blink"></i>Acil durumlar</span>
+        <div class="urgent-list" id="urgent-list"></div>
+      </div>
+      <div class="mini-stats" aria-label="Özet">
+        <div><b id="st-total">0</b><span>bildirim</span></div>
+        <div><b id="st-high" class="hi">0</b><span>yüksek riskli</span></div>
+        <div><b id="st-week">0</b><span>son 7 gün</span></div>
+      </div>
+      <details class="filter-box" id="filter-box" open>
+      <summary>Filtrele ve ara <b class="filter-count" id="filter-count" hidden>0</b><button type="button" class="linkish small f-reset" id="f-reset" hidden>Sıfırla</button></summary>
+      <div class="filters">
+        <label for="f-search">Ara</label>
+        <input id="f-search" type="search" placeholder="Mahalle, not, gözlemci…">
+        <label for="f-hood">İlçe</label>
+        <select id="f-hood"><option value="all">Tüm ilçeler</option></select>
+        <span class="label">Ana risk başlığı</span>
+        <div class="chips" id="f-cat" role="group" aria-label="Ana risk başlığı"></div>
+        <label for="f-sub">Alt başlık</label>
+        <select id="f-sub"><option value="all">Tümü</option></select>
+        <span class="label">Risk puanı</span>
+        <div class="chips" id="f-level" role="group" aria-label="Risk puanı">
+          <button type="button" class="chip on" data-level="all">Tümü</button>
+          <button type="button" class="chip" data-level="low">Düşük</button>
+          <button type="button" class="chip" data-level="mid">Orta</button>
+          <button type="button" class="chip" data-level="high">Yüksek</button>
+        </div>
+        <span class="label">Eklenme zamanı</span>
+        <div class="chips" id="f-days" role="group" aria-label="Eklenme zamanı">
+          <button type="button" class="chip on" data-days="0">Tümü</button>
+          <button type="button" class="chip" data-days="1">Son 24 saat</button>
+          <button type="button" class="chip" data-days="7">Son 7 gün</button>
+          <button type="button" class="chip" data-days="30">Son 30 gün</button>
+        </div>
+        <label class="switch"><input type="checkbox" id="f-open"><span></span><div>Sadece hâlâ açık olanlar<small class="muted">Çözülen ve “düzelmiş olabilir” işaretlileri gizle</small></div></label>
+        <label class="switch"><input type="checkbox" id="f-view"><span></span><div>Sadece haritada görünen alan<small class="muted">Liste, haritayı kaydırdıkça güncellenir</small></div></label>
+      </div>
+      </details>
+      <ul id="list" class="list"></ul>
+    </aside>
+  </section>
+
+  <!-- RAPOR FORMU -->
+  <section id="view-report" class="view page" hidden>
+    <form id="report-form" class="form" novalidate>
+      <h1 data-split>Riskli alan bildir</h1>
+      <p class="muted reveal rep-intro">Bir risk gördün mü? <b>4 kısa adımda</b> bildir, haritaya hemen düşsün. Fotoğrafı güvenli bir yerden çek.</p>
+      <p class="warn112 reveal"><b>🔥 Şu anda yanan bir yer mi?</b> Bildirim yapma, hemen <a href="tel:112">112</a>'yi ara. Bu harita henüz yanmamış riskli alanlar içindir.</p>
+
+      <div class="steps" id="rep-steps" aria-label="Form ilerlemesi">
+        <ol>
+          <li data-step="cat"><i>1</i><span>Başlık</span></li>
+          <li data-step="loc"><i>2</i><span>Konum</span></li>
+          <li data-step="photo"><i>3</i><span>Foto</span></li>
+          <li data-step="detail"><i>4</i><span>Detay</span></li>
+        </ol>
+        <div class="steps-bar"><i id="steps-fill"></i></div>
+      </div>
+
+      <fieldset class="card" id="cat-card">
+        <legend>Ne gördün? <b class="req">*</b></legend>
+        <div class="cats" id="cat-pick"></div>
+        <div class="cat-sum" id="cat-sum" hidden>
+          <span class="cat-sum-ico" id="cat-sum-ico" aria-hidden="true"></span>
+          <span class="cat-sum-text" id="cat-sum-text"></span>
+          <button type="button" class="btn ghost sm" id="cat-change">Değiştir</button>
+        </div>
+      </fieldset>
+
+      <fieldset class="card" id="sub-card" hidden>
+        <legend id="sub-legend">Tam olarak hangisi?</legend>
+        <div class="subs" id="sub-pick"></div>
+      </fieldset>
+
+      <div id="form-rest" class="form-rest" hidden>
+
+      <div class="card urgent-info" data-for="urgent">
+        <b>🚨 Önce ilgili kuruma haber ver</b>
+        <p class="small">Bu bildirim haritada herkese görünür ama kurumlara otomatik iletilmez. Hemen arayabilirsin:</p>
+        <div class="tel-grid">
+          <a class="tel" href="tel:185"><b>185</b><span>Su arızası (İZSU)</span></a>
+          <a class="tel" href="tel:187"><b>187</b><span>Doğalgaz</span></a>
+          <a class="tel" href="tel:186"><b>186</b><span>Elektrik</span></a>
+          <a class="tel" href="tel:112"><b>112</b><span>Acil çağrı</span></a>
+        </div>
+      </div>
+
+      <fieldset class="card" id="loc-card">
+        <legend>Nerede? <b class="req">*</b></legend>
+        <div id="pick-map" aria-label="Konum seçme haritası"></div>
+        <button type="button" id="btn-locate" class="btn green"><span aria-hidden="true">📍</span>&nbsp;Bulunduğum konumu kullan</button>
+        <p class="muted small" id="pick-info">Ya da haritaya dokunarak noktayı işaretle. İlçe ve mahalle otomatik bulunur.</p>
+        <div class="place" id="place" hidden><span class="place-ico">📍</span><div><b id="place-main">—</b><span class="small muted" id="place-sub"></span></div></div>
+        <details class="more">
+          <summary>Mahalle veya adres düzelt (isteğe bağlı)</summary>
+          <label for="r-hood">Mahalle</label>
+          <input id="r-hood" type="text" maxlength="60" placeholder="Örn. Sarnıç">
+          <label for="r-addr">Açık adres / sokak</label>
+          <input id="r-addr" type="text" maxlength="300" autocomplete="street-address">
+        </details>
+      </fieldset>
+
+      <fieldset class="card" id="photo-card">
+        <legend>Fotoğraflar <b class="req">*</b></legend>
+        <label class="drop" for="r-photo">
+          <span class="drop-ico" aria-hidden="true">📷</span>
+          <b>Fotoğraf çek veya seç</b>
+          <span class="small muted">En az 1, en fazla 3 fotoğraf · her biri en fazla 10 MB</span>
+        </label>
+        <input id="r-photo" class="visually-hidden" type="file" accept="image/*" multiple>
+        <div id="photo-list" class="photo-list"></div>
+      </fieldset>
+
+      <fieldset class="card" data-for="urgent">
+        <legend>Durum ne kadar ciddi? <b class="req">*</b></legend>
+        <div class="pills">
+          <label class="pill"><input type="radio" name="uflow" value="leak"><span>Sızıntı<br><small>damla damla</small></span></label>
+          <label class="pill"><input type="radio" name="uflow" value="flow"><span>Akıyor<br><small>yola yayılıyor</small></span></label>
+          <label class="pill"><input type="radio" name="uflow" value="burst"><span>Fışkırıyor<br><small>çok güçlü</small></span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="card" data-for="urgent">
+        <legend>Ne zamandır böyle? <b class="req">*</b></legend>
+        <div class="pills">
+          <label class="pill"><input type="radio" name="usince" value="now"><span>Az önce fark ettim</span></label>
+          <label class="pill"><input type="radio" name="usince" value="hours"><span>Birkaç saattir</span></label>
+          <label class="pill"><input type="radio" name="usince" value="days"><span>Günlerdir</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="card" data-for="fire">
+        <legend>Bitki örtüsü yoğunluğu <b class="req">*</b></legend>
+        <div class="pills">
+          <label class="pill"><input type="radio" name="veg" value="low"><span>Düşük</span></label>
+          <label class="pill"><input type="radio" name="veg" value="mid"><span>Orta</span></label>
+          <label class="pill"><input type="radio" name="veg" value="high"><span>Yüksek</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="card" data-for="road">
+        <legend>Çukurun veya hasarın boyutu <b class="req">*</b></legend>
+        <div class="pills">
+          <label class="pill"><input type="radio" name="rsize" value="small"><span>Avuç kadar<br>&lt;30 cm</span></label>
+          <label class="pill"><input type="radio" name="rsize" value="mid"><span>Teker kadar<br>30-60 cm</span></label>
+          <label class="pill"><input type="radio" name="rsize" value="large"><span>Büyük<br>60 cm+</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="card" data-for="road">
+        <legend>Derinlik <b class="req">*</b></legend>
+        <div class="pills">
+          <label class="pill"><input type="radio" name="rdepth" value="shallow"><span>Sığ<br>&lt;5 cm</span></label>
+          <label class="pill"><input type="radio" name="rdepth" value="mid"><span>Orta<br>5-10 cm</span></label>
+          <label class="pill"><input type="radio" name="rdepth" value="deep"><span>Derin<br>10 cm+</span></label>
+        </div>
+        <p class="muted small">Emin değilsen bir ayakkabı boyuyla karşılaştır: tabanın tamamı giriyorsa “derin”dir.</p>
+      </fieldset>
+
+      <fieldset class="card" data-for="road">
+        <legend>Yolun neresinde? <b class="req">*</b></legend>
+        <div class="pills wrap">
+          <label class="pill"><input type="radio" name="rpos" value="lane"><span>Araç şeridinde</span></label>
+          <label class="pill"><input type="radio" name="rpos" value="edge"><span>Yol kenarında</span></label>
+          <label class="pill"><input type="radio" name="rpos" value="crossing"><span>Yaya geçidinde</span></label>
+          <label class="pill"><input type="radio" name="rpos" value="sidewalk"><span>Kaldırımda</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="card" data-for="road">
+        <legend>Trafik yoğunluğu <b class="req">*</b></legend>
+        <div class="pills">
+          <label class="pill"><input type="radio" name="rtraffic" value="low"><span>Az</span></label>
+          <label class="pill"><input type="radio" name="rtraffic" value="mid"><span>Orta</span></label>
+          <label class="pill"><input type="radio" name="rtraffic" value="high"><span>Yoğun</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="card" data-for="fire waste flood infra">
+        <legend id="dist-legend">Uzaklık <b class="req">*</b></legend>
+        <div class="pills wrap">
+          <label class="pill"><input type="radio" name="dist" value="0-50"><span>0-50 m</span></label>
+          <label class="pill"><input type="radio" name="dist" value="50-200"><span>50-200 m</span></label>
+          <label class="pill"><input type="radio" name="dist" value="200-500"><span>200-500 m</span></label>
+          <label class="pill"><input type="radio" name="dist" value="500+"><span>500 m+</span></label>
+        </div>
+        <p class="muted small" id="dist-help"></p>
+      </fieldset>
+
+      <fieldset class="card" data-for="flood">
+        <legend>Menfez ve yağmur suyu gideri durumu <b class="req">*</b></legend>
+        <div class="pills">
+          <label class="pill"><input type="radio" name="drain" value="good"><span>Açık</span></label>
+          <label class="pill"><input type="radio" name="drain" value="mid"><span>Kısmen tıkalı</span></label>
+          <label class="pill"><input type="radio" name="drain" value="bad"><span>Tamamen tıkalı</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="card" data-for="waste">
+        <legend>Atık türü <b class="req">*</b></legend>
+        <div class="pills wrap">
+          <label class="pill"><input type="radio" name="wtype" value="household"><span>Evsel çöp</span></label>
+          <label class="pill"><input type="radio" name="wtype" value="rubble"><span>Hafriyat / moloz</span></label>
+          <label class="pill"><input type="radio" name="wtype" value="glass"><span>Cam ve plastik</span></label>
+          <label class="pill"><input type="radio" name="wtype" value="chemical"><span>Kimyasal / ilaç ambalajı</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="card" data-for="waste">
+        <legend>Atık miktarı <b class="req">*</b></legend>
+        <div class="pills">
+          <label class="pill"><input type="radio" name="wamount" value="small"><span>Birkaç poşet</span></label>
+          <label class="pill"><input type="radio" name="wamount" value="mid"><span>Araba dolusu</span></label>
+          <label class="pill"><input type="radio" name="wamount" value="large"><span>Kamyon dolusu</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="card" data-for="fire flood">
+        <legend>Arazi eğimi <b class="req">*</b></legend>
+        <div class="pills">
+          <label class="pill"><input type="radio" name="slope" value="flat"><span>Düz</span></label>
+          <label class="pill"><input type="radio" name="slope" value="mid"><span>Hafif eğimli</span></label>
+          <label class="pill"><input type="radio" name="slope" value="steep"><span>Dik yamaç</span></label>
+        </div>
+        <p class="muted small" id="slope-help"></p>
+      </fieldset>
+
+      <fieldset class="card" data-for="fire">
+        <legend>Yakında su ikmal noktası var mı? <b class="req">*</b></legend>
+        <div class="pills">
+          <label class="pill"><input type="radio" name="water" value="yes"><span>Var</span></label>
+          <label class="pill"><input type="radio" name="water" value="no"><span>Yok</span></label>
+          <label class="pill"><input type="radio" name="water" value="unknown"><span>Bilmiyorum</span></label>
+        </div>
+        <p class="muted small">Yangın hidrantı, gölet, sulama kanalı veya su deposu.</p>
+      </fieldset>
+
+      <fieldset class="card" data-for="fire waste flood infra">
+        <legend>Çevredeki yapı sayısı <b class="req">*</b></legend>
+        <div class="pills">
+          <label class="pill"><input type="radio" name="struct" value="0"><span>Yok</span></label>
+          <label class="pill"><input type="radio" name="struct" value="1-5"><span>1-5</span></label>
+          <label class="pill"><input type="radio" name="struct" value="6-20"><span>6-20</span></label>
+          <label class="pill"><input type="radio" name="struct" value="20+"><span>20+</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="card">
+        <legend>Noktada ayrıca gördüğün unsurlar</legend>
+        <p class="muted small">Başka bir ana başlığa giren bir şey işaretlersen bildirim o başlığa da eklenir.</p>
+        <div id="risk-checks" class="checks"></div>
+      </fieldset>
+
+      <fieldset class="card" data-for="fire waste flood infra">
+        <legend>İtfaiye ve ekip araçları için erişilebilirlik <b class="req">*</b></legend>
+        <div class="pills">
+          <label class="pill"><input type="radio" name="acc" value="1"><span>1</span></label>
+          <label class="pill"><input type="radio" name="acc" value="2"><span>2</span></label>
+          <label class="pill"><input type="radio" name="acc" value="3"><span>3</span></label>
+          <label class="pill"><input type="radio" name="acc" value="4"><span>4</span></label>
+          <label class="pill"><input type="radio" name="acc" value="5"><span>5</span></label>
+        </div>
+        <div class="scale muted small"><span>Çok kötü erişim</span><span>Çok iyi erişim</span></div>
+      </fieldset>
+
+      <fieldset class="card" id="who-card">
+        <legend>Gözlemi kim, ne zaman yaptı?</legend>
+        <label for="r-name">Gözlemci adı ve soyadı <b class="req">*</b></label>
+        <input id="r-name" type="text" maxlength="100" required autocomplete="name">
+        <label for="r-dt">Gözlem tarihi ve saati <b class="req">*</b></label>
+        <input id="r-dt" type="datetime-local" required>
+        <label for="r-notes">Notlar ve ek gözlemler</label>
+        <textarea id="r-notes" rows="3" maxlength="1000" placeholder="Ör. Okul servis güzergâhında, akşamları karanlık…"></textarea>
+      </fieldset>
+
+      <div class="card score-card" id="score-card">
+        <span class="label">Hesaplanan risk puanı</span>
+        <div class="score"><b id="score-val">—</b><span id="score-text" class="muted small">Soruları doldurdukça güncellenir.</span></div>
+        <div class="bar"><i id="score-bar" style="width:0%"></i></div>
+        <span class="small muted" id="cat-out"></span>
+      </div>
+
+      <p id="report-msg" class="msg" role="alert" hidden></p>
+      <button type="submit" id="btn-send" class="btn fire big">Bildirimi gönder</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- KAYIT / GİRİŞ -->
+  <section id="view-auth" class="view auth" hidden>
+    <div class="auth-side">
+      <div class="brand"><span class="logo" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-2 1-3 2-4 0 2 1 2 1 2 0-3 0-5 1-7z"/></svg></span><span class="brand-name" data-appname>GeoGözcü</span></div>
+      <div class="about">
+        <span class="kicker reveal">Küresel sorun · Yerel çözüm</span>
+        <p class="auth-title" data-split>Orman yangını başlamadan önce riski görelim.</p>
+        <p class="auth-sub reveal">Orman yangınları iklim değişikliğiyle büyüyen küresel bir sorun. Biz bu soruna mahallemizden, yerel bir çözüm üretiyoruz: yangın riski taşıyan alanları fotoğraflayıp haritaya ekliyor, risk puanıyla önceliklendiriyoruz. Patlak boru gibi acil arızalar ve yol hasarları da ayrı bölümlerde.</p>
+
+        <div class="about-grid">
+          <section class="about-card reveal">
+            <span class="about-ico" aria-hidden="true">🎯</span>
+            <h3>Neyi amaçlıyoruz?</h3>
+            <p>Küresel bir sorun olan orman yangınlarına yerel bir çözüm üretmek. İzmir'de, özellikle Gaziemir'de orman ile yerleşimin iç içe geçtiği bölgelerdeki kuru ot birikimi, kontrolsüz yakım ve yangın altyapısı eksikliği gibi riskleri yangın çıkmadan görünür kılıyoruz. Vatandaşın gözlemi; belediye, itfaiye ve afet ekiplerinin önceliklendirmesine yardımcı olacak düzenli bir veriye dönüşür.</p>
+          </section>
+          <section class="about-card reveal">
+            <span class="about-ico" aria-hidden="true">🧭</span>
+            <h3>Nasıl çalışır?</h3>
+            <ol>
+              <li>Riskli noktayı güvenli bir yerden fotoğrafla.</li>
+              <li>Kısa anketi doldur; sistem risk puanını hesaplasın.</li>
+              <li>Bildirimin haritada yayına girsin, yöneticiler takip etsin.</li>
+            </ol>
+          </section>
+          <section class="about-card reveal">
+            <span class="about-ico" aria-hidden="true">🌱</span>
+            <h3>Biz kimiz?</h3>
+            <p>EGEV 100. Yıl Lisesi öğrencilerinin TÜBİTAK kapsamında geliştirdiği gönüllü bir vatandaş bilimi projesi.</p>
+          </section>
+        </div>
+
+        <div class="about-stats reveal">
+          <div><b id="ab-total">0</b><span>bildirim</span></div>
+          <div><b id="ab-high">0</b><span>yüksek riskli nokta</span></div>
+          <div><b id="ab-dist">0</b><span>ilçe</span></div>
+        </div>
+        <p class="warn112 light reveal"><b>Bu harita aktif yangınları göstermez.</b> Şu an yanan bir yer görürsen hemen <a href="tel:112">112</a>'yi ara.</p>
+      </div>
+      <p class="small">EGEV 100. Yıl Lisesi · TÜBİTAK projesi</p>
+    </div>
+    <div class="auth-main">
+      <div class="auth-box">
+        <div class="seg" role="tablist">
+          <button type="button" role="tab" id="tab-signup" aria-selected="true">Kayıt ol</button>
+          <button type="button" role="tab" id="tab-login" aria-selected="false">Giriş yap</button>
+        </div>
+        <p id="auth-note" class="msg info" hidden></p>
+        <div class="oauth" id="oauth-box" hidden>
+          <button type="button" class="btn google big" data-google>
+            <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+            Google ile devam et
+          </button>
+          <p class="or"><span>veya e-posta ile</span></p>
+        </div>
+
+        <form id="form-signup" class="stack" novalidate>
+          <h1>Hesap oluştur</h1>
+          <label for="s-user">Kullanıcı adı</label>
+          <input id="s-user" type="text" minlength="3" maxlength="24" autocomplete="username" required>
+          <label for="s-mail">E-posta</label>
+          <input id="s-mail" type="email" autocomplete="email" required>
+          <label for="s-pass">Şifre (en az 8 karakter)</label>
+          <div class="pass"><input id="s-pass" type="password" minlength="8" autocomplete="new-password" required><button type="button" class="eye" data-eye="s-pass" aria-label="Şifreyi göster">👁</button></div>
+          <div class="strength" id="s-strength" aria-live="polite"><i></i><span></span></div>
+          <p class="msg" id="signup-msg" role="alert" hidden></p>
+          <p class="consent small muted">Kayıt olarak <button type="button" class="inline-link" data-legal="kosullar">Kullanım koşullarını</button> ve <button type="button" class="inline-link" data-legal="gizlilik">Gizlilik Politikası</button>'nı kabul etmiş olursun. <button type="button" class="inline-link" data-legal="veri">Verilerini nasıl kullanıyoruz?</button></p>
+          <button class="btn green big" type="submit">Kayıt ol</button>
+        </form>
+
+        <form id="form-verify" class="stack verify" hidden novalidate>
+          <div class="mail-art" aria-hidden="true"><span class="env">✉️</span><span class="ping"></span></div>
+          <h1 id="verify-title">Mail kutunu kontrol et</h1>
+          <p class="verify-to" id="verify-to">Sana bir doğrulama e-postası gönderdik.</p>
+          <ol class="verify-steps">
+            <li><b>E-postanı aç</b><span>“Supabase Auth” gönderen, “Confirm your email address” konulu mail. Gelen kutunda yoksa <b>Spam / Gereksiz</b> klasörüne bak.</span></li>
+            <li><b>“Confirm email address” bağlantısına tıkla</b><span>Bağlantı hangi cihazda açılırsa açılsın kaydın tamamlanır.</span></li>
+            <li><b>Bu sayfaya geri dön</b><span>Seni kendiliğinden içeri alacağız, bir şeye basmana gerek yok.</span></li>
+          </ol>
+          <p class="waiting small"><span class="spin" aria-hidden="true"></span><span id="waiting-text">Bağlantıya tıklamanı bekliyoruz…</span></p>
+          <a class="btn green big" id="open-mail" href="https://mail.google.com" target="_blank" rel="noopener">📬 Mail kutumu aç</a>
+          <button class="btn ghost" type="button" id="btn-check-now">Tıkladım, kontrol et</button>
+          <p class="msg" id="verify-msg" role="alert" hidden></p>
+          <div class="row-links">
+            <button class="linkish" type="button" id="btn-resend">Maili tekrar gönder</button>
+            <button class="linkish" type="button" data-back="signup">E-postayı düzelt</button>
+          </div>
+          <details class="more code-box">
+            <summary>Mailde 6 haneli kod mu var?</summary>
+            <label for="v-code">Doğrulama kodu</label>
+            <input id="v-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8">
+            <button class="btn green" type="submit">Kodla doğrula</button>
+          </details>
+        </form>
+
+        <form id="form-login" class="stack" hidden novalidate>
+          <h1>Giriş yap</h1>
+          <label for="l-mail">E-posta</label>
+          <input id="l-mail" type="email" autocomplete="email" required>
+          <div class="row-between"><label for="l-pass">Şifre</label><button type="button" class="linkish small" id="btn-forgot2">Unuttum</button></div>
+          <div class="pass"><input id="l-pass" type="password" autocomplete="current-password" required><button type="button" class="eye" data-eye="l-pass" aria-label="Şifreyi göster">👁</button></div>
+          <p class="caps small" id="caps" hidden>Caps Lock açık</p>
+          <label class="switch"><input type="checkbox" id="l-remember" checked><span></span>Beni hatırla</label>
+          <p class="muted small remember-help">Kapalıysa tarayıcıyı kapattığında oturumun kapanır. Ortak bilgisayarlarda kapat.</p>
+          <p class="msg" id="login-msg" role="alert" hidden></p>
+          <button class="btn green big" type="submit">Giriş yap</button>
+          <div class="row-links">
+            <button type="button" class="linkish" id="btn-forgot">Şifremi unuttum</button>
+            <button type="button" class="linkish" id="btn-maillogin" hidden>Şifresiz giriş</button>
+          </div>
+          <p class="muted small center">Yöneticiler de buradan girer. Telefonda yönetici paneli üstteki 🛡️ düğmesinde.</p>
+          <nav class="legal-links center" aria-label="Yasal metinler"><button type="button" data-legal="gizlilik">Gizlilik</button><button type="button" data-legal="veri">Verilerin</button><button type="button" data-legal="kosullar">Koşullar</button></nav>
+        </form>
+
+        <form id="form-forgot" class="stack" hidden novalidate>
+          <h1>Şifre sıfırla</h1>
+          <p class="muted small">E-posta adresine sıfırlama bağlantısı göndereceğiz. Bağlantıya tıklayınca yeni şifreni belirleyebilirsin.</p>
+          <label for="fg-mail">E-posta</label>
+          <input id="fg-mail" type="email" autocomplete="email" required>
+          <p class="msg" id="forgot-msg" role="alert" hidden></p>
+          <button class="btn green big" type="submit">Sıfırlama bağlantısı gönder</button>
+          <button type="button" class="linkish center" data-back="login">← Giriş ekranına dön</button>
+        </form>
+
+        <form id="form-maillogin" class="stack" hidden novalidate>
+          <h1>E-posta ile giriş</h1>
+          <p class="muted small">Şifre gerekmez. E-postana gelen 6 haneli kodu gir.</p>
+          <label for="ml-mail">E-posta</label>
+          <input id="ml-mail" type="email" autocomplete="email" required>
+          <p class="msg" id="maillogin-msg" role="alert" hidden></p>
+          <button class="btn green big" type="submit">Kod gönder</button>
+          <button type="button" class="linkish center" data-back="login">← Giriş ekranına dön</button>
+        </form>
+
+        <form id="form-newpass" class="stack" hidden novalidate>
+          <h1>Yeni şifre belirle</h1>
+          <label for="np-pass">Yeni şifre (en az 8 karakter)</label>
+          <div class="pass"><input id="np-pass" type="password" minlength="8" autocomplete="new-password" required><button type="button" class="eye" data-eye="np-pass" aria-label="Şifreyi göster">👁</button></div>
+          <p class="msg" id="newpass-msg" role="alert" hidden></p>
+          <button class="btn green big" type="submit">Şifreyi kaydet</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- BİLDİRİMLERİM -->
+  <section id="view-mine" class="view page wide" hidden>
+    <div class="row-between">
+      <h1 data-split>Bildirimlerim</h1>
+      <a href="#/bildir" class="btn fire sm">+ Yeni bildirim</a>
+    </div>
+    <div class="mine-stats" id="mine-stats"></div>
+    <div class="seg" id="mine-tabs" role="tablist" aria-label="Görünüm">
+      <button type="button" class="chip on" role="tab" data-mtab="reports">Gönderilen <i id="mt-reports">0</i></button>
+      <button type="button" class="chip" role="tab" data-mtab="inbox">Gelen <i class="hot" id="mt-inbox" hidden>0</i></button>
+      <button type="button" class="chip" role="tab" data-mtab="log">Geçmiş</button>
+    </div>
+    <div id="mine-list" class="mine-list"></div>
+    <div id="mine-inbox" hidden></div>
+    <div id="mine-log" hidden></div>
+  </section>
+
+  <!-- PROJE (TÜBİTAK) -->
+  <section id="view-project" class="view page wide proj" hidden>
+    <header class="proj-head">
+      <p class="proj-school" id="pj-school"></p>
+      <h1 id="pj-title">Proje hakkında</h1>
+      <p class="proj-lede">GeoGözcü, Gaziemir'de orman yangını riski taşıyan alanları <b>yangın çıkmadan önce</b> belirlemek için geliştirilen bir vatandaş bilimi uygulamasıdır. Gönüllüler sahada gördükleri riskleri fotoğraflı ve konumlu olarak bildirir; her bildirim aynı ölçütlerle puanlanır ve herkese açık bir haritada toplanır.</p>
+      <p class="proj-team" id="pj-team" hidden></p>
+    </header>
+
+    <nav class="proj-toc" aria-label="Bölümler">
+      <a href="#pj-video" data-jump>Tanıtım videosu</a><a href="#pj-problem" data-jump>Problem</a><a href="#pj-method" data-jump>Yöntem</a><a href="#pj-score" data-jump>Risk puanı</a><a href="#pj-results" data-jump>Bulgular</a><a href="#pj-data" data-jump>Veri seti</a><a href="#pj-ethics" data-jump>Gizlilik</a><a href="#pj-code" data-jump>Kaynak kod</a>
+    </nav>
+
+    <section class="proj-sec" id="pj-video">
+      <h2>Tanıtım videosu</h2>
+      <div>
+        <video class="pv" controls preload="none" playsinline width="1920" height="1080" poster="media/tanitim-kapak.jpg" aria-describedby="pv-not">
+          <source src="media/tanitim.mp4" type="video/mp4">
+          Tarayıcın videoyu oynatamıyor. <a href="media/tanitim.mp4" download>Videoyu indir (MP4)</a>.
+        </video>
+        <p class="small muted pv-not" id="pv-not">1 dk · Türkçe anlatımlı ve altyazılı. Açılıştaki orman görüntüsü <b>temsilîdir</b>; sonraki tüm görüntüler bu sitenin gerçek kaydıdır.
+          <a href="media/tanitim.mp4" download="GeoGozcu-tanitim.mp4">MP4 indir</a> · <a href="media/altyazi.srt" download="GeoGozcu-tanitim.srt">Altyazı (SRT)</a></p>
+      </div>
+    </section>
+
+    <section class="proj-sec" id="pj-problem">
+      <h2>Problem</h2>
+      <div>
+        <p>Akdeniz iklim kuşağında yer alan İzmir, yaz aylarında orman yangınlarından sıkça etkilenen illerden biridir. Gaziemir'in kent dokusu, kuzey ve doğusundaki ormanlık alanlara doğrudan temas eder. Bu geçiş kuşağında biriken kuru ot, budama atıkları, kontrolsüz yakma ve eksik yangın altyapısı, küçük bir kıvılcımın yerleşim alanına ulaşma ihtimalini artırır.</p>
+        <p>Bu riskler çoğu zaman yangından <b>önce</b> görülebilir, ama sistematik olarak kaydedilmez. Projemizin sorusu şudur: <b>Gönüllülerin topladığı standart gözlemlerle, mahalle ölçeğinde yangın riski haritası çıkarılabilir mi?</b></p>
+      </div>
+    </section>
+
+    <section class="proj-sec" id="pj-method">
+      <h2>Yöntem</h2>
+      <div>
+        <ol class="proj-steps">
+          <li><b>Gözlem</b><span>Gönüllü, riskli alanı güvenli bir mesafeden fotoğraflar. Konum telefonun GPS'inden alınır; ilçe ve mahalle OpenStreetMap ile otomatik bulunur.</span></li>
+          <li><b>Standart sorular</b><span>Her kategori için aynı sorular sorulur (bitki örtüsü yoğunluğu, ormana uzaklık, eğim, su kaynağı, itfaiye erişimi, yapı sayısı). Serbest metin yerine seçenekler kullanıldığı için gözlemler karşılaştırılabilir.</span></li>
+          <li><b>Puanlama</b><span>Cevaplar aşağıdaki tabloya göre 0-100 arası bir risk puanına çevrilir. 0-33 düşük, 34-66 orta, 67-100 yüksek risk sayılır.</span></li>
+          <li><b>Doğrulama</b><span>Uygunsuz ya da anlamsız içerik otomatik olarak incelemeye düşer. Haritadaki her bildirim için diğer gönüllüler “sorun düzeldi mi?” oyu verir; çoğunluk düzeldi derse yönetici sahayı kontrol eder.</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="proj-sec" id="pj-score">
+      <h2>Risk puanı (orman yangını)</h2>
+      <div>
+        <p class="muted">Bileşenlerin toplamı 100'ü geçerse puan 100 olarak kabul edilir. Diğer kategoriler (sel, atık, altyapı, yol, acil arıza) kendi sorularıyla benzer biçimde puanlanır.</p>
+        <div class="table-wrap"><table class="proj-table">
+          <thead><tr><th scope="col">Bileşen</th><th scope="col">Seçenekler ve puanlar</th><th scope="col" class="num">En fazla</th></tr></thead>
+          <tbody>
+            <tr><td>Kuru bitki örtüsü yoğunluğu</td><td>Az 0 · Orta 14 · Yoğun 28</td><td class="num">28</td></tr>
+            <tr><td>Orman kenarına uzaklık</td><td>0-50 m 25 · 50-200 m 16 · 200-500 m 8 · 500 m+ 0</td><td class="num">25</td></tr>
+            <tr><td>İtfaiye aracı erişimi (1-5)</td><td>(5 − erişim puanı) × 4</td><td class="num">16</td></tr>
+            <tr><td>Etkilenebilecek yapı sayısı</td><td>Yok 0 · 1-5 5 · 6-20 10 · 20+ 15</td><td class="num">15</td></tr>
+            <tr><td>Arazi eğimi</td><td>Düz 0 · Orta 7 · Dik 14</td><td class="num">14</td></tr>
+            <tr><td>Yakında su kaynağı / hidrant</td><td>Var 0 · Bilinmiyor 6 · Yok 12</td><td class="num">12</td></tr>
+            <tr><td>Ek gözlemler (yakma izi, tüp deposu vb.)</td><td>Her biri 3</td><td class="num">12</td></tr>
+          </tbody>
+        </table></div>
+        <p class="muted small">Ağırlıklar; orman yangını davranışında yakıt yükü, eğim ve müdahale süresinin belirleyici olduğu bilgisine dayanarak ekibimiz tarafından belirlendi. Saha verisi arttıkça gözden geçirilecektir.</p>
+      </div>
+    </section>
+
+    <section class="proj-sec" id="pj-results">
+      <h2>Bulgular</h2>
+      <div>
+        <p class="muted" id="pj-summary">Veriler yükleniyor.</p>
+        <div class="proj-charts">
+          <figure class="chart" id="ch-risk"><figcaption>Risk puanı dağılımı</figcaption><div class="chart-body"></div></figure>
+          <figure class="chart" id="ch-cat"><figcaption>Kategoriye göre bildirim sayısı</figcaption><div class="chart-body"></div></figure>
+          <figure class="chart" id="ch-hood"><figcaption>En çok bildirim gelen mahalleler</figcaption><div class="chart-body"></div></figure>
+          <figure class="chart" id="ch-time"><figcaption>Son 30 günde günlük bildirim</figcaption><div class="chart-body"></div></figure>
+        </div>
+        <p class="muted small">Grafikler haritadaki yayında bildirimlerden canlı olarak hesaplanır.</p>
+      </div>
+    </section>
+
+    <section class="proj-sec" id="pj-data">
+      <h2>Veri seti</h2>
+      <div>
+        <p>Yayındaki tüm bildirimler analiz için indirilebilir. Gözlemci adları ve kullanıcı bilgileri dosyada <b>yer almaz</b>; konumlar yaklaşık 1 m hassasiyete yuvarlanır.</p>
+        <div class="row-gap"><button type="button" class="btn ghost" id="pj-csv">CSV indir (Excel)</button><button type="button" class="btn ghost" id="pj-geo">GeoJSON indir (CBS yazılımları)</button></div>
+        <p class="muted small">Sütunlar: tarih, kategori, alt başlık, risk puanı, ilçe, mahalle, enlem, boylam, çözülme tarihi, “düzelmiş” ve “hâlâ var” oy sayıları.</p>
+      </div>
+    </section>
+
+    <section class="proj-sec" id="pj-ethics">
+      <h2>Gizlilik ve etik</h2>
+      <div>
+        <p>Haritada gözlemci adları kısaltılmış (ör. “A---i K---a”) gösterilir; gerçek adları yalnızca yöneticiler görür. Gönüllülerden yüz ve plaka içeren fotoğraf çekmemeleri istenir. Harita aktif yangınları göstermez ve resmi kurumlara otomatik bildirim yapmaz; acil durumlarda 112 aranmalıdır.</p>
+        <p><button type="button" class="linkish" data-legal="privacy">Gizlilik politikası</button> · <button type="button" class="linkish" data-legal="data">Verilerin kullanımı</button></p>
+      </div>
+    </section>
+
+    <section class="proj-sec proj-code" id="pj-code">
+      <h2>Kaynak kod ve amacımız</h2>
+      <div>
+        <h3 class="code-h">Ne amaçlıyoruz?</h3>
+        <ol class="aims">
+          <li><b>Yangından önce görmek.</b><span>Gaziemir'in ormana dayanan mahallelerinde kuru ot, atık ve eksik altyapı gibi riskleri yangın çıkmadan haritalamak.</span></li>
+          <li><b>Herkesin katılabildiği bilim.</b><span>Öğrenciler ve mahalle sakinleri aynı sorularla, karşılaştırılabilir veri toplar.</span></li>
+          <li><b>Açık veri.</b><span>Belediye, itfaiye ve araştırmacılar verileri CSV ya da GeoJSON olarak indirip kendi analizlerinde kullanabilir.</span></li>
+          <li><b>Afet bilinci.</b><span>Coğrafya ve CBS derslerinde gerçek, yerel veriyle çalışmayı sağlamak.</span></li>
+          <li><b>Kopyalanabilirlik.</b><span>Başka okullar aynı sistemi kendi ilçeleri için ücretsiz araçlarla kurabilsin.</span></li>
+        </ol>
+        <div class="code-card">
+          <div class="code-top"><span class="mono-k">KAYNAK KOD</span><b>geogozcu-kaynak.zip</b><small>Sitenin tamamı · HTML, CSS, JavaScript</small></div>
+          <pre class="code-tree" aria-label="Paket içeriği">geogozcu-kaynak/
+├─ index.html          sayfa iskeleti
+├─ style.css           tasarım
+├─ app.js              uygulama mantığı
+├─ harita-araclari.js  harita araçları
+├─ sinema.js           animasyonlar ve rehber
+├─ sinirlar.js         İzmir / Gaziemir sınırları
+├─ config.js           kendi Supabase bilgilerin
+├─ vendor/             Leaflet, GSAP, Supabase istemcisi
+├─ veritabani/         kurulum SQL dosyaları
+└─ OKU-BENI.md         kurulum adımları</pre>
+          <div class="row-gap"><a class="btn fire" href="geogozcu-kaynak.zip" download>Kaynak kodu indir</a><a class="btn ghost" href="site-tek-dosya.html" download="geogozcu-tek-dosya.html">Tek dosya sürümü</a></div>
+          <p class="muted small">Paket gizli anahtar içermez; kendi Supabase projeni bağlamak için <code>config.js</code> dosyasını doldurman yeterli. Kötü söz filtresinin kelime listesi güvenlik için pakete konmadı. Eğitim amaçlı serbestçe kullanabilirsin; kaynak göstermen rica olunur.</p>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- LİDER TABLOSU -->
+  <section id="view-leaders" class="view page wide" hidden>
+    <div class="lb-hero">
+      <span class="kicker dark">Gönüllü gözlemciler</span>
+      <h1 data-split>Lider tablosu</h1>
+      <p class="muted reveal">Haritaya en çok katkı verenler. Yayındaki her bildirim puan kazandırır; orman yangını riski (ana odağımız) ve acil durum bildirimleri ekstra puan getirir.</p>
+    </div>
+    <div class="lb-filters">
+      <div class="chips" id="lb-period" role="group" aria-label="Dönem">
+        <button type="button" class="chip on" data-period="all">Tüm zamanlar</button>
+        <button type="button" class="chip" data-period="month">Son 30 gün</button>
+        <button type="button" class="chip" data-period="week">Son 7 gün</button>
+      </div>
+      <div class="chips" id="lb-cat" role="group" aria-label="Kategori"></div>
+    </div>
+    <div class="podium" id="podium"></div>
+    <div class="lb-me" id="lb-me" hidden></div>
+    <ol class="lb-list" id="lb-list"></ol>
+    <div class="lb-info">
+      <div class="card reveal">
+        <h2>Nasıl puan kazanılır?</h2>
+        <ul class="points-list">
+          <li><b>+10</b> Yayına giren her bildirim</li>
+          <li><b>+5</b> Yüksek riskli nokta (risk puanı 67+)</li>
+          <li><b>+3</b> Orman yangını riski (ana odak)</li>
+          <li><b>+3</b> Acil altyapı arızası</li>
+          <li><b>+5</b> Bildirdiğin sorun çözüldüğünde</li>
+        </ul>
+        <p class="muted small">İncelemeye düşen veya kaldırılan bildirimler puan getirmez.</p>
+      </div>
+      <div class="card reveal">
+        <h2>Rozetler</h2>
+        <div class="tag-ladder" id="tag-ladder"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AYARLAR -->
+  <section id="view-settings" class="view page wide" hidden>
+    <div class="set-layout">
+      <aside class="set-side">
+        <h1 data-split>Ayarlar</h1>
+        <a class="set-hero glass" id="set-hero" href="#/ayarlar/profil">
+          <span id="hero-avatar"></span>
+          <div class="set-hero-text">
+            <b id="hero-name">—</b>
+            <span class="badge-row" id="hero-badges"></span>
+            <small class="muted" id="hero-sub"></small>
+          </div>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+
+        <nav class="set-menu" aria-label="Ayarlar menüsü">
+          <p class="set-group">Hesap ayarları</p>
+          <a href="#/ayarlar/profil" data-go="profil"><i>🎨</i><span>Profil ve avatar<small>Fotoğraf, emoji, nametag, tanıtım</small></span></a>
+          <a href="#/ayarlar/kullanici-adi" data-go="kullanici-adi"><i>🏷️</i><span>Kullanıcı adı<small id="menu-un-sub">72 saatte bir değiştirilebilir</small></span></a>
+          <a href="#/ayarlar/hesap" data-go="hesap"><i>🪪</i><span>Hesap bilgileri<small>E-posta, üyelik, rozetler</small></span></a>
+          <a href="#/ayarlar/guvenlik" data-go="guvenlik"><i>🔒</i><span>Güvenlik ve şifre<small>Şifre, cihazlar, oturumlar</small></span></a>
+          <a href="#/yonetici" data-admin hidden class="admin-row"><i>🛡️</i><span>Yönetici paneli<small>Bildirimler, kullanıcılar, banlama</small></span></a>
+          <button type="button" data-admin hidden class="admin-row" id="btn-mytags"><i>🏅</i><span>Rozetlerimi düzenle<small>Kurucu, Yönetici vb. rozetleri kendinden kaldır veya ekle</small></span></button>
+          <p class="set-group">Tercihler</p>
+          <a href="#/ayarlar/bildirimler" data-go="bildirimler"><i>🔔</i><span>Bildirimler<small>Anlık, e-posta, duyurular</small></span></a>
+          <a href="#/ayarlar/gorunum" data-go="gorunum"><i>🌗</i><span>Görünüm<small>Tema, harita, animasyonlar</small></span></a>
+          <a href="#/ayarlar/cihaz" data-go="cihaz"><i>📱</i><span>Bu cihaz<small>Ana ekrana ekle</small></span></a>
+          <p class="set-group">Yardım ve eğitim</p>
+          <a href="#/ayarlar/yardim" data-go="yardim"><i>🎓</i><span>Yardım merkezi<small>Tanıtım turu, rehber, SSS</small></span></a>
+          <p class="set-group">Diğer</p>
+          <a href="#/ayarlar/sil" data-go="sil" class="danger-row"><i>🗑️</i><span>Hesabı sil<small>Kalıcı olarak</small></span></a>
+          <button type="button" class="set-logout" id="btn-logout2">🚪 Çıkış yap</button>
+        </nav>
+      </aside>
+
+      <div class="set-main">
+        <a class="set-back" href="#/ayarlar">‹ Ayarlar</a>
+
+        <!-- PROFİL -->
+        <div class="card set profile-card" data-sec="profil">
+          <h2>Profil ve avatar</h2>
+          <div class="profile-head">
+            <span class="avatar xl" id="set-avatar">?</span>
+            <div><b id="set-name">—</b><span class="nametag" id="set-tag" hidden></span><span class="muted small" id="set-meta"></span></div>
+          </div>
+          <div class="points-bar" id="set-points"></div>
+          <span class="label">Avatar</span>
+          <div class="avatar-tools">
+            <label class="btn ghost sm" for="av-file">📷 Fotoğraf yükle</label>
+            <input id="av-file" class="visually-hidden" type="file" accept="image/*">
+            <button type="button" class="btn ghost sm" id="av-clear">Fotoğrafı kaldır</button>
+            <a class="btn ghost sm" id="my-public" href="#/liderler">👁 Herkese açık profilim</a>
+          </div>
+          <div class="emoji-grid" id="av-emoji" role="group" aria-label="Avatar simgesi"></div>
+          <div class="swatches" id="av-color" role="group" aria-label="Avatar rengi"></div>
+          <label for="av-tag">Nametag (kazandığın unvanlardan biri)</label>
+          <select id="av-tag"></select>
+          <label for="av-bio">Kısa tanıtım (isteğe bağlı)</label>
+          <input id="av-bio" type="text" maxlength="160" placeholder="Ör. Sarnıç'ta yaşıyorum, doğa yürüyüşlerini severim">
+          <p class="msg" id="av-msg" role="alert" hidden></p>
+          <button type="button" class="btn green" id="av-save">Profili kaydet</button>
+        </div>
+
+        <!-- KULLANICI ADI -->
+        <div class="card set" data-sec="kullanici-adi">
+          <h2>Kullanıcı adı</h2>
+          <div class="un-status" id="un-status">
+            <div><small class="muted">Son değişiklik</small><b id="un-last">—</b></div>
+            <div><small class="muted">Sonraki değiştirme hakkı</small><b id="un-next">Şimdi</b></div>
+          </div>
+          <form id="form-username" class="inline-form" novalidate>
+            <label for="set-user">Yeni kullanıcı adı</label>
+            <div class="row-gap"><input id="set-user" type="text" minlength="3" maxlength="24" autocomplete="username" spellcheck="false"><button class="btn green" type="submit" id="un-save">Kaydet</button></div>
+            <p class="un-live small" id="un-live"></p>
+            <p class="msg" id="set-user-msg" role="alert" hidden></p>
+          </form>
+          <p class="muted small">Kurallar: 3-24 karakter, harf, rakam, nokta, tire, alt çizgi. Benzersiz olmalı, uygunsuz ifade içeremez. Ad değişince eski adların profilinde “Geçmiş kullanıcı adları” olarak görünür.</p>
+          <h3 class="sub-h">Geçmiş kullanıcı adları</h3>
+          <ol class="un-history" id="un-history"></ol>
+        </div>
+
+        <!-- HESAP BİLGİLERİ -->
+        <div class="card set" data-sec="hesap">
+          <h2>Hesap bilgileri</h2>
+          <dl class="info-list" id="acc-info"></dl>
+          <span class="label">Rozetlerin</span>
+          <div class="badge-row big" id="acc-badges"></div>
+        </div>
+
+        <!-- GÜVENLİK -->
+        <div class="card set" data-sec="guvenlik">
+          <h2>Güvenlik ve şifre</h2>
+          <form id="form-setpass" class="inline-form" novalidate>
+            <label for="set-pass">Yeni şifre</label>
+            <div class="pass"><input id="set-pass" type="password" minlength="8" autocomplete="new-password"><button type="button" class="eye" data-eye="set-pass" aria-label="Şifreyi göster">👁</button></div>
+            <div class="strength" id="set-strength"><i></i><span></span></div>
+            <label for="set-pass2">Yeni şifre (tekrar)</label>
+            <input id="set-pass2" type="password" minlength="8" autocomplete="new-password">
+            <p class="msg" id="set-pass-msg" role="alert" hidden></p>
+            <button class="btn green" type="submit">Şifreyi değiştir</button>
+          </form>
+          <h3 class="sub-h">Oturum açtığım cihazlar</h3>
+          <ul class="device-list" id="my-devices"></ul>
+          <button type="button" class="btn ghost" id="btn-logout-all">Tüm cihazlardan çıkış yap</button>
+        </div>
+
+        <!-- BİLDİRİMLER -->
+        <div class="card set" data-sec="bildirimler">
+          <h2>Bildirimler</h2>
+          <label class="switch"><input type="checkbox" id="n-push"><span></span><div>Anlık (push) bildirimler<small class="muted" id="push-state">Uygulama açıkken ya da arka plandayken telefon/bilgisayar bildirimi.</small></div></label>
+          <label class="switch"><input type="checkbox" id="n-email"><span></span><div>E-posta bildirimleri<small class="muted">Bildirimin onaylandığında, rozet kazandığında e-posta. (Site e-posta sunucusu kurulunca gönderilir.)</small></div></label>
+          <label class="switch"><input type="checkbox" id="n-system"><span></span><div>Sistem duyuruları<small class="muted">Yöneticilerin herkese gönderdiği duyurular. “Acil” duyurular her zaman gelir.</small></div></label>
+          <label class="switch"><input type="checkbox" id="set-sound"><span></span><div>Ses<small class="muted">Yeni bildirim gelince kısa bir ses çal.</small></div></label>
+          <button type="button" class="btn ghost" id="n-test">🔔 Deneme bildirimi göster</button>
+        </div>
+
+        <!-- GÖRÜNÜM -->
+        <div class="card set" data-sec="gorunum">
+          <h2>Görünüm</h2>
+          <span class="label">Tema</span>
+          <div class="chips" id="set-mode">
+            <button type="button" class="chip" data-mode="light">☀️ Açık</button>
+            <button type="button" class="chip" data-mode="dark">🌙 Koyu</button>
+            <button type="button" class="chip" data-mode="auto">⚙️ Sistem</button>
+          </div>
+          <span class="label">Varsayılan harita</span>
+          <div class="chips" id="set-basemap">
+            <button type="button" class="chip" data-basemap="sat">Uydu</button>
+            <button type="button" class="chip" data-basemap="streets">Sokak</button>
+            <button type="button" class="chip" data-basemap="topo">Topoğrafik</button>
+            <button type="button" class="chip" data-basemap="dark">Gece</button>
+            <button type="button" class="chip" data-basemap="plain">Sade</button>
+          </div>
+          <label class="switch"><input type="checkbox" id="set-motion"><span></span><div>Animasyonlar ve efektler<small class="muted">Kapatırsan pil tasarrufu sağlar.</small></div></label>
+          <label class="switch"><input type="checkbox" id="set-contrast"><span></span><div>Yüksek kontrast</div></label>
+        </div>
+
+        <!-- BU CİHAZ -->
+        <div class="card set" data-sec="cihaz">
+          <h2>Bu cihaz</h2>
+          <p class="device-line" id="set-device"></p>
+          <p class="muted small">Siteyi ana ekranına eklersen uygulama gibi tam ekran açılır, internet kesilse de son hâli görünür.</p>
+          <button type="button" class="btn ghost" id="btn-install2">📲 Ana ekrana ekle</button>
+        </div>
+
+        <!-- YARDIM -->
+        <div class="card set" data-sec="yardim">
+          <h2>Yardım merkezi</h2>
+          <button type="button" class="btn ghost sm" id="btn-quest-show">🎯 İlk görevleri göster</button>
+          <button type="button" class="help-hero" id="btn-tour">
+            <span class="help-ico">🎬</span>
+            <span><b>Uygulama tanıtımını tekrar izle</b><small class="muted">Adım adım, 1 dakikalık tur</small></span>
+            <span class="chev">›</span>
+          </button>
+          <h3 class="sub-h">Kullanım rehberi</h3>
+          <div class="accordion" id="guide"></div>
+          <h3 class="sub-h">Gizlilik ve veriler</h3>
+          <nav class="legal-links block" aria-label="Yasal metinler"><button type="button" data-legal="gizlilik">Gizlilik Politikası</button><button type="button" data-legal="veri">Verilerini nasıl kullanıyoruz?</button><button type="button" data-legal="kosullar">Kullanım koşulları</button></nav>
+          <h3 class="sub-h">Sık sorulan sorular</h3>
+          <div class="accordion" id="faq"></div>
+        </div>
+
+        <!-- SİL -->
+        <div class="card set danger-zone" data-sec="sil">
+          <h2>Hesabı sil</h2>
+          <p class="muted small">Hesabın ve gönderdiğin tüm bildirimler kalıcı olarak silinir. Bu işlem geri alınamaz.</p>
+          <button type="button" class="btn danger" id="btn-delete-me">Hesabımı sil</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HERKESE AÇIK PROFİL -->
+  <section id="view-profile" class="view page" hidden>
+    <a class="set-back show" href="javascript:history.back()">‹ Geri</a>
+    <div id="pp-body"></div>
+  </section>
+
+  <!-- YÖNETİCİ -->
+  <section id="view-admin" class="view page wide" hidden>
+    <div class="admin-head">
+      <h1 data-split>Yönetici paneli</h1>
+      <div class="row-gap">
+        <button type="button" id="btn-export" class="btn ghost sm">⬇ CSV</button>
+        <button type="button" id="btn-refresh" class="btn ghost sm">↻ Yenile</button>
+      </div>
+    </div>
+    <div class="admin-layout">
+      <nav class="admin-nav" id="admin-tabs" aria-label="Yönetici menüsü">
+        <span class="an-group">Genel</span>
+        <button type="button" data-tab="overview"><i>📊</i>Genel bakış</button>
+        <span class="an-group">Bildirimler</span>
+        <button type="button" data-tab="pending"><i>⏳</i>İncelenecek<b class="chip-count" id="cnt-pending" hidden></b></button>
+        <button type="button" data-tab="approved"><i>✅</i>Yayında</button>
+        <button type="button" data-tab="rejected"><i>🗂️</i>Kaldırılan</button>
+        <button type="button" data-tab="fixcheck"><i>🔧</i>Düzelmiş olabilir<b class="chip-count" id="cnt-fix" hidden></b></button>
+        <span class="an-group">Kullanıcılar</span>
+        <button type="button" data-tab="users"><i>👥</i>Kullanıcılar</button>
+        <button type="button" data-tab="bans"><i>⛔</i>Banlama</button>
+        <button type="button" data-tab="complaints"><i>🚩</i>Şikâyetler<b class="chip-count" id="cnt-complaints" hidden></b></button>
+        <span class="an-group">Araçlar</span>
+        <button type="button" data-tab="notify"><i>📣</i>Bildirim gönder</button>
+        <button type="button" data-tab="import"><i>📥</i>Veri içe aktar</button>
+        <button type="button" data-tab="logs"><i>📜</i>Kayıtlar</button>
+      </nav>
+      <div class="admin-main">
+        <div class="row-gap admin-filters" id="admin-filters">
+          <input id="a-search" type="search" placeholder="🔍 Bildirimlerde ara…" aria-label="Bildirimlerde ara">
+          <select id="a-cat" aria-label="Kategori"><option value="all">Tüm kategoriler</option></select>
+          <select id="a-sort" aria-label="Sıralama">
+            <option value="new">En yeni</option>
+            <option value="old">En eski</option>
+            <option value="score">Risk puanı yüksek</option>
+            <option value="access">İtfaiye erişimi kötü</option>
+          </select>
+        </div>
+        <div id="admin-body"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot"><span><span data-appname>GeoGözcü</span> · Gaziemir'in dijital yangın gözcüsü · EGEV 100. Yıl Lisesi TÜBİTAK projesi</span><nav class="legal-links" aria-label="Yasal metinler"><button type="button" data-legal="gizlilik">Gizlilik Politikası</button><button type="button" data-legal="veri">Verilerini nasıl kullanıyoruz?</button><button type="button" data-legal="kosullar">Kullanım koşulları</button></nav></footer>
+
+<div id="lightbox" class="lightbox" hidden>
+  <button type="button" id="lb-close" class="lb-close" aria-label="Kapat">×</button>
+  <img id="lb-img" alt="Bildirim fotoğrafı büyük görünüm">
+</div>
+
+<div id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="vendor/leaflet.js"></script>
+<script src="vendor/markercluster.js"></script>
+<script src="vendor/supabase.js"></script>
+<script src="config.js?v=40"></script>
+<script src="sinirlar.js?v=40"></script>
+<script src="harita-araclari.js?v=40"></script>
+  <script src="app.js?v=40"></script>
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="vendor/SplitText.min.js"></script>
+<script src="sinema.js?v=40"></script>
+</body>
+</html>
