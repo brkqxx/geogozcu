@@ -19,6 +19,16 @@
         "araclar/cf"
       ],
       "port": 8001
+    },
+    {
+      "name": "site-ab",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "araclar/sunucu.js",
+        "8002",
+        "araclar/cf-b"
+      ],
+      "port": 8002
     }
   ]
 }

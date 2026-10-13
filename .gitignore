@@ -1,5 +1,6 @@
 # derleme / yayın çıktıları (araclar/deploy.ps1 üretir)
 araclar/cf/
+araclar/cf-b/
 araclar/kaynak-tmp/
 site-tek-dosya.html
 *.zip

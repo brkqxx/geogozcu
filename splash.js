@@ -1,4 +1,5 @@
-// Açılış ekranı: uygulama 12 saniyede açılmazsa yeniden deneme seçeneği çıkar.
+// Açılış ekranı: uygulama 12 saniyede açılmazsa yeniden deneme seçeneği çıkar. Sayfanın sonunda, uygulama betiklerinden önce yüklenir
+// (ilk boyamayı geciktirmesin; yamalar, hafif mod ve data-css yine uygulama betiklerinden önce hazır olur).
 // (Satır içi betik yerine ayrı dosya: içerik güvenlik politikası satır içi betiklere izin vermez.)
 (function () {
   // --- Eski tarayıcı motorları için çok küçük yamalar (yalnız eksikse; büyük polyfill paketi yok) ---
@@ -55,6 +56,8 @@
   new MutationObserver(function (ms) {
     for (var i = 0; i < ms.length; i++) for (var j = 0; j < ms[i].addedNodes.length; j++) fix(ms[i].addedNodes[j]);
   }).observe(document.documentElement, { childList: true, subtree: true });
+  // betik sayfanın sonunda (uygulama betiklerinden hemen önce) çalışır: o ana kadar okunan gövde hemen biçimlenir
+  if (document.body) fix(document.body);
   document.addEventListener('DOMContentLoaded', function () { fix(document.body); });
   // Sayfanın aşağısındaki videoların kapak görseli ilk açılışta inmesin: görünüme yaklaşınca yüklenir
   document.addEventListener('DOMContentLoaded', function () {
