@@ -45,6 +45,7 @@ async function run(p) {
     return { ana_fcp_ms: Math.round(fcp || 0), ana_lcp_ms: Math.round(window.__lcp), ana_dcl_ms: Math.round(nav.domContentLoadedEventEnd || 0) };
   }));
   out.ana_kb = Math.round(bytes / 1024); out.ana_js_kb = Math.round(jsBytes / 1024);
+  if (process.env.GG_SADECE_ANA) { await browser.close(); return out; }
   // 2) harita sayfası soğuk açılış (önbelleksiz yeni sayfa)
   bytes = 0; jsBytes = 0;
   const t1 = Date.now();

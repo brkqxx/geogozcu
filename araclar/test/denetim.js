@@ -21,8 +21,9 @@ async function audit(page) {
       if (!visible(e)) return;
       const r = e.getBoundingClientRect(), cs = getComputedStyle(e);
       if (r.right > W + 2 && cs.position !== 'fixed' && !e.closest('.leaflet-container,.mq,.mq-track,[data-scroll-x]')) {
+        // sabit (fixed) bir kabın içindeki öğe sayfayı yatay kaydıramaz (ör. üstteki yükleme çubuğunun kayan parçası)
         let p = e.parentElement, sc = false;
-        while (p && p !== document.body) { const o = getComputedStyle(p).overflowX; if (o === 'auto' || o === 'scroll' || o === 'hidden' || o === 'clip') { sc = true; break; } p = p.parentElement; }
+        while (p && p !== document.body) { const pc = getComputedStyle(p), o = pc.overflowX; if (pc.position === 'fixed' || o === 'auto' || o === 'scroll' || o === 'hidden' || o === 'clip') { sc = true; break; } p = p.parentElement; }
         if (!sc) out.tasma.push(tag(e));
       }
     });

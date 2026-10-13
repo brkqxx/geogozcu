@@ -4,6 +4,11 @@ Canlı site: **https://geogozcu.pages.dev**
 
 ---
 
+## SÜRÜM 48–49 — ilk boyama ince ayarı (13 Ekim 2026)
+- Yazı tipi tanımları (@font-face) `style.css`'in başında; ayrı `fonts/fonts.css` isteği yok (Lighthouse benzetiminde ilk boyamayı geciktiren ek engelleyici istek kalktı).
+- `splash.js` gövdenin başında, açılış ekranının hemen ardından kalır: sona taşınan sürüm (v48) sırayla ölçülen A/B denemesinde ilk boyamayı ~140–240 ms geciktirdi (tarayıcı bütün sayfayı ayrıştırmadan boyamıyordu); v49'da geri alındı.
+- Ölçüm notu: Lighthouse'un ana iş parçacığı süreleri bilgisayarın o anki yüküne göre değişir; sürümler aynı anda, Cloudflare'in her yayın için verdiği ayrı adreslerde sırayla karşılaştırılmalı.
+
 ## SÜRÜM 47 — Bildir düzeltmesi, performans, şifre yenileme sayfası, yeni tanıtım videosu (13 Ekim 2026)
 - **Bildir haritası:** konum seçme haritasında Gaziemir/İzmir odak düğmeleri biçimsiz (siyah blok) çıkıp haritanın ortasını kapatıyordu; dokunma/tıklama haritaya ulaşmıyordu (kök neden: v43–44 cam kontrol stilleri yalnız ana haritaya `.map-wrap` ile bağlıydı). Artık iki harita aynı kontrol stilini kullanır (eski motorlar için `:is()` yerine düz seçici listesi); küçük haritada odak düğmeleri yalnız simge, uydu tarihi gizli, künye tek satır; kontrollerin kapladığı alan %30–34 → %9–17. Haritada "Riskli noktaya dokun" yönergesi, klavyeyle seçim (ok tuşları + Enter), "Bulunduğum konumu kullan" bekleme durumu ve nedene göre açık hata (izin yok / zaman aşımı / konum yok / https değil). Telefonda uyarı kutusu yapışkan "Gönder" düğmesinin üstünde çıkar.
 - **Performans (eski Android, akıllı tahta):** görünmeyen ana harita karo indirmez (ana sayfa ilk açılışta ~40 uydu karosu / ~400 KB daha az); video kapakları görünüme yaklaşınca yüklenir; yayın kopyası esbuild ile küçültülür ve eski motorlar için ES2019'a indirilir (`araclar/kucult.js`; kaynaklar okunur kalır); `?? / ?.` yok, yalnız 3 küçük yama (globalThis, Array.flat, Object.fromEntries). Küme simgesi hesabı n² → n. Yeni yüklenen fotoğrafların ~360 px önizlemesi (`….t.jpg` → `….k.jpg`) listelerde kullanılır; eski fotoğraflar özgün dosyayla açılır.
