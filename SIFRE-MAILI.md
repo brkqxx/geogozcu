@@ -36,7 +36,14 @@ Supabase → **Authentication → URL Configuration**
 
 Site adresi değişirse (ör. kendi alan adı) burayı da güncelle.
 
-## 3) Koddaki düzeltme (Sürüm 10'da yapıldı)
+## 3) Şifre yenileme sayfası (Sürüm 47)
+
+Bağlantı artık `https://geogozcu.pages.dev/?sifre=1` adresine döner ve site kendi **#/sifre-yenile** sayfasını açar
+(yeni şifre + tekrarı). Süresi dolmuş ya da kullanılmış bağlantıda aynı sayfada açıklama ve yeni bağlantı isteme formu çıkar.
+Supabase tarafında ayar değişikliği gerekmez: Redirect URLs listesindeki `https://geogozcu.pages.dev/**` bu adresi kapsar
+(13 Ekim 2026'da doğrulandı). Şablondaki `{{ .ConfirmationURL }}` aynen kalmalı.
+
+## 4) Koddaki düzeltme (Sürüm 10'da yapıldı)
 
 Eski sürüm sıfırlama bağlantısını `.../#/giris` adresine gönderiyordu. Supabase jetonu da `#` ile eklediği için adres
 `...#/giris#access_token=...` gibi **çift #** oluyordu; site jetonu okuyamıyor, seni haritaya atıyordu.

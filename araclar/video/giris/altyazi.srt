@@ -1,0 +1,29 @@
+1
+00:00:00,500 --> 00:00:04,569
+Orman yangınları çoğu zaman,
+gözden kaçan küçük risklerle başlar.
+
+2
+00:00:05,400 --> 00:00:09,660
+GeoGözcü, bu riskleri gönüllülerin gözüyle
+tek bir haritada topluyor.
+
+3
+00:00:12,500 --> 00:00:18,659
+Riskli bir alan gördüğünde konumu haritada işaretle,
+fotoğrafını ekle ve birkaç kısa soruyu yanıtla.
+
+4
+00:00:21,850 --> 00:00:26,344
+Her bildirim aynı ölçütlerle puanlanır
+ve herkese açık haritada yerini alır.
+
+5
+00:00:26,900 --> 00:00:31,025
+Şu anda yanan bir yer görürsen bildirim yapma;
+hemen 112’yi ara.
+
+6
+00:00:31,250 --> 00:00:35,297
+GeoGözcü: riski, yangın çıkmadan önce
+birlikte haritalıyoruz.

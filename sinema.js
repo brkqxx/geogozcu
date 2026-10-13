@@ -7,7 +7,7 @@
   'use strict';
   const g = window.gsap;
   const root = document.documentElement;
-  const calm = () => root.dataset.motion === 'calm' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const calm = () => root.dataset.motion === 'off' || root.dataset.motion === 'calm' || root.classList.contains('lite') || matchMedia('(prefers-reduced-motion: reduce)').matches;
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 

@@ -27,3 +27,7 @@ Thumbs.db
 node_modules/
 .env
 .env.*
+araclar/video/giris/*.webm
+araclar/video/giris/*.png
+araclar/video/giris/giris-*.mp4
+araclar/video/giris/s[0-9]/

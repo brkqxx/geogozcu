@@ -15,10 +15,10 @@
 <meta name="apple-mobile-web-app-title" content="GeoGözcü">
 <meta name="format-detection" content="telephone=no">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231F4D3A'/%3E%3Cpath d='M16 6c1.5 4 5 6 5 11a5 5 0 0 1-10 0c0-2.5 1.2-4 2.5-5 0 2.5 1 3 1 3 0-4 0-6 1.5-9z' fill='%23fff'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="fonts/fonts.css?v=46">
+<link rel="stylesheet" href="fonts/fonts.css?v=47">
 <link rel="stylesheet" href="vendor/leaflet.css">
 <link rel="stylesheet" href="vendor/markercluster.css">
-<link rel="stylesheet" href="style.css?v=46">
+<link rel="stylesheet" href="style.css?v=47">
 </head>
 <body>
 
@@ -32,7 +32,7 @@
     <button type="button" id="splash-retry">Yeniden dene</button>
   </div>
 </div>
-<script src="splash.js?v=46"></script>
+<script src="splash.js?v=47"></script>
 <div id="topbar" aria-hidden="true"><i></i></div>
 
 <header class="top">
@@ -222,9 +222,9 @@
   <section id="view-home" class="view page home" hidden>
     <div class="home-hero hx">
       <div class="hero-film" aria-hidden="true">
-        <video id="hero-video" muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=46" disablepictureinpicture>
-          <source src="media/hero.webm?v=46" type="video/webm">
-          <source src="media/hero.mp4?v=46" type="video/mp4">
+        <video id="hero-video" muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=47" disablepictureinpicture>
+          <source src="media/hero.webm?v=47" type="video/webm">
+          <source src="media/hero.mp4?v=47" type="video/mp4">
         </video>
       </div>
       <div class="hx-shade" aria-hidden="true"><i class="h"></i><i class="v"></i><i class="r"></i></div>
@@ -264,12 +264,17 @@
     <div class="mq" aria-hidden="true"><div class="mq-track"><span>KURU OT BİRİKİMİ</span><i>✦</i><span>ORMAN–YERLEŞİM ARAYÜZÜ</span><i>✦</i><span>KONTROLSÜZ YAKIM</span><i>✦</i><span>HİDRANT EKSİKLİĞİ</span><i>✦</i><span>CAM ŞİŞE · MERCEK ETKİSİ</span><i>✦</i><span>SARKMIŞ ELEKTRİK HATTI</span><i>✦</i><span>TAHLİYE YOLU ENGELİ</span><i>✦</i></div></div>
 
     <section class="gd-wrap" id="rehber" aria-labelledby="gd-h">
-      <header class="gd-head"><span class="mono-k">TANITIM · 1 DAKİKA</span><h2 id="gd-h">Bir kıvılcımdan önce.</h2><p>GeoGözcü'nün sahadan haritaya nasıl çalıştığını izle: sitenin gerçek kaydı, Türkçe anlatım ve altyazıyla.</p></header>
-      <video class="pv" controls preload="none" playsinline width="1920" height="1080" poster="media/tanitim-kapak.jpg?v=46" aria-describedby="hm-pv-not">
-        <source src="media/tanitim.mp4?v=46" type="video/mp4">
-        Tarayıcın videoyu oynatamıyor. <a href="media/tanitim.mp4" download>Videoyu indir (MP4)</a>.
+      <header class="gd-head"><span class="mono-k">TANITIM · 37 SANİYE</span><h2 id="gd-h">Bir kıvılcımdan önce.</h2><p>GeoGözcü'nün sahadan haritaya nasıl çalıştığını izle: sitenin gerçek kaydı, Türkçe anlatım ve altyazıyla.</p></header>
+      <video class="pv" controls preload="none" playsinline width="1280" height="720" data-poster="media/giris-kapak.jpg?v=47" aria-describedby="hm-pv-not">
+        <source src="media/giris-480.mp4?v=47" type="video/mp4" media="(max-width: 700px)">
+        <source src="media/giris.mp4?v=47" type="video/mp4">
+        Tarayıcın videoyu oynatamıyor. <a href="media/giris.mp4" download>Videoyu indir (MP4)</a>.
       </video>
-      <p class="small muted pv-not" id="hm-pv-not">Tüm görüntüler bu sitenin gerçek kaydıdır. <a href="media/tanitim.mp4" download="GeoGozcu-tanitim.mp4">MP4 indir</a></p>
+      <p class="small muted pv-not" id="hm-pv-not">Tüm görüntüler bu sitenin gerçek kaydıdır; altyazı videonun içindedir. <a href="media/giris.mp4" download="GeoGozcu-tanitim.mp4">MP4 indir</a></p>
+      <details class="pv-metin">
+        <summary>Videonun metni</summary>
+        <p>Orman yangınları çoğu zaman, gözden kaçan küçük risklerle başlar. GeoGözcü, bu riskleri gönüllülerin gözüyle tek bir haritada topluyor. Riskli bir alan gördüğünde konumu haritada işaretle, fotoğrafını ekle ve birkaç kısa soruyu yanıtla. Her bildirim aynı ölçütlerle puanlanır ve herkese açık haritada yerini alır. Şu anda yanan bir yer görürsen bildirim yapma; hemen 112’yi ara. GeoGözcü: riski, yangın çıkmadan önce birlikte haritalıyoruz.</p>
+      </details>
     </section>
 
     <div class="home-rows" id="home-more">
@@ -424,9 +429,9 @@
 
       <fieldset class="card" id="loc-card">
         <legend>Nerede? <b class="req">*</b></legend>
-        <div id="pick-map" aria-label="Konum seçme haritası"></div>
-        <button type="button" id="btn-locate" class="btn green"><span aria-hidden="true">📍</span>&nbsp;Bulunduğum konumu kullan</button>
-        <p class="muted small" id="pick-info">Ya da haritaya dokunarak noktayı işaretle. İlçe ve mahalle otomatik bulunur.</p>
+        <div id="pick-map" class="pick-map" role="application" aria-label="Konum seçme haritası. Dokunarak ya da tıklayarak nokta seç; klavyede ok tuşlarıyla kaydırıp Enter ile ortadaki noktayı seç." aria-describedby="pick-info"></div>
+        <button type="button" id="btn-locate" class="btn green" aria-describedby="pick-info"><span aria-hidden="true">📍</span>&nbsp;Bulunduğum konumu kullan</button>
+        <p class="muted small" id="pick-info" aria-live="polite">Ya da haritaya dokunarak noktayı işaretle. İlçe ve mahalle otomatik bulunur.</p>
         <div class="place" id="place" hidden><span class="place-ico">📍</span><div><b id="place-main">—</b><span class="small muted" id="place-sub"></span></div></div>
         <details class="more">
           <summary>Mahalle veya adres düzelt (isteğe bağlı)</summary>
@@ -626,7 +631,7 @@
   <!-- KAYIT / GİRİŞ -->
   <section id="view-auth" class="view auth" hidden>
     <div class="auth-side">
-      <div class="auth-film" aria-hidden="true"><video data-film muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=46" disablepictureinpicture><source src="media/hero.webm?v=46" type="video/webm"><source src="media/hero.mp4?v=46" type="video/mp4"></video><i></i></div>
+      <div class="auth-film" aria-hidden="true"><video data-film muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=47" disablepictureinpicture><source src="media/hero.webm?v=47" type="video/webm"><source src="media/hero.mp4?v=47" type="video/mp4"></video><i></i></div>
       <div class="brand"><span class="logo" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-2 1-3 2-4 0 2 1 2 1 2 0-3 0-5 1-7z"/></svg></span><span class="brand-name" data-appname>GeoGözcü</span></div>
       <div class="about">
         <span class="kicker reveal">Küresel sorun · Yerel çözüm</span>
@@ -757,13 +762,47 @@
           <button type="button" class="linkish center" data-back="login">← Giriş ekranına dön</button>
         </form>
 
-        <form id="form-newpass" class="stack" hidden novalidate>
-          <h1>Yeni şifre belirle</h1>
-          <label for="np-pass">Yeni şifre (en az 8 karakter)</label>
-          <div class="pass"><input id="np-pass" type="password" minlength="8" autocomplete="new-password" required><button type="button" class="eye" data-eye="np-pass" aria-label="Şifreyi göster">👁</button></div>
-          <p class="msg" id="newpass-msg" role="alert" hidden></p>
-          <button class="btn green big" type="submit">Şifreyi kaydet</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ŞİFRE YENİLEME: e-postadaki sıfırlama bağlantısı buraya döner (#/sifre-yenile) -->
+  <section id="view-reset" class="view page" hidden>
+    <div class="card reset-box">
+      <div id="rs-checking" class="rs-state" role="status">
+        <span class="spin" aria-hidden="true"></span>
+        <p>Sıfırlama bağlantısı doğrulanıyor…</p>
+      </div>
+
+      <form id="form-reset" class="stack" hidden novalidate>
+        <h1>Yeni şifre belirle</h1>
+        <p class="muted small" id="rs-who"></p>
+        <label for="rs-pass">Yeni şifre</label>
+        <div class="pass"><input id="rs-pass" type="password" minlength="8" maxlength="72" autocomplete="new-password" required aria-describedby="rs-rules"><button type="button" class="eye" data-eye="rs-pass" aria-label="Şifreyi göster">👁</button></div>
+        <div class="strength" id="rs-strength" aria-live="polite"><i></i><span></span></div>
+        <p class="muted small" id="rs-rules">En az 8 karakter. Harf ve rakamı karıştır; başka sitede kullandığın bir şifreyi seçme.</p>
+        <label for="rs-pass2">Yeni şifreyi tekrar yaz</label>
+        <div class="pass"><input id="rs-pass2" type="password" maxlength="72" autocomplete="new-password" required><button type="button" class="eye" data-eye="rs-pass2" aria-label="Şifreyi göster">👁</button></div>
+        <p class="msg" id="reset-msg" role="alert" hidden></p>
+        <button class="btn green big" type="submit" id="rs-save">Şifreyi kaydet</button>
+      </form>
+
+      <div id="rs-invalid" class="stack" hidden>
+        <h1>Bağlantı kullanılamıyor</h1>
+        <p id="rs-invalid-text" role="alert"></p>
+        <form id="form-reset-again" class="stack" novalidate>
+          <label for="rs-mail">E-posta</label>
+          <input id="rs-mail" type="email" autocomplete="email" required>
+          <p class="msg" id="reset-again-msg" role="alert" hidden></p>
+          <button class="btn green big" type="submit">Yeni sıfırlama bağlantısı gönder</button>
         </form>
+        <a class="linkish center" href="#/giris">← Giriş ekranına dön</a>
+      </div>
+
+      <div id="rs-done" class="stack" hidden>
+        <h1>Şifren güncellendi</h1>
+        <p>Yeni şifrenle oturumun açık. Güvenliğin için diğer cihazlardaki açık oturumlar kapatıldı.</p>
+        <a class="btn green big" href="#/harita">Haritaya git</a>
       </div>
     </div>
   </section>
@@ -801,8 +840,8 @@
     <section class="proj-sec" id="pj-video">
       <h2>Tanıtım videosu</h2>
       <div>
-        <video class="pv" controls preload="none" playsinline width="1920" height="1080" poster="media/tanitim-kapak.jpg" aria-describedby="pv-not">
-          <source src="media/tanitim.mp4?v=46" type="video/mp4">
+        <video class="pv" controls preload="none" playsinline width="1920" height="1080" data-poster="media/tanitim-kapak.jpg?v=47" aria-describedby="pv-not">
+          <source src="media/tanitim.mp4?v=47" type="video/mp4">
           Tarayıcın videoyu oynatamıyor. <a href="media/tanitim.mp4" download>Videoyu indir (MP4)</a>.
         </video>
         <p class="small muted pv-not" id="pv-not">1 dk · Türkçe anlatımlı ve altyazılı. Tüm görüntüler bu sitenin gerçek kaydıdır.
@@ -1084,6 +1123,13 @@
             <button type="button" class="chip" data-basemap="plain">Sade</button>
           </div>
           <label class="switch"><input type="checkbox" id="set-motion"><span></span><div>Animasyonlar ve efektler<small class="muted">Kapatırsan pil tasarrufu sağlar.</small></div></label>
+          <span class="label" id="set-lite-l">Hafif mod <small class="muted">eski telefon ve akıllı tahtalar için: cam bulanıklığı, animasyon ve ağır harita efektleri kapanır</small></span>
+          <div class="chips" id="set-lite" role="radiogroup" aria-labelledby="set-lite-l">
+            <button type="button" class="chip" role="radio" data-lite="auto">Otomatik</button>
+            <button type="button" class="chip" role="radio" data-lite="1">Açık</button>
+            <button type="button" class="chip" role="radio" data-lite="0">Kapalı</button>
+          </div>
+          <p class="muted small" id="set-lite-now"></p>
           <label class="switch"><input type="checkbox" id="set-contrast"><span></span><div>Yüksek kontrast</div></label>
         </div>
 
@@ -1184,13 +1230,13 @@
 <script src="vendor/leaflet.js"></script>
 <script src="vendor/markercluster.js"></script>
 <script src="vendor/supabase.js"></script>
-<script src="config.js?v=46"></script>
-<script src="sinirlar.js?v=46"></script>
-<script src="harita-araclari.js?v=46"></script>
-  <script src="app.js?v=46"></script>
+<script src="config.js?v=47"></script>
+<script src="sinirlar.js?v=47"></script>
+<script src="harita-araclari.js?v=47"></script>
+  <script src="app.js?v=47"></script>
 <script src="vendor/gsap.min.js"></script>
 <script src="vendor/ScrollTrigger.min.js"></script>
 <script src="vendor/SplitText.min.js"></script>
-<script src="sinema.js?v=46"></script>
+<script src="sinema.js?v=47"></script>
 </body>
 </html>

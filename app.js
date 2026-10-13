@@ -205,7 +205,8 @@
   const splashMsg = (t) => { const m = document.getElementById('splash-msg'); if (m) m.textContent = t; };
 
   /* =================== EFEKTLER =================== */
-  const calm = () => prefs.motion === 'off' || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lite = () => !!(window.GGLite && GGLite.on());
+  const calm = () => prefs.motion === 'off' || lite() || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Başlıkları kelime kelime yavaşça aç
   function splitWords(root = document) {
@@ -387,6 +388,13 @@
   }, 'gizli-sekme');
   // Şifre sıfırlama bağlantısından mı geldik? (Supabase adresi temizlemeden önce bakılır)
   const RECOVERY_LINK = /type=recovery/.test(location.hash);
+  // Şifre sıfırlama e-postası ?sifre=1 adresine döner: başarılı ya da hatalı her durumda doğru sayfa açılır
+  const RESET_LINK = /[?&]sifre=1/.test(location.search);
+  // Sayfa yenilense de "şifre yenileme" ekranı kaybolmasın diye sekmeye özel işaret (jeton saklanmaz; 1 saat geçerli)
+  const RESET_KEY = 'gg-sifre-yenile', RESET_TTL = 60 * 60e3;
+  const resetMark = (on) => { try { if (on) sessionStorage.setItem(RESET_KEY, String(Date.now())); else sessionStorage.removeItem(RESET_KEY); } catch (_) { /* gizli sekme */ } };
+  const resetActive = () => { try { const t = Number(sessionStorage.getItem(RESET_KEY) || 0); return t > 0 && Date.now() - t < RESET_TTL; } catch (_) { return false; } };
+  if (RECOVERY_LINK) resetMark(true);
   // E-posta bağlantısıyla (giriş, sıfırlama ya da hata) mı açıldı? O zaman yeni sürüm için sayfa kendiliğinden yenilenmez,
   // yoksa adresteki bilgi kaybolur ve "yeni şifre" ekranı / hata mesajı görünmez.
   const AUTH_LINK = /access_token=|error_code=|error_description=|type=recovery/.test(location.hash);
@@ -408,6 +416,11 @@
     realNames = {}; (data || []).forEach((x) => { realNames[x.id] = x.observer_name; });
   }
   const photoUrl = (path) => sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+  // Küçük önizleme: yeni yüklenen "….t.jpg" fotoğrafın ~360 px'lik önizlemesi aynı adla "….k.jpg" olarak durur.
+  // Eski fotoğraflarda önizleme yoktur; özgün dosya kullanılır (boşa istek ya da hata oluşmaz).
+  const thumbOf = (path) => (/\.t\.jpg$/.test(path) ? path.replace(/\.t\.jpg$/, '.k.jpg') : path);
+  const thumbUrl = (path) => photoUrl(thumbOf(path));
+  const withThumbs = (paths) => paths.reduce((a, p) => a.concat(thumbOf(p) !== p ? [p, thumbOf(p)] : [p]), []);
   const photosOf = (r) => (r.photo_paths && r.photo_paths.length ? r.photo_paths : (r.photo_path ? [r.photo_path] : []));
 
   let session = null, profile = null, approved = [];
@@ -541,7 +554,30 @@
   }
 
   /* =================== HARİTA =================== */
+  // Haritada gerçek kare hızı bir kez ölçülür: ayar "otomatik"ken boşta bile kareler çok yavaşsa (medyan > 45 ms ≈ 22 fps altı)
+  // bu oturum için hafif mod açılır. Kalıcı seçim Ayarlar'dadır.
+  let fpsProbed = false;
+  function probeFps() {
+    if (fpsProbed || !window.GGLite || GGLite.pref() !== 'auto' || lite() || calm()) return;
+    fpsProbed = true;
+    setTimeout(() => {
+      if (document.hidden) { fpsProbed = false; return; }
+      const d = []; let last = 0;
+      const step = (t) => {
+        if (last) d.push(t - last);
+        last = t;
+        if (d.length < 45) return requestAnimationFrame(step);
+        const med = d.slice().sort((a, b) => a - b)[Math.floor(d.length / 2)];
+        if (med > 45 && !document.hidden) {
+          document.documentElement.classList.add('lite');
+          toast('Cihaz yavaş çalışıyor; akıcı olsun diye hafif mod açıldı. Ayarlar → Görünüm’den değiştirebilirsin.');
+        }
+      };
+      requestAnimationFrame(step);
+    }, 3000);
+  }
   function makeMap(el) {
+    L.TileLayer.mergeOptions({ updateWhenZooming: false, keepBuffer: lite() ? 1 : 2 });
     const bounds = SIN ? L.latLngBounds(SIN.izmir.flat()) : L.latLngBounds([IZMIR.south, IZMIR.west], [IZMIR.north, IZMIR.east]);
     const map = L.map(el, {
       center: GAZIEMIR, zoom: 13, minZoom: 9, maxZoom: 19,
@@ -549,6 +585,8 @@
       // yumuşak yakınlaştırma: fare tekerinde yarım adımlar, dokunmatikte ataletli kaydırma
       zoomSnap: 0.25, zoomDelta: 0.5, wheelPxPerZoomLevel: 110, wheelDebounceTime: 30,
       inertiaDeceleration: 2600, zoomControl: el !== 'map' || document.documentElement.dataset.ui !== 'mobile',
+      // hafif modda karo solma ve işaretçi yakınlaştırma animasyonları kapalı (düşük güçlü GPU'da takılmayı azaltır)
+      fadeAnimation: !lite(), markerZoomAnimation: !lite(),
     });
     // Altlıklar ve katman seçici harita-araclari.js'de (uydu, sokak, topoğrafik, gece, sade)
     const bm = window.GGMap.addBasemaps(map, prefs.basemap, { compact: el !== 'map' });
@@ -563,8 +601,8 @@
       onAdd: function () {
         const d = L.DomUtil.create('div', 'leaflet-bar focus-btn');
         L.DomEvent.disableClickPropagation(d);
-        d.innerHTML = '<a href="#" role="button" data-f="g" title="Gaziemir\'e odaklan"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg><span>Gaziemir</span></a>' +
-          '<a href="#" role="button" data-f="i" title="Tüm İzmir\'i göster"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>İzmir</span></a>';
+        d.innerHTML = '<a href="#" role="button" data-f="g" title="Gaziemir\'e odaklan" aria-label="Gaziemir\'e odaklan"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/></svg><span>Gaziemir</span></a>' +
+          '<a href="#" role="button" data-f="i" title="Tüm İzmir\'i göster" aria-label="Tüm İzmir\'i göster"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>İzmir</span></a>';
         L.DomEvent.on(d, 'click', (e) => {
           L.DomEvent.stop(e);
           const f = e.target.closest('[data-f]'); if (!f) return;
@@ -631,7 +669,7 @@
     const ps = photosOf(r);
     if (!ps.length) return '';
     return '<div class="shots">' + ps.map((p) =>
-      '<img loading="lazy" alt="Bildirim fotoğrafı" data-full="' + esc(photoUrl(p)) + '" src="' + esc(photoUrl(p)) + '">').join('') + '</div>';
+      '<img loading="lazy" decoding="async" alt="Bildirim fotoğrafı" data-full="' + esc(photoUrl(p)) + '" src="' + esc(thumbUrl(p)) + '">').join('') + '</div>';
   }
 
   function detailLines(r) {
@@ -974,7 +1012,7 @@
     shown = approved.filter(matches);
     markerLayer.clearLayers();
     Object.keys(markerById).forEach((k) => delete markerById[k]);
-    const useCanvas = shown.length > CANVAS_LIMIT;
+    const useCanvas = shown.length > (lite() ? 250 : CANVAS_LIMIT);
     if (useCanvas && !canvasR) canvasR = L.canvas({ padding: 0.3 });
     const desktop = document.documentElement.dataset.ui !== 'mobile';
     // balon haritadan uzun olmasın; sığmazsa içinde kaydırılır
@@ -989,11 +1027,11 @@
         });
       m.bindPopup(() => popupHtml(r), { maxWidth: 320, minWidth: 260, maxHeight: popMaxH, className: 'gg-popup', autoPan: desktop, autoPanPaddingTopLeft: [40, 70], autoPanPaddingBottomRight: [40, 40] });
       if (desktop) m.bindTooltip('<b>' + esc(subLabel(r)) + '</b><span>' + esc(placeOf(r)) + ' · risk ' + (r.risk_score || 0) + '</span>', { direction: 'top', offset: [0, useCanvas ? -8 : -36], className: 'gg-tip', opacity: 1 });
-      m._rid = r.id; markerById[r.id] = m;
+      m._rid = r.id; m._risk = r.risk_score || 0; markerById[r.id] = m;
       return m;
     });
     if (markerLayer.addLayers) markerLayer.addLayers(ms); else ms.forEach((m) => m.addTo(markerLayer));
-    if (!opts.noFit && !filt.view && shown.length > 1 && (firstFit || opts.fit)) {
+    if (!opts.noFit && !filt.view && shown.length > 1 && (firstFit || opts.fit) && mainMap.getSize().x > 0) {
       mainMap.fitBounds(shown.map((r) => [r.lat, r.lng]), { padding: [60, 60], maxZoom: 16 });
       firstFit = false;
     }
@@ -1028,7 +1066,7 @@
       const li = document.createElement('li');
       li.style.setProperty('--i', Math.min(i, 15));
       li.innerHTML = '<button type="button" class="item">' +
-        (ps.length ? '<img alt="" loading="lazy" src="' + esc(photoUrl(ps[0])) + '">' : '') +
+        (ps.length ? '<img alt="" loading="lazy" decoding="async" src="' + esc(thumbUrl(ps[0])) + '">' : '') +
         '<span><b>' + esc(subLabel(r)) + '</b>' +
         (r._d != null ? '<span class="dist">' + fmtMeters(r._d) + ' uzakta</span>' : '') +
         '<span class="meta">' + esc(placeOf(r)) + ' · ' + esc(fmtDate(r.observed_at)) + '</span><br>' +
@@ -1333,7 +1371,14 @@
       c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
       c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
       const blob = await new Promise((res) => c.toBlob(res, 'image/jpeg', 0.85));
-      if (blob) return { blob, type: 'image/jpeg', ext: 'jpg' };
+      let thumb = null;
+      try {
+        const ts = Math.min(1, 360 / Math.max(bmp.width, bmp.height)), t = document.createElement('canvas');
+        t.width = Math.round(bmp.width * ts); t.height = Math.round(bmp.height * ts);
+        t.getContext('2d').drawImage(bmp, 0, 0, t.width, t.height);
+        thumb = await new Promise((res) => t.toBlob(res, 'image/jpeg', 0.72));
+      } catch (_) { /* önizlemesiz devam */ }
+      if (blob) return { blob, type: 'image/jpeg', ext: 'jpg', thumb };
     } catch (_) { /* yoksa özgün dosya */ }
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('Fotoğraf JPEG, PNG veya WebP olmalı.');
     return { blob: file, type: file.type, ext: file.type.split('/')[1].replace('jpeg', 'jpg') };
@@ -1396,14 +1441,18 @@
       btn.textContent = 'Fotoğraf yükleniyor 0/' + shots.length + '…';
       const paths = await Promise.all(shots.map(async (s) => {
         const img = await compress(s.file);
-        const path = session.user.id + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + img.ext;
+        const base = session.user.id + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+        let path = base + '.' + img.ext;
+        if (img.thumb) {
+          const tu = await sb.storage.from(BUCKET).upload(base + '.k.jpg', img.thumb, { contentType: 'image/jpeg' });
+          if (!tu.error) { uploaded.push(base + '.k.jpg'); path = base + '.t.jpg'; }
+        }
         const up = await sb.storage.from(BUCKET).upload(path, img.blob, { contentType: img.type });
         if (up.error) throw up.error;
         uploaded.push(path);
         btn.textContent = 'Fotoğraf yükleniyor ' + (++done) + '/' + shots.length + '…';
         return path;
       }));
-      uploaded.length = 0; uploaded.push(...paths);
       btn.textContent = 'Kaydediliyor…';
       const riskScore = scoreOf(d).score, sentCat = formCat;
       const ins = await sb.from('reports').insert({
@@ -1416,8 +1465,8 @@
         status: status,
         flag_reason: flag,
         address: $('#r-addr').value.trim() || null,
-        photo_paths: uploaded,
-        photo_path: uploaded[0],
+        photo_paths: paths,
+        photo_path: paths[0],
         category: formCat,
         subcategory: d.sub,
         categories: derivedCats(d),
@@ -1551,6 +1600,7 @@
     if (!inIzmir(lat, lng)) {
       picked = null;
       if (pickMarker) { pickMap.removeLayer(pickMarker); pickMarker = null; }
+      pickMap.getContainer().classList.remove('has-pick');
       show($('#place'), false);
       $('#pick-info').textContent = 'Bu nokta İzmir sınırlarının dışında, şu an desteklenmiyor. Lütfen İzmir içinden bir yer seç.';
       toast('Şu an sadece İzmir içindeki noktalar bildirilebiliyor.');
@@ -1558,6 +1608,7 @@
       return;
     }
     picked = { lat, lng };
+    pickMap.getContainer().classList.add('has-pick');
     if (!pickMarker) pickMarker = L.marker([lat, lng], { icon: pinIcon(formCat ? CATS[formCat].color : '#C2410C', 100), draggable: true })
       .on('dragend', (e) => { const p = e.target.getLatLng(); setPicked(p.lat, p.lng); }).addTo(pickMap);
     else pickMarker.setLatLng([lat, lng]);
@@ -1580,6 +1631,14 @@
     if (pickMap) { pickMap.invalidateSize(); usePendingPoint(); return; }
     pickMap = makeMap('pick-map');
     pickMap.on('click', (e) => setPicked(e.latlng.lat, e.latlng.lng));
+    // haritanın üstünde kısa yönerge (dokunmayı engellemez) ve klavyeyle seçim: Enter / boşluk = ortadaki nokta
+    const hint = L.DomUtil.create('div', 'pick-hint', pickMap.getContainer());
+    hint.textContent = matchMedia('(pointer:coarse)').matches ? 'Riskli noktaya dokun' : 'Riskli noktaya tıkla';
+    pickMap.getContainer().addEventListener('keydown', (e) => {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target === pickMap.getContainer()) {
+        e.preventDefault(); const c = pickMap.getCenter(); setPicked(c.lat, c.lng);
+      }
+    });
     usePendingPoint();
   }
 
@@ -1762,6 +1821,11 @@
     $('#set-user').value = name;
     $$('#set-mode .chip').forEach((b) => b.classList.toggle('on', b.dataset.mode === theme.mode));
     $$('#set-basemap .chip').forEach((b) => b.classList.toggle('on', b.dataset.basemap === prefs.basemap));
+    if (window.GGLite) {
+      const lp = GGLite.pref();
+      $$('#set-lite .chip').forEach((b) => { const on = b.dataset.lite === lp; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); });
+      $('#set-lite-now').textContent = 'Şu an: ' + (lite() ? 'hafif mod açık' : 'tam görünüm') + (lp === 'auto' ? ' (cihaza göre otomatik seçildi)' : '');
+    }
     $('#set-motion').checked = prefs.motion === 'on';
     $('#set-sound').checked = prefs.sound === 'on';
     $('#set-contrast').checked = theme.contrast === 'on';
@@ -1850,7 +1914,7 @@
     // önce fotoğrafları temizle
     const { data } = await sb.from('reports').select('photo_paths, photo_path').eq('user_id', session.user.id);
     const ps = (data || []).flatMap(photosOf);
-    if (ps.length) await sb.storage.from(BUCKET).remove(ps);
+    if (ps.length) await sb.storage.from(BUCKET).remove(withThumbs(ps));
     const { error } = await withBusy(sb.rpc('delete_my_account'));
     if (error) return toast('Hesap silinemedi: ' + error.message);
     await sb.auth.signOut();
@@ -1964,7 +2028,10 @@
   let pendingEmail = null, pendingPass = null, otpType = 'signup', recovering = RECOVERY_LINK;
   let loginMethod = null; // bir sonraki SIGNED_IN olayında günlüğe yazılacak giriş yolu
   let pendingAuthError = null;
+  let resetError = null, resetDone = false; // şifre yenileme sayfasının durumu
   const siteUrl = () => location.origin + location.pathname;
+  // Not: adreste "#" olmamalı (Supabase jetonları "#" ile ekler); ?sifre=1 sayfanın şifre yenileme ekranını açmasını sağlar
+  const resetUrl = () => siteUrl() + '?sifre=1';
   // Supabase'in İngilizce hata mesajlarını Türkçeye çevir
   function authErrTr(error) {
     const m = String((error && error.message) || error || '');
@@ -1991,6 +2058,14 @@
     if (!/error_description=|error_code=/.test(h)) return null;
     const p = new URLSearchParams(h.replace(/^#\/?/, ''));
     const code = p.get('error_code') || '';
+    // şifre sıfırlama bağlantısı (?sifre=1) hatalıysa kendi sayfasında anlatılır ve yeni bağlantı oradan istenir
+    if (RESET_LINK) {
+      history.replaceState(null, '', location.pathname + '#/sifre-yenile');
+      resetError = /otp_expired/.test(code)
+        ? 'Bu sıfırlama bağlantısının süresi dolmuş ya da daha önce kullanılmış. Bağlantılar 1 saat geçerlidir ve tek kullanımlıktır. Aşağıdan yenisini iste.'
+        : 'Sıfırlama bağlantısı doğrulanamadı (' + (p.get('error_description') || code).replace(/\+/g, ' ') + '). Aşağıdan yeni bir bağlantı iste.';
+      return null;
+    }
     history.replaceState(null, '', location.pathname + '#/giris');
     if (/otp_expired/.test(code)) return 'Bu e-posta bağlantısının süresi dolmuş ya da zaten kullanılmış. Aşağıdan yeni bir şifre sıfırlama bağlantısı iste.';
     return 'Bağlantı ile giriş yapılamadı: ' + (p.get('error_description') || code).replace(/\+/g, ' ');
@@ -2013,7 +2088,7 @@
     });
   }
 
-  const AUTH_FORMS = ['signup', 'login', 'verify', 'forgot', 'maillogin', 'newpass'];
+  const AUTH_FORMS = ['signup', 'login', 'verify', 'forgot', 'maillogin'];
   function authTab(which) {
     $('#tab-signup').setAttribute('aria-selected', which === 'signup');
     $('#tab-login').setAttribute('aria-selected', which === 'login');
@@ -2240,7 +2315,7 @@
     const email = $('#fg-mail').value.trim();
     if (!/^\S+@\S+\.\S+$/.test(email)) return setMsg('#forgot-msg', 'Geçerli bir e-posta yaz.');
     // Not: redirectTo'da "#" olmamalı; Supabase jetonları "#" ile eklediği için çift "#" olur ve bağlantı çalışmaz
-    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: siteUrl() });
+    const { error } = await withBusy(sb.auth.resetPasswordForEmail(email, { redirectTo: resetUrl() }));
     if (error) return setMsg('#forgot-msg', mailError(error));
     loginMethod = 'Şifre sıfırlama bağlantısı';
     setMsg('#forgot-msg', 'Bağlantı gönderildi. E-postanı kontrol et, gelmezse spam klasörüne bak.', 'ok');
@@ -2257,17 +2332,82 @@
     showVerify(email, 'login');
   }
 
-  async function onNewPass(e) {
+  /* ---- Şifre yenileme sayfası (#/sifre-yenile) ----
+     Akış: "Şifremi unuttum" → Supabase sıfırlama e-postası → bağlantı ?sifre=1#access_token…&type=recovery ile döner →
+     supabase-js jetonu adresten okuyup geçici oturum açar (PASSWORD_RECOVERY) → bu sayfada yeni şifre + tekrarı →
+     updateUser({ password }) → diğer cihazlardaki oturumlar kapatılır. Jeton hiçbir yerde ayrıca saklanmaz ya da yazdırılmaz. */
+  function resetState(k) { ['rs-checking', 'form-reset', 'rs-invalid', 'rs-done'].forEach((id) => show($('#' + id), id === k)); }
+  function resetInvalid(text) {
+    resetState('rs-invalid');
+    $('#rs-invalid-text').textContent = text;
+    if (!$('#rs-mail').value) { try { $('#rs-mail').value = localStorage.getItem('gyrh-last-mail') || ''; } catch (_) { /* yok say */ } }
+  }
+  function renderReset() {
+    // ?sifre=1 işi bitti: adres çubuğunda kalmasın (jeton zaten supabase-js tarafından adresten silinir)
+    if (location.search && !/access_token=|error_code=/.test(location.hash)) history.replaceState(null, '', location.pathname + location.hash);
+    if (resetError) { const t = resetError; resetError = null; resetMark(false); return resetInvalid(t); }
+    if (resetDone) return resetState('rs-done');
+    if (!sb) return resetInvalid('Site sunucuya bağlanamadı. İnternetini kontrol edip sayfayı yenile.');
+    if (session && (recovering || resetActive())) {
+      recovering = true;
+      resetState('form-reset');
+      const m = session.user && session.user.email ? session.user.email : '';
+      $('#rs-who').textContent = m ? 'Hesap: ' + m.replace(/^(.).*(@.*)$/, '$1•••$2') : '';
+      setTimeout(() => { if (!$('#form-reset').hidden) $('#rs-pass').focus(); }, 250);
+      return;
+    }
+    // jeton adresten okunuyor olabilir (bağlantıyla yeni gelindi); doğrulama bitince sayfa yeniden çizilir
+    if (RECOVERY_LINK && !session && !renderReset.waited) {
+      renderReset.waited = true; resetState('rs-checking');
+      setTimeout(() => { if (document.documentElement.dataset.route === 'sifre-yenile' && !session) renderReset(); }, 8000);
+      return;
+    }
+    resetMark(false);
+    resetInvalid(session
+      ? 'Bu sayfa yalnız e-postadaki şifre sıfırlama bağlantısıyla açılır. Giriş yapmış durumdasın; şifreni Ayarlar → Güvenlik bölümünden de değiştirebilirsin.'
+      : 'Bu sayfa e-postadaki şifre sıfırlama bağlantısıyla açılır. Bağlantının süresi dolmuş ya da daha önce kullanılmış olabilir. Aşağıdan yeni bağlantı iste.');
+  }
+  async function onReset(e) {
     e.preventDefault();
-    const pass = $('#np-pass').value;
-    if (pass.length < 8) return setMsg('#newpass-msg', 'Şifre en az 8 karakter olmalı.');
-    if (!session) return setMsg('#newpass-msg', 'Sıfırlama bağlantısının süresi dolmuş. “Şifremi unuttum”dan yeni bağlantı iste.');
-    const { error } = await withBusy(sb.auth.updateUser({ password: pass }));
-    if (error) return setMsg('#newpass-msg', authErrTr(error));
-    logEvent('password_change', 'Şifre sıfırlama ile');
-    recovering = false;
+    const p1 = $('#rs-pass').value, p2 = $('#rs-pass2').value, btn = $('#rs-save');
+    setMsg('#reset-msg', '');
+    if (p1.length < 8) { $('#rs-pass').focus(); return setMsg('#reset-msg', 'Şifre en az 8 karakter olmalı.'); }
+    if (passScore(p1) < 2) { $('#rs-pass').focus(); return setMsg('#reset-msg', 'Şifre çok zayıf: harf ve rakamı karıştır ya da daha uzun yaz.'); }
+    if (!p2) { $('#rs-pass2').focus(); return setMsg('#reset-msg', 'Yeni şifreyi bir kez daha yaz.'); }
+    if (p1 !== p2) { $('#rs-pass2').focus(); return setMsg('#reset-msg', 'İki şifre aynı değil. Tekrar yaz.'); }
+    if (!session) return resetInvalid('Sıfırlama oturumunun süresi doldu. Aşağıdan yeni bağlantı iste.');
+    btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Kaydediliyor…';
+    let error = null;
+    try { ({ error } = await withBusy(sb.auth.updateUser({ password: p1 }))); } catch (err) { error = err; }
+    btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = 'Şifreyi kaydet';
+    if (error) {
+      const m = String(error.message || error), c = error.code || '';
+      if (/session.*missing|not authenticated|jwt|expired|invalid.*(token|claim)|reauthentication/i.test(m + ' ' + c)) {
+        return resetInvalid('Sıfırlama oturumunun süresi doldu. Güvenliğin için aşağıdan yeni bir bağlantı iste.');
+      }
+      if (/same_password|same|different from the old/i.test(m + ' ' + c)) return setMsg('#reset-msg', 'Yeni şifre eskisiyle aynı olamaz.');
+      if (/weak|pwned|leaked|at least|too short/i.test(m + ' ' + c)) return setMsg('#reset-msg', 'Bu şifre zayıf ya da sızdırılmış şifre listelerinde var. Daha uzun ve farklı bir şifre seç.');
+      return setMsg('#reset-msg', authErrTr(error));
+    }
+    // şifre değişti: başka cihazlardaki (belki çalınmış) oturumlar kapanır, bu oturum açık kalır
+    try { await sb.auth.signOut({ scope: 'others' }); } catch (_) { /* ağ hatası olsa da şifre değişti */ }
+    logEvent('password_change', 'Şifre sıfırlama bağlantısıyla');
+    recovering = false; resetDone = true; resetMark(false);
+    $('#rs-pass').value = ''; $('#rs-pass2').value = ''; delete $('#rs-strength').dataset.s; $('#rs-strength span').textContent = '';
+    resetState('rs-done');
     toast('Şifren güncellendi.');
-    location.hash = '#/harita';
+  }
+  async function onResetAgain(e) {
+    e.preventDefault();
+    const email = $('#rs-mail').value.trim();
+    if (!/^\S+@\S+\.\S+$/.test(email)) return setMsg('#reset-again-msg', 'Geçerli bir e-posta yaz.');
+    if (!sb) return setMsg('#reset-again-msg', 'Site sunucuya bağlanamadı. İnternetini kontrol et.');
+    const btn = $('#form-reset-again button[type=submit]'); btn.disabled = true;
+    const { error } = await withBusy(sb.auth.resetPasswordForEmail(email, { redirectTo: resetUrl() }));
+    btn.disabled = false;
+    if (error) return setMsg('#reset-again-msg', mailError(error));
+    try { localStorage.setItem('gyrh-last-mail', email); } catch (_) { /* yok say */ }
+    setMsg('#reset-again-msg', 'Bağlantı gönderildi (kayıtlı bir hesapsa). E-postanı kontrol et; gelmezse spam klasörüne bak.', 'ok');
   }
 
   let nextHash = null;
@@ -2652,7 +2792,7 @@
           }
           const { error } = await sb.from('reports').update({ photo_paths: final, photo_path: final[0] || null }).eq('id', r.id);
           if (error) throw new Error(error.message);
-          if (removed.length) await sb.storage.from('report-photos').remove(removed);
+          if (removed.length) await sb.storage.from('report-photos').remove(withThumbs(removed));
           logEvent('photo_edit', subLabel(r) + ' · ' + final.length + ' fotoğraf' + (removed.length ? ' · ' + removed.length + ' kaldırıldı' : ''));
           [approved, typeof adminReports !== 'undefined' ? adminReports : [], typeof mineReports !== 'undefined' ? mineReports : []].forEach((list) => {
             const x = list.find((y) => y.id === r.id); if (x) { x.photo_paths = final; x.photo_path = final[0] || null; }
@@ -2722,7 +2862,7 @@
     const st = r.resolved_at ? ['resolved', 'Çözüldü'] : [r.status, STATUS[r.status] || r.status];
     const v = votes[r.id];
     return '<button type="button" class="mrow-card" data-mine="' + esc(r.id) + '" data-css="--c:' + (c.color || 'var(--accent)') + '">' +
-      (ps.length ? '<img alt="" loading="lazy" src="' + esc(photoUrl(ps[0])) + '">' : '<span class="mrow-ph" aria-hidden="true">' + (c.ico || '') + '</span>') +
+      (ps.length ? '<img alt="" loading="lazy" decoding="async" src="' + esc(thumbUrl(ps[0])) + '">' : '<span class="mrow-ph" aria-hidden="true">' + (c.ico || '') + '</span>') +
       '<span class="mrow-body"><span class="mrow-top"><b>' + esc(subLabel(r)) + '</b><i class="st ' + esc(st[0]) + '">' + esc(st[1]) + '</i></span>' +
       '<small>' + esc(placeOf(r)) + ' · ' + esc(timeAgo(r.created_at)) + '</small>' +
       '<span class="mrow-meter ' + level(n) + '"><span class="mbar"><i data-css="width:' + Math.max(4, n) + '%"></i></span><em>Risk ' + n + '</em>' +
@@ -2897,7 +3037,7 @@
     if (!confirm('Bu bildirim ve fotoğrafları kalıcı olarak silinsin mi?')) return;
     btn.disabled = true;
     const { data } = await sb.from('reports').select(REPORT_COLS).eq('id', btn.dataset.id).maybeSingle();
-    if (data) { const ps = photosOf(data); if (ps.length) await sb.storage.from(BUCKET).remove(ps); }
+    if (data) { const ps = photosOf(data); if (ps.length) await sb.storage.from(BUCKET).remove(withThumbs(ps)); }
     const { error } = await sb.from('reports').delete().eq('id', btn.dataset.id);
     if (error) { toast('Silinemedi: ' + error.message); btn.disabled = false; return; }
     toast('Bildirimin silindi.'); show($('#report-view'), false); openRid = null; loadMine(); loadApproved();
@@ -2994,7 +3134,7 @@
     }
     if (act === 'delete') {
       if (!confirm('Bu bildirim ve fotoğrafları kalıcı olarak silinsin mi?')) { btn.disabled = false; return; }
-      const ps = photosOf(r); if (ps.length) await sb.storage.from(BUCKET).remove(ps);
+      const ps = photosOf(r); if (ps.length) await sb.storage.from(BUCKET).remove(withThumbs(ps));
       const { error } = await sb.from('reports').delete().eq('id', id);
       if (error) { toast('Silinemedi: ' + error.message); btn.disabled = false; return; }
       adminReports = adminReports.filter((x) => x.id !== id);
@@ -3723,7 +3863,7 @@
         : '<p class="muted small">Bu kullanıcı adını hiç değiştirmedi.</p>') + '</div>' +
       '<div class="card"><h2>Son bildirimleri</h2>' + ((p.recent || []).length
         ? '<div class="pp-grid">' + p.recent.map((r) => '<a class="pp-item" href="#/harita" data-focus="' + esc(r.id) + '">' +
-          (r.photo ? '<img loading="lazy" alt="" src="' + esc(photoUrl(r.photo)) + '">' : '<span class="pp-noimg">' + ((CATS[r.category] || {}).ico || '📍') + '</span>') +
+          (r.photo ? '<img loading="lazy" decoding="async" alt="" src="' + esc(thumbUrl(r.photo)) + '">' : '<span class="pp-noimg">' + ((CATS[r.category] || {}).ico || '📍') + '</span>') +
           '<span><b>' + esc((SUBS[r.category] && SUBS[r.category][r.subcategory] || [CATS[r.category] ? CATS[r.category].short : ''])[0]) + '</b><small>' +
           esc([r.district, r.neighborhood].filter(Boolean).join(' / ')) + ' · ' + esc(timeAgo(r.created_at)) + '</small></span></a>').join('') + '</div>'
         : '<p class="muted small">Henüz yayında bildirimi yok.</p>') + '</div>';
@@ -3883,7 +4023,7 @@
       });
     $('#pw-gen').addEventListener('click', () => { $('#pw-new').value = gen(); });
     $('#pw-mail').addEventListener('click', async () => {
-      const { error } = await withBusy(sb.auth.resetPasswordForEmail(u.email, { redirectTo: siteUrl() }));
+      const { error } = await withBusy(sb.auth.resetPasswordForEmail(u.email, { redirectTo: resetUrl() }));
       setMsg('#pw-msg', error ? mailError(error) : '✅ Sıfırlama bağlantısı ' + u.email + ' adresine gönderildi (spam klasörüne de baksın).', error ? '' : 'ok');
     });
   }
@@ -4034,7 +4174,7 @@
     if (DEVICE.standalone) return;
     if (!$('#welcome').hidden || !$('#tour').hidden) { setTimeout(() => maybeShowInstall(force), 8000); return; } // tanıtım bitince göster
     // ana sayfa, giriş ve form ekranlarında düğmelerin üstünü kapatmasın: haritaya geçince gösterilir
-    if (['ana', 'giris', 'bildir'].includes(document.documentElement.dataset.route)) { setTimeout(() => maybeShowInstall(force), 8000); return; }
+    if (['ana', 'giris', 'bildir', 'sifre-yenile'].includes(document.documentElement.dataset.route)) { setTimeout(() => maybeShowInstall(force), 8000); return; }
     const dismissed = safe(() => Number(localStorage.getItem(INSTALL_KEY) || 0), 0);
     if (!force && (document.documentElement.dataset.ui !== 'mobile' || Date.now() - dismissed < 14 * 864e5)) return;
     $('#install-how').innerHTML = installHow();
@@ -4078,17 +4218,18 @@
   }
 
   /* =================== YÖNLENDİRME =================== */
-  const ROUTES = { ana: 'home', proje: 'project', harita: 'map', bildir: 'report', giris: 'auth', bildirimlerim: 'mine', gelen: 'mine', yonetici: 'admin', ayarlar: 'settings', liderler: 'leaders', profil: 'profile' };
+  const ROUTES = { ana: 'home', proje: 'project', harita: 'map', bildir: 'report', giris: 'auth', bildirimlerim: 'mine', gelen: 'mine', yonetici: 'admin', ayarlar: 'settings', liderler: 'leaders', profil: 'profile', 'sifre-yenile': 'reset' };
   let routeSub = '';
   const PRIVATE = ['bildir', 'bildirimlerim', 'gelen', 'ayarlar'];
 
   function route() {
     // maildeki bağlantıdan dönen jetonları adres çubuğundan temizle
     if (/access_token=|refresh_token=|type=(magiclink|signup|recovery)/.test(location.hash)) {
-      history.replaceState(null, '', location.pathname + (recovering ? '#/giris' : '#/harita'));
+      history.replaceState(null, '', location.pathname + (recovering ? '#/sifre-yenile' : '#/harita'));
     }
     // adres boşsa: giriş yapmamış ziyaretçiye karşılama sayfası, giriş yapmışa harita
-    const raw = (location.hash && location.hash.startsWith('#/') ? location.hash : (session ? '#/harita' : '#/ana')).replace('#/', '');
+    const raw = (location.hash && location.hash.startsWith('#/') ? location.hash
+      : (RESET_LINK || (recovering && session) ? '#/sifre-yenile' : session ? '#/harita' : '#/ana')).replace('#/', '');
     let [name, sub] = raw.split('/');
     sub = sub ? decodeURIComponent(sub) : '';
     if (!ROUTES[name]) name = 'harita';
@@ -4100,12 +4241,13 @@
       return;
     }
     document.documentElement.dataset.route = name;
-    if (['ana', 'giris', 'bildir'].includes(name) && !$('#install').hidden) show($('#install'), false);
+    if (['ana', 'giris', 'bildir', 'sifre-yenile'].includes(name) && !$('#install').hidden) show($('#install'), false);
     if (name === 'yonetici' && !(profile && profile.is_admin)) {
       if (!session) { nextHash = '#/yonetici'; location.hash = '#/giris'; return; }
       toast('Bu sayfa sadece yöneticiler içindir.'); location.hash = '#/harita'; return;
     }
     // Zaten giriş yapılmışsa (ör. maildeki bağlantıya başka sekmede tıklandı) giriş ekranında bekletme
+    if (name === 'giris' && session && recovering) { location.hash = '#/sifre-yenile'; return; }
     if (name === 'giris' && session && !recovering) {
       clearInterval(confirmTimer); pendingPass = null;
       const go = nextHash || '#/harita'; nextHash = null;
@@ -4119,8 +4261,14 @@
     if (!sameView) replayView($('#view-' + ROUTES[name]));
     if (name === 'ayarlar') { showSettingsSection(sub); if (!sameView) { renderSettings(); renderProfileEditor(); loadMyDevices(); } }
     if (name === 'profil') loadPublicProfile(sub);
+    if (name === 'sifre-yenile') renderReset(); else if (resetDone) resetDone = false;
     if (name === 'liderler') { loadLeaders(); qSet('board'); }
-    if (name === 'harita') { mainMap.invalidateSize(); loadApproved(); }
+    if (name === 'harita') {
+      mainMap.invalidateSize();
+      probeFps();
+      if (firstFit && shown.length > 1 && !filt.view) { mainMap.fitBounds(shown.map((r) => [r.lat, r.lng]), { padding: [60, 60], maxZoom: 16, animate: false }); firstFit = false; }
+      loadApproved();
+    }
     if (name === 'ana') { renderHomeStats(); Promise.resolve(loadApproved()).then(renderHomeStats); }
     if (name === 'proje') { renderProject(); if (!approved.length) Promise.resolve(loadApproved()).then(renderProject); }
     if (name === 'bildir') {
@@ -4134,12 +4282,9 @@
       const hashErr = pendingAuthError; pendingAuthError = null;
       setMsg('#auth-note', hashErr || (nextHash ? 'Devam etmek için giriş yap veya kayıt ol.' : ''), 'info');
       if (hashErr) authTab(/süresi dolmuş/.test(hashErr) ? 'forgot' : 'login');
-      // şifre sıfırlama bağlantısından gelindi: doğrudan "Yeni şifre" formu
-      if (recovering && !hashErr) { authTab('newpass'); setMsg('#auth-note', 'Bağlantı doğrulandı. Şimdi yeni şifreni belirle.', 'info'); setTimeout(() => $('#np-pass').focus(), 300); }
       if (approved.length) renderAboutStats();
       else if (sb) sb.from('reports').select('district, risk_score').eq('status', 'approved')
         .then(({ data }) => { if (data && !approved.length) { const keep = approved; approved = data; renderAboutStats(); approved = keep; } });
-      if (recovering) authTab('newpass');
     }
     if (name === 'gelen') { mineTab = 'inbox'; loadMine(); }
     if (name === 'bildirimlerim') { if (mineTab === 'inbox') mineTab = 'reports'; loadMine(); }
@@ -4221,6 +4366,11 @@
       prefs.basemap = b.dataset.basemap; savePrefs(); renderSettings();
       if (mainMap && mainMap._bm) mainMap._bm.set(prefs.basemap);
       toast('Varsayılan harita kaydedildi. Sayfa yenilenince uygulanır.');
+    });
+    $('#set-lite').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-lite]'); if (!b || !window.GGLite) return;
+      GGLite.set(b.dataset.lite); renderSettings();
+      toast(lite() ? 'Hafif mod açık. Harita ayarlarının tamamı sayfa yenilenince uygulanır.' : 'Tam görünüm açık. Sayfa yenilenince tamamen uygulanır.');
     });
     $('#set-motion').addEventListener('change', (e) => { prefs.motion = e.target.checked ? 'on' : 'off'; savePrefs(); logEvent('settings_update', 'Animasyonlar: ' + (e.target.checked ? 'açık' : 'kapalı')); });
     $('#set-sound').addEventListener('change', (e) => { prefs.sound = e.target.checked ? 'on' : 'off'; savePrefs(); if (e.target.checked) ding(); });
@@ -4326,11 +4476,22 @@
       URL.revokeObjectURL(shots[i].url); shots.splice(i, 1); renderShots();
     });
     $('#btn-locate').addEventListener('click', () => {
-      if (!navigator.geolocation) return toast('Tarayıcın konum özelliğini desteklemiyor.');
+      const btn = $('#btn-locate');
+      if (btn.getAttribute('aria-busy') === 'true') return;
+      if (!window.isSecureContext) return toast('Konum yalnızca güvenli (https) bağlantıda alınabilir. Haritaya dokunarak nokta seç.');
+      if (!navigator.geolocation) return toast('Tarayıcın konum özelliğini desteklemiyor. Haritaya dokunarak nokta seç.');
+      btn.setAttribute('aria-busy', 'true'); $('#pick-info').textContent = 'Konumun alınıyor…';
+      const done = () => btn.removeAttribute('aria-busy');
       navigator.geolocation.getCurrentPosition(
-        (p) => setPicked(p.coords.latitude, p.coords.longitude, 18),
-        () => toast('Konum alınamadı. Konum iznini kontrol et veya haritaya dokun.'),
-        { enableHighAccuracy: true, timeout: 15000 });
+        (p) => { done(); setPicked(p.coords.latitude, p.coords.longitude, 18); },
+        (err) => {
+          done();
+          const why = err && err.code === 1 ? 'Konum izni verilmedi. Tarayıcı ayarlarından bu siteye konum izni ver ya da haritaya dokun.'
+            : err && err.code === 3 ? 'Konum zamanında alınamadı (zayıf sinyal). Tekrar dene ya da haritaya dokun.'
+              : 'Konum bulunamadı. Cihazının konum servisini aç ya da haritaya dokun.';
+          $('#pick-info').textContent = why; toast(why);
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
     });
 
     // kayıt / giriş
@@ -4351,7 +4512,9 @@
     $('#btn-maillogin').addEventListener('click', () => authTab('maillogin'));
     $('#form-forgot').addEventListener('submit', onForgot);
     $('#form-maillogin').addEventListener('submit', onMailLogin);
-    $('#form-newpass').addEventListener('submit', onNewPass);
+    $('#form-reset').addEventListener('submit', onReset);
+    $('#form-reset-again').addEventListener('submit', onResetAgain);
+    bindStrength('rs-pass', 'rs-strength');
     $$('[data-back]').forEach((b) => b.addEventListener('click', () => authTab(b.dataset.back)));
     $('#accent-custom').addEventListener('input', (e) => { theme.accent = 'custom'; theme.custom = e.target.value; applyTheme(); });
     $('#btn-logout').addEventListener('click', () => doLogout());
@@ -4383,6 +4546,10 @@
     $('#lb-close').addEventListener('click', closeLb);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLb(); });
 
+    // Açılış harita sayfası değilse ana harita gizli kurulur: görünmeyen haritanın karoları indirilmez
+    // (ana sayfa ilk açılışta ~40 uydu karosu / ~400 KB hafifler). Harita sayfası açılınca boyut alıp yüklenir.
+    const startName = (location.hash.match(/^#\/([^/?]+)/) || [])[1];
+    if (startName && startName !== 'harita' && ROUTES[startName]) $('#view-map').hidden = true;
     initMainMapSafe();
     bindSheet();
     // telefondaki bildirim ayrıntısı: Kapat düğmesi, boş alana dokunma, Esc, sayfa değişince
@@ -4536,8 +4703,8 @@
       sb.auth.onAuthStateChange((evt, s) => {
         session = s;
         if (evt === 'PASSWORD_RECOVERY') {
-          recovering = true;
-          setTimeout(() => { location.hash = '#/giris'; authTab('newpass'); }, 0);
+          recovering = true; resetMark(true);
+          setTimeout(() => { if (location.hash === '#/sifre-yenile') route(); else location.hash = '#/sifre-yenile'; }, 0);
           return;
         }
         if (evt === 'TOKEN_REFRESHED' || evt === 'INITIAL_SESSION') return; // sayfayı boşuna yeniden çizme
@@ -4566,7 +4733,7 @@
       iconCreateFunction: (cl) => {
         const n = cl.getChildCount();
         // kümenin içindeki en yüksek risk rengi belirler
-        const max = cl.getAllChildMarkers().reduce((m, x) => { const r = approved.find((a) => a.id === x._rid); return Math.max(m, r ? r.risk_score || 0 : 0); }, 0);
+        const max = cl.getAllChildMarkers().reduce((m, x) => Math.max(m, x._risk || 0), 0);
         const sz = n < 10 ? 40 : n < 100 ? 48 : 58;
         return L.divIcon({ className: 'cluster lv-' + level(max), html: '<span>' + n + '</span>', iconSize: [sz, sz] });
       },

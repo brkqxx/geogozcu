@@ -2267,29 +2267,45 @@ html.sheet-open[data-ui=mobile] .map-list-btn{opacity:0;pointer-events:none}
   [data-ui=desktop] #view-map{height:calc(100dvh - var(--top));overflow:hidden}
 }
 /* harita kontrolleri: her temada aynı koyu buzlu cam (uydu görüntüsü üstünde en iyi okunan) */
-.map-wrap{--gl-bg:rgba(10,16,13,.72);--gl-bd:rgba(255,255,255,.14);--gl-ink:#F3F1EC;--gl-mut:rgba(243,241,236,.68);--gl-hi:rgba(255,255,255,.1);
+.map-wrap,.pick-map{--gl-bg:rgba(10,16,13,.72);--gl-bd:rgba(255,255,255,.14);--gl-ink:#F3F1EC;--gl-mut:rgba(243,241,236,.68);--gl-hi:rgba(255,255,255,.1);
   --mc-blur:blur(16px) saturate(1.4);--mc-sh:0 12px 32px -12px rgba(0,0,0,.55);--mc-r:14px}
-.map-wrap .leaflet-control-zoom{border:1px solid var(--gl-bd)!important;border-radius:var(--mc-r)!important;overflow:hidden;background:var(--gl-bg);box-shadow:var(--mc-sh);
+.map-wrap .leaflet-control-zoom,
+.pick-map .leaflet-control-zoom{border:1px solid var(--gl-bd)!important;border-radius:var(--mc-r)!important;overflow:hidden;background:var(--gl-bg);box-shadow:var(--mc-sh);
   -webkit-backdrop-filter:var(--mc-blur);backdrop-filter:var(--mc-blur)}
-.map-wrap .leaflet-control-zoom a{width:40px!important;height:40px!important;line-height:40px!important;background:transparent;color:var(--gl-ink);border:0;border-radius:0!important;
+.map-wrap .leaflet-control-zoom a,
+.pick-map .leaflet-control-zoom a{width:40px!important;height:40px!important;line-height:40px!important;background:transparent;color:var(--gl-ink);border:0;border-radius:0!important;
   font:400 20px/40px 'Instrument Sans',sans-serif;transition:background .15s}
-.map-wrap .leaflet-control-zoom a + a{border-top:1px solid var(--gl-bd)}
-.map-wrap .leaflet-control-zoom a:hover,.map-wrap .leaflet-control-zoom a:focus-visible{background:var(--gl-hi);color:#fff}
-.map-wrap .leaflet-control-zoom a.leaflet-disabled{color:var(--gl-mut);opacity:.5;background:transparent}
-.map-wrap .focus-btn.leaflet-bar{background:var(--gl-bg)!important;border:1px solid var(--gl-bd)!important;border-radius:var(--mc-r)!important;box-shadow:var(--mc-sh);
+.map-wrap .leaflet-control-zoom a + a,
+.pick-map .leaflet-control-zoom a + a{border-top:1px solid var(--gl-bd)}
+.map-wrap .leaflet-control-zoom a:hover,.map-wrap .leaflet-control-zoom a:focus-visible,
+.pick-map .leaflet-control-zoom a:hover,.pick-map .leaflet-control-zoom a:focus-visible{background:var(--gl-hi);color:#fff}
+.map-wrap .leaflet-control-zoom a.leaflet-disabled,
+.pick-map .leaflet-control-zoom a.leaflet-disabled{color:var(--gl-mut);opacity:.5;background:transparent}
+.map-wrap .focus-btn.leaflet-bar,
+.pick-map .focus-btn.leaflet-bar{background:var(--gl-bg)!important;border:1px solid var(--gl-bd)!important;border-radius:var(--mc-r)!important;box-shadow:var(--mc-sh);
   -webkit-backdrop-filter:var(--mc-blur);backdrop-filter:var(--mc-blur)}
-.map-wrap .focus-btn a{color:var(--gl-ink)!important;background:transparent!important;border-radius:10px!important}
-.map-wrap .focus-btn a:hover,.map-wrap .focus-btn a:focus-visible{background:var(--gl-hi)!important}
-.map-wrap .legend{background:var(--gl-bg);color:var(--gl-ink);border:1px solid var(--gl-bd);border-radius:16px;box-shadow:var(--mc-sh);
+.map-wrap .focus-btn a,
+.pick-map .focus-btn a{color:var(--gl-ink)!important;background:transparent!important;border-radius:10px!important}
+.map-wrap .focus-btn a:hover,.map-wrap .focus-btn a:focus-visible,
+.pick-map .focus-btn a:hover,.pick-map .focus-btn a:focus-visible{background:var(--gl-hi)!important}
+.map-wrap .legend,
+.pick-map .legend{background:var(--gl-bg);color:var(--gl-ink);border:1px solid var(--gl-bd);border-radius:16px;box-shadow:var(--mc-sh);
   -webkit-backdrop-filter:var(--mc-blur);backdrop-filter:var(--mc-blur)}
-.map-wrap .legend-head{color:inherit;font-weight:600}
-.map-wrap .legend-head span{color:var(--gl-mut)}
-.map-wrap .legend .muted,.map-wrap .legend small{color:var(--gl-mut)}
-.map-wrap .img-date{background:var(--gl-bg);border:1px solid var(--gl-bd);box-shadow:var(--mc-sh)}
-.map-wrap .leaflet-control-scale-line{background:rgba(10,16,13,.55);color:var(--gl-ink);border-color:rgba(243,241,236,.75);font:500 10.5px 'JetBrains Mono',monospace;padding:1px 6px}
-.map-wrap .leaflet-control-attribution{background:rgba(10,16,13,.55)!important;color:var(--gl-mut);font-size:10.5px;border-radius:10px 0 0 0;padding:2px 8px;
+.map-wrap .legend-head,
+.pick-map .legend-head{color:inherit;font-weight:600}
+.map-wrap .legend-head span,
+.pick-map .legend-head span{color:var(--gl-mut)}
+.map-wrap .legend .muted,.map-wrap .legend small,
+.pick-map .legend .muted,.pick-map .legend small{color:var(--gl-mut)}
+.map-wrap .img-date,
+.pick-map .img-date{background:var(--gl-bg);border:1px solid var(--gl-bd);box-shadow:var(--mc-sh)}
+.map-wrap .leaflet-control-scale-line,
+.pick-map .leaflet-control-scale-line{background:rgba(10,16,13,.55);color:var(--gl-ink);border-color:rgba(243,241,236,.75);font:500 10.5px 'JetBrains Mono',monospace;padding:1px 6px}
+.map-wrap .leaflet-control-attribution,
+.pick-map .leaflet-control-attribution{background:rgba(10,16,13,.55)!important;color:var(--gl-mut);font-size:10.5px;border-radius:10px 0 0 0;padding:2px 8px;
   -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
-.map-wrap .leaflet-control-attribution a{color:var(--gl-ink)}
+.map-wrap .leaflet-control-attribution a,
+.pick-map .leaflet-control-attribution a{color:var(--gl-ink)}
 /* panel başlığı: "+ Bildir" düğmesi tek satırda kalsın */
 .panel-head .btn{white-space:nowrap}
 /* tur: ilerleme çizgisi ve "sesi aç" uyarısı */
@@ -2557,24 +2573,37 @@ main{overflow-x:clip}
 
 /* =================== SÜRÜM 44: HARİTA KONTROLLERİ (sol üst satır, ölçek, renk anahtarı) =================== */
 /* sol üst: yakınlaştırma ve Gaziemir/İzmir aynı satırda iki hap */
-.map-wrap .leaflet-top.leaflet-left{display:flex;flex-direction:row;align-items:center;gap:8px;padding:12px 0 0 12px}
-.map-wrap .leaflet-top.leaflet-left .leaflet-control{margin:0;float:none;clear:none}
-.map-wrap .leaflet-control-zoom{display:flex;border-radius:999px!important}
-.map-wrap .leaflet-control-zoom a{width:40px!important;height:40px!important;line-height:40px!important}
-.map-wrap .leaflet-control-zoom a + a{border-top:0;border-left:1px solid var(--gl-bd)}
-.map-wrap .focus-btn.leaflet-bar{border-radius:999px!important;padding:4px;gap:2px}
-.map-wrap .focus-btn a,.map-wrap.leaflet-touch .focus-btn a,.map-wrap .leaflet-touch .focus-btn a{display:inline-flex!important;align-items:center;gap:7px;height:32px!important;line-height:1!important;
+.map-wrap .leaflet-top.leaflet-left,.pick-map .leaflet-top.leaflet-left{display:flex;flex-direction:row;align-items:center;gap:8px;padding:12px 0 0 12px}
+.map-wrap .leaflet-top.leaflet-left .leaflet-control,
+.pick-map .leaflet-top.leaflet-left .leaflet-control{margin:0;float:none;clear:none}
+.map-wrap .leaflet-control-zoom,
+.pick-map .leaflet-control-zoom{display:flex;border-radius:999px!important}
+.map-wrap .leaflet-control-zoom a,
+.pick-map .leaflet-control-zoom a{width:40px!important;height:40px!important;line-height:40px!important}
+.map-wrap .leaflet-control-zoom a + a,
+.pick-map .leaflet-control-zoom a + a{border-top:0;border-left:1px solid var(--gl-bd)}
+.map-wrap .focus-btn.leaflet-bar,
+.pick-map .focus-btn.leaflet-bar{border-radius:999px!important;padding:4px;gap:2px}
+.map-wrap .focus-btn a,.map-wrap.leaflet-touch .focus-btn a,.map-wrap .leaflet-touch .focus-btn a,
+.pick-map .focus-btn a,.pick-map.leaflet-touch .focus-btn a,.pick-map .leaflet-touch .focus-btn a{display:inline-flex!important;align-items:center;gap:7px;height:32px!important;line-height:1!important;
   padding:0 13px 0 10px!important;border-radius:999px!important;font:500 13px/1 'Instrument Sans',sans-serif;letter-spacing:0}
-.map-wrap .focus-btn a::before{display:none!important}
-.map-wrap .focus-btn a svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.map-wrap .focus-btn a[data-f=g] svg{stroke:#FFD166}
-.map-wrap .focus-btn a[data-f=i] svg{stroke:#88DECC}
-.map-wrap .focus-btn a:hover{background:var(--gl-hi)!important}
-@media (pointer:coarse){.map-wrap .focus-btn a{height:36px!important}}
+.map-wrap .focus-btn a::before,
+.pick-map .focus-btn a::before{display:none!important}
+.map-wrap .focus-btn a svg,
+.pick-map .focus-btn a svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.map-wrap .focus-btn a[data-f=g] svg,
+.pick-map .focus-btn a[data-f=g] svg{stroke:#FFD166}
+.map-wrap .focus-btn a[data-f=i] svg,
+.pick-map .focus-btn a[data-f=i] svg{stroke:#88DECC}
+.map-wrap .focus-btn a:hover,
+.pick-map .focus-btn a:hover{background:var(--gl-hi)!important}
+@media (pointer:coarse){.map-wrap .focus-btn a,.pick-map .focus-btn a{height:36px!important}}
 /* ölçek: Leaflet'in beyaz yazı gölgesi kalktı (açık yazıda çift görünüyordu); net, cam etiket */
-.map-wrap .leaflet-control-scale{background:var(--gl-bg);border:1px solid var(--gl-bd);border-radius:10px;padding:6px 9px 6px;box-shadow:var(--mc-sh);
+.map-wrap .leaflet-control-scale, cam etiket */
+.pick-map .leaflet-control-scale{background:var(--gl-bg);border:1px solid var(--gl-bd);border-radius:10px;padding:6px 9px 6px;box-shadow:var(--mc-sh);
   -webkit-backdrop-filter:var(--mc-blur);backdrop-filter:var(--mc-blur)}
-.map-wrap .leaflet-control-scale-line{text-shadow:none!important;background:transparent!important;color:#F3F1EC;border:1.5px solid rgba(243,241,236,.85);border-top:0;
+.map-wrap .leaflet-control-scale-line,
+.pick-map .leaflet-control-scale-line{text-shadow:none!important;background:transparent!important;color:#F3F1EC;border:1.5px solid rgba(243,241,236,.85);border-top:0;
   font:600 11px/13px 'Instrument Sans',sans-serif;padding:0 5px 2px;transition:width .3s ease;box-sizing:content-box;white-space:nowrap}
 /* renk anahtarı: kapalıyken renk noktalı küçük hap, açılınca yukarı doğru büyür (masaüstü) */
 .map-wrap .legend{max-width:300px;transition:border-radius .3s}
@@ -2604,3 +2633,57 @@ main{overflow-x:clip}
 /* type özniteliği olmayan metin kutuları da aynı form stilinde (ör. bakım modu mesajı) */
 input:not([type]){width:100%;min-height:48px;padding:0 14px;border:1px solid var(--line-2);border-radius:14px;background:var(--field);color:var(--ink);font:16px 'Instrument Sans',sans-serif;transition:border-color .2s,box-shadow .2s}
 input:not([type]):focus{border-color:var(--focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--focus) 22%,transparent);outline:none}
+
+/* =================== SÜRÜM 47: BİLDİR HARİTASI =================== */
+/* Konum seçme haritası ana haritayla aynı cam kontrolleri kullanır (yukarıdaki .map-wrap kuralları).
+   Küçük haritada yer kaplamasın diye: odak düğmeleri yalnız simge, uydu tarihi gizli, künye tek satır. */
+.pick-map .focus-btn a span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.pick-map .focus-btn a,.pick-map.leaflet-touch .focus-btn a{padding:0 10px!important;gap:0}
+.pick-map .img-date{display:none}
+.pick-map .leaflet-control-attribution{max-width:calc(100% - 16px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px}
+.pick-map .leaflet-control-attribution:hover,.pick-map .leaflet-control-attribution:focus-within{white-space:normal}
+.pick-map{cursor:crosshair}
+.pick-map.leaflet-dragging{cursor:grabbing}
+/* seçim yapılmadıysa ortada kısa yönerge (dokunmayı engellemez) */
+.pick-hint{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);z-index:500;pointer-events:none;
+  padding:7px 12px;border-radius:999px;background:rgba(10,16,13,.72);color:#F3F1EC;font:600 12.5px/1.2 'Instrument Sans',sans-serif;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);white-space:nowrap;transition:opacity .25s}
+.pick-map.has-pick .pick-hint{opacity:0}
+/* konum düğmesi bekleme durumu */
+#btn-locate[aria-busy=true]{opacity:.7;cursor:progress}
+#btn-locate[aria-busy=true]::after{content:'';width:14px;height:14px;margin-left:8px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;
+  display:inline-block;vertical-align:-2px;animation:gg-spin .8s linear infinite}
+@keyframes gg-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#btn-locate[aria-busy=true]::after{animation:none}}
+[data-ui=mobile] #pick-map{height:min(52vh,380px)}
+/* telefonda bildirim formunda uyarı, yapışkan "Bildirimi gönder" düğmesinin üstünde çıksın (üst üste binmesin) */
+[data-ui=mobile][data-route=bildir] #toast{bottom:calc(var(--tabbar) + 86px + env(safe-area-inset-bottom))}
+
+/* =================== SÜRÜM 47: PERFORMANS / HAFİF MOD =================== */
+/* Harita kaydırılırken ya da yakınlaştırılırken Gaziemir sınırının kayan kesik çizgisi durur (her karede yeniden çizim olmasın) */
+.leaflet-dragging .gz-line,.leaflet-zoom-anim .gz-line{animation-play-state:paused}
+/* Hafif mod (eski Android, düşük bellek, akıllı tahta; Ayarlar → Görünüm): GPU'yu yoran efektler kapanır, işlev aynı kalır */
+html.lite *,html.lite *::before,html.lite *::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  animation:none!important;transition:none!important;scroll-behavior:auto!important}
+html.lite .reveal,html.lite [data-split] .w{opacity:1!important;transform:none!important;filter:none!important}
+html.lite .gz-glow{display:none}
+html.lite .izmir-line,html.lite .leaflet-overlay-pane path{filter:none!important}
+html.lite .map-wrap,html.lite .pick-map{--gl-bg:rgba(10,16,13,.94);--mc-sh:0 4px 10px -4px rgba(0,0,0,.5)}
+html.lite .leaflet-marker-icon,html.lite .cluster{box-shadow:none!important}
+html.lite .hx-shade,html.lite .gd-grain,html.lite .home-hero::after,html.lite .gg-dot{display:none!important}
+
+/* =================== SÜRÜM 47: ŞİFRE YENİLEME SAYFASI =================== */
+#view-reset{display:grid;place-items:start center;padding-top:clamp(24px,8vh,90px)}
+#view-reset[hidden]{display:none}
+.reset-box{width:min(440px,100%);padding:28px 24px}
+.reset-box h1{font-size:clamp(24px,5vw,30px);margin:0 0 6px}
+.rs-state{display:flex;align-items:center;gap:12px;min-height:80px}
+.rs-state p{margin:0}
+#rs-done .btn,#rs-invalid .btn{margin-top:6px}
+#rs-save[aria-busy=true]{opacity:.75;cursor:progress}
+/* ana sayfa tanıtım videosunun yazılı metni */
+.pv-metin{max-width:860px;margin:10px auto 0;font-size:14px;color:var(--muted)}
+.pv-metin summary{cursor:pointer;font-weight:600;color:var(--ink);padding:6px 0}
+.pv-metin p{margin:6px 0 0;line-height:1.6}
+/* yönlendirme yapılmadan (açılış ekranı altında) alt bilgi görünüp kaybolmasın: düzen kayması (CLS) olmasın */
+html:not([data-route]) .foot{display:none}
