@@ -4,6 +4,12 @@ Canlı site: **https://geogozcu.pages.dev**
 
 ---
 
+## SÜRÜM 51–52 — hareketli ana sayfa, renk tutarlılığı, güvenlik (4 Kasım 2026)
+- **Ana sayfa (v51):** film kaydırınca yuvarlak köşeli karta küçülür, kor parçacıkları ve sıcak ışık; kaydırdıkça kelime kelime aydınlanan metin, kaydırmayla dönen ölçüt halkası, 3B açılan adım kartları, kaydırma hızına duyarlı şerit. Az hareket / hafif modda kapalı.
+- **Renk (v52):** logo her yerde uygulama simgesiyle aynı (orman yeşili + turuncu alev). Birincil renk yeniden Ayarlar'daki vurgu rengi. Açık temada üst çubuk beyaz haplar; ana sayfada hero üstündeki açık gri şerit ve okunmayan logo yazısı düzeltildi. Harita paneli başlığı kesilmiyor, form kartlarındaki başlıklar kartın içinde, "uygulama gibi kullan" bandı düzgün.
+- **Hata mesajı:** arka plandaki kısa ağ takılmaları artık "Bağlantı hatası" uyarısı çıkarmıyor (gerçek kopmada ayrı uyarı var).
+- **Güvenlik (guncelleme17.sql):** fotoğraf/avatar kovalarında herkese açık dosya listeleme kapatıldı (fotoğraflar bağlantıyla görünmeye devam eder). E-postayla kodla girişte "bu e-postayla hesap yok" mesajı kaldırıldı (e-posta kayıtlı mı denenemez).
+
 ## SÜRÜM 50 — güvenlik, iPad, 50+ okunabilirlik, indirmeler (4 Kasım 2026)
 - **Güvenlik (guncelleme16.sql):** `reports_aa_sanitize` tetikleyicisi yönetici olmayanların bildiriminde kullanıcı adı/kimliği, tarih, yönetici notu, durum ve kaynak alanlarını sunucuda zorlar (sahte ad/tarih/not enjekte edilemez). `activity_log` kullanıcı adı profilden gelir. anon/authenticated için TRUNCATE/TRIGGER/REFERENCES yetkileri kaldırıldı. CSV dışa aktarmada formül enjeksiyonu engellendi.
 - **iPad:** iPadOS artık telefon/tablet arayüzü alır (eskiden masaüstü açılıyor, açılır pencere üst çubuğun altında kalıyordu). Fotoğraf büyütme ekrana sığar; masaüstü açılır penceresi haritanın dışına taşmaz.

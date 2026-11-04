@@ -2420,10 +2420,11 @@
     const email = $('#ml-mail').value.trim();
     if (!/^\S+@\S+\.\S+$/.test(email)) return setMsg('#maillogin-msg', 'Geçerli bir e-posta yaz.');
     const { error } = await withBusy(sb.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: siteUrl() } }));
-    if (error) return setMsg('#maillogin-msg', /not found|signups/i.test(error.message)
-      ? 'Bu e-postayla kayıtlı hesap yok. Önce kayıt ol.' : mailError(error));
+    // Kayıtlı olmayan e-posta için de aynı ekran: "bu adresle hesap var mı?" dışarıdan denenemesin (e-posta toplama)
+    if (error && !/not found|signups/i.test(error.message)) return setMsg('#maillogin-msg', mailError(error));
     pendingEmail = email; pendingPass = null; otpType = 'email';
     showVerify(email, 'login');
+    toast('Bu adresle bir hesap varsa giriş kodu gönderildi.');
   }
 
   /* ---- Şifre yenileme sayfası (#/sifre-yenile) ----
@@ -4802,10 +4803,15 @@
     drop.addEventListener('drop', (e) => { e.preventDefault(); if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
 
     // beklenmeyen bir hata olursa kullanıcı sessizce takılı kalmasın
+    // Arka plandaki istekler (uydu tarihi, oturum yenileme, video oynatma, harita karoları) kısa bir ağ takılmasında
+    // reddedilebilir; bunlar kullanıcının yaptığı bir işi bozmaz, korkutucu uyarı çıkmasın. Gerçek kopmada 'offline'
+    // olayı zaten uyarır; kullanıcı işlemleri (bildirim gönderme, giriş…) kendi hata mesajını gösterir.
     window.addEventListener('unhandledrejection', (e) => {
       console.error(e.reason);
       const m = String((e.reason && e.reason.message) || e.reason || '');
-      toast(/fetch|network/i.test(m) ? 'Bağlantı hatası. İnternetini kontrol edip tekrar dene.' : '⚠️ Bir hata oluştu: ' + m.slice(0, 120));
+      if (/fetch|network|load failed|abort|play\(\)|timeout|NotAllowed|NotSupported/i.test(m) || (e.reason && e.reason.name === 'AbortError')) return;
+      const now = Date.now(); if (now - (window.__ggLastErr || 0) < 15000) return; window.__ggLastErr = now; // üst üste uyarı yok
+      toast('Bir şey ters gitti. Sayfayı yenilemek düzeltebilir.');
     });
 
     if (sb) {

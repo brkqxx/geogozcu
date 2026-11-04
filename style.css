@@ -2945,3 +2945,60 @@ html.lite .hx-embers,html.lite .hx-glow,html[data-motion=off] .hx-embers,html[da
 html.lite .hx .hero-film video,html.lite .say-glow,html.lite .hx-cue svg,
 html[data-motion=off] .hx .hero-film video,html[data-motion=off] .say-glow,html[data-motion=off] .hx-cue svg,html[data-motion=off] .hx-glow{animation:none}
 @media (prefers-reduced-motion:reduce){.hx-embers{display:none}.hx .hero-film video,.hx-glow,.say-glow,.hx-cue svg{animation:none}}
+
+/* =================== SÜRÜM 52: renk ve tutarlılık düzeltmeleri =================== */
+/* ana sayfa: hero üstündeyken üst çubuk her temada şeffaf (açık temada açık gri şerit + okunmayan beyaz logo yazısı vardı) */
+html[data-route=ana]:not(.top-solid) .top{background:transparent!important;border-bottom-color:transparent!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:none!important}
+html[data-route=ana]:not(.top-solid) .top .brand{background:rgba(3,8,11,.55);border-color:rgba(255,255,255,.14);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+
+/* --- Marka: logo her yerde uygulama simgesiyle aynı (orman yeşili kare + turuncu alev). Eskiden siyah daire + teal damla vardı. --- */
+html .logo,html .top .logo,html[data-route] .top .logo,.splash-logo{background:linear-gradient(150deg,#2A6249,#1A4433)!important;color:#F58A3A!important;border-radius:30%!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 2px 8px -2px rgba(10,30,20,.45)}
+html .logo svg,.splash-logo svg{fill:#F58A3A;stroke:#F58A3A;stroke-width:1.6}
+html .top .brand{color:var(--ink)}
+
+/* --- Birincil renk = seçilen vurgu rengi (Ayarlar > Vurgu rengi artık düğmeleri ve seçili çipleri gerçekten boyar) --- */
+:root:root{--pri-bg:var(--accent);--pri-ink:var(--accent-ink,#fff);--pri-hover:var(--accent-d)}
+[data-mode=dark][data-mode=dark]{--pri-bg:var(--accent);--pri-ink:var(--accent-ink,#fff);--pri-hover:color-mix(in srgb,var(--accent) 82%,#fff)}
+.btn.fire:hover,.btn.green:hover{background:var(--pri-hover);border-color:var(--pri-hover)}
+
+/* --- Üst çubuk (bilgisayar): açık temada beyaz haplar, koyu temada koyu haplar; "Riskli alan bildir" her sayfada aynı turuncu --- */
+html[data-ui=desktop] .top .nav .btn.fire{background:var(--fire);border-color:var(--fire);color:#fff}
+html[data-ui=desktop] .top .nav .btn.fire:hover{background:var(--fire-d);border-color:var(--fire-d)}
+html[data-ui=desktop] .top .nav .btn.fire::after{background-color:rgba(0,0,0,.24)}
+html[data-ui=desktop] .top .nav .btn.fire:hover::after{background-color:rgba(0,0,0,.34)}
+html[data-mode=light][data-ui=desktop]:not([data-route=ana]) .top .nav,
+html[data-mode=light][data-ui=desktop][data-route=ana].top-solid .top .nav{background:#fff;border:1px solid var(--line);box-shadow:0 8px 28px -14px rgba(20,32,27,.35)}
+html[data-mode=light][data-ui=desktop]:not([data-route=ana]) .top .nav a:not(.btn),html[data-mode=light][data-ui=desktop]:not([data-route=ana]) .top .nav .linkish,
+html[data-mode=light][data-ui=desktop][data-route=ana].top-solid .top .nav a:not(.btn),html[data-mode=light][data-ui=desktop][data-route=ana].top-solid .top .nav .linkish{color:#3B4A43}
+html[data-mode=light][data-ui=desktop] .top .nav a:not(.btn):hover,html[data-mode=light][data-ui=desktop] .top .nav a.active{color:var(--accent)}
+html[data-mode=light][data-ui=desktop]:not([data-route=ana]) .top .nav .icon-btn,
+html[data-mode=light][data-ui=desktop][data-route=ana].top-solid .top .nav .icon-btn{background:var(--bg);border-color:var(--line);color:var(--ink)}
+html[data-mode=light][data-ui=desktop]:not([data-route=ana]) .top .nav-ind,
+html[data-mode=light][data-ui=desktop][data-route=ana].top-solid .top .nav-ind{background:color-mix(in srgb,var(--accent) 10%,transparent);border-color:color-mix(in srgb,var(--accent) 24%,transparent)}
+html[data-mode=light][data-ui=desktop]:not([data-route=ana]) .top .brand,
+html[data-mode=light][data-ui=desktop][data-route=ana].top-solid .top .brand{background:#fff;border-color:var(--line);box-shadow:0 8px 28px -14px rgba(20,32,27,.35)}
+html[data-mode=light][data-ui=desktop] .top{background:color-mix(in srgb,var(--bg) 70%,transparent)}
+
+/* --- Harita yan paneli: başlık düğmeleri dar ekranda kesilmesin --- */
+.panel-head{flex-wrap:wrap;row-gap:10px}
+.panel-acts{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+/* --- Ana sayfa açık tema: film karta küçülürken koyu bant yerine sayfanın açık zemininde süzülür (sert renk geçişi yok) --- */
+[data-mode=light] .home-hero.hx{background:var(--bg)}
+[data-mode=light] .hx .hero-film{background:#03080B;box-shadow:0 40px 90px -40px rgba(10,25,18,.55)}
+html[data-mode=light][data-ui=desktop]:not([data-route=ana]) .top .nav a.active:not(.btn),html[data-mode=light][data-ui=desktop][data-route=ana].top-solid .top .nav a.active:not(.btn){color:var(--accent);font-weight:600}
+
+/* --- "Uygulama gibi kullan" bandı: iç içe <span> (paylaş simgesi) satır başına düşmesin, metin kesilmesin --- */
+[data-ui=mobile] .install .install-text > span{display:block;-webkit-line-clamp:unset;overflow:visible;font-size:14px;line-height:1.45}
+.install-text .ios-share{display:inline-grid!important;place-items:center;width:22px;height:22px;margin:0 2px;vertical-align:-5px;border-radius:6px;font-size:13px;line-height:1}
+
+/* --- Telefonda giriş/kayıt: "Hesap oluştur" başlığı üstteki Kayıt ol / Giriş yap anahtarına yapışmasın --- */
+[data-ui=mobile] #view-auth .auth-box h1{margin-top:22px}
+
+/* --- Form kartları: <legend> kart çerçevesinin üstünde yarı dışarıda duruyordu ("Ne gördün?" vb.); artık kartın içinde başlık --- */
+fieldset.card > legend{float:left;width:100%;margin:0 0 12px;padding:0;font-weight:700}
+fieldset.card > legend + *{clear:both}
+/* "Başka bir risk" kartındaki "v" harfi yerine gerçek ok */
+#cat-pick .cat-chev{font-size:0;width:10px;height:10px;top:20px;right:18px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg)}
+#cat-pick .cat.other.open .cat-chev{transform:rotate(-135deg)}
