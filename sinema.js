@@ -373,13 +373,80 @@
         .from($('.hx-cta', hero), { opacity: 0, y: d(12), duration: 0.8 }, 1.0)
         .from($$('.hx-link:not([hidden])', hero), { opacity: 0, y: d(8), duration: 0.6, ease: quart, stagger: 0.06 }, 1.1)
         .from($('.hx-cue', hero), { opacity: 0, y: -d(6), duration: 0.7 }, 1.25)
-        .from($('.hero-note', hero), { opacity: 0, duration: 0.8 }, 1.3);
+        .from($('.hero-note', hero), { opacity: 0, duration: 0.8 }, 1.3)
+        .eventCallback('onComplete', () => homeMotion(hero)); // kaydırma sahneleri giriş bitince kurulur (başlangıç değerleri görünür hâlden alınsın)
     };
     const fontsReady = document.fonts && document.fonts.ready ? Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1200))]) : Promise.resolve();
     fontsReady.then(run);
-    // film kaydırınca yavaşça uzaklaşır (paralaks)
-    const vid = $('#hero-video', hero);
-    if (vid && window.ScrollTrigger) g.to(vid, { yPercent: 8, scale: 1.08, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true } });
+  }
+
+  /* =================== ANA SAYFA: KAYDIRMAYA BAĞLI SAHNELER =================== */
+  // Hepsi kaydırma konumuna bağlı (scrub): geri kaydırınca geri oynar. Yalnız transform/opacity/clip-path değişir (akıcı kalsın).
+  // Az hareket / hafif modda hiç çalışmaz; o zaman sayfa statik tasarımda, her şey görünür kalır.
+  function homeMotion(hero) {
+    if (!window.ScrollTrigger) return;
+    const view = $('#view-home');
+    // 1) Hero: film yuvarlak köşeli bir karta küçülüp geriye yatar, başlık satırları farklı hızlarda yukarı süzülür
+    const film = $('.hero-film', hero);
+    const ht = g.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.6 } });
+    if (film) ht.fromTo(film, { clipPath: 'inset(0% 0% 0% 0% round 0px)', scale: 1, rotationX: 0, transformPerspective: 1400 },
+      { clipPath: 'inset(6% 5% 10% 5% round 40px)', scale: 0.94, rotationX: 9, yPercent: 6 }, 0);
+    $$('.hx-ln', hero).forEach((ln, i) => ht.to(ln, { yPercent: -(70 + i * 55), opacity: 0 }, 0));
+    ht.to($('.hx-brand', hero), { y: -60, opacity: 0 }, 0)
+      .to($('.hx-lede', hero), { y: -40, opacity: 0, duration: 0.7 }, 0)
+      .to($('.hx-act', hero), { y: -20, opacity: 0, duration: 0.6 }, 0)
+      .to($$('.hx-cue, .hero-note', hero), { opacity: 0, duration: 0.3 }, 0);
+
+    // 2) "Ne yapar" metni: kelimeler kaydırdıkça sırayla aydınlanır; ölçüt halkası kaydırmayla döner
+    const say = $('.hm-say', view);
+    const txt = say && $('.say-txt', say);
+    if (txt && !txt.dataset.gsWords) {
+      txt.dataset.gsWords = '1'; // (data-split değil: o ad app.js'in kendi kelime animasyonuna ait)
+      const wrap = (node) => {
+        [...node.childNodes].forEach((n) => {
+          if (n.nodeType === 3) {
+            const frag = document.createDocumentFragment();
+            n.textContent.split(/(\s+)/).forEach((part) => {
+              if (!part) return;
+              if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+              const s = document.createElement('span'); s.className = 'w'; s.textContent = part; frag.appendChild(s);
+            });
+            n.replaceWith(frag);
+          } else if (n.nodeType === 1) wrap(n);
+        });
+      };
+      wrap(txt);
+      g.fromTo($$('.w', txt), { opacity: 0.13 }, { opacity: 1, stagger: 0.1, ease: 'none',
+        scrollTrigger: { trigger: txt, start: 'top 82%', end: 'bottom 42%', scrub: 0.4 } });
+    }
+    if (say) {
+      const st = () => ({ trigger: say, start: 'top bottom', end: 'bottom top', scrub: 0.8 });
+      g.set($$('.say-out, .say-in', say), { svgOrigin: '200 200' }); // halka çemberin tam ortasında dönsün
+      g.fromTo($('.say-out', say), { rotation: -40 }, { rotation: 220, ease: 'none', scrollTrigger: st() });
+      g.fromTo($('.say-in', say), { rotation: 60 }, { rotation: -160, ease: 'none', scrollTrigger: st() });
+      g.fromTo($('.say-ring', say), { scale: 0.82, opacity: 0.4 }, { scale: 1, opacity: 1, ease: 'power1.out',
+        scrollTrigger: { trigger: say, start: 'top 90%', end: 'center 55%', scrub: 0.6 } });
+    }
+
+    // 3) Gösterge kartı hafif 3B dönüşle yerine oturur
+    const dial = $('#hm-dial', view);
+    if (dial) g.fromTo(dial, { rotationY: -28, rotationX: 8, y: 40, transformPerspective: 1100 }, { rotationY: 0, rotationX: 0, y: 0, ease: 'power2.out',
+      scrollTrigger: { trigger: dial, start: 'top 95%', end: 'top 45%', scrub: 0.6 } });
+
+    // 4) "Nasıl çalışır" adımları: kart kart öne doğru devrilerek açılır
+    $$('.home-steps li', view).forEach((li, i) => g.fromTo(li,
+      { rotationX: -80, y: 36, opacity: 0, transformOrigin: '50% 0%' },
+      { rotationX: 0, y: 0, opacity: 1, ease: 'power2.out', scrollTrigger: { trigger: li, start: 'top ' + (96 - (i % 2) * 3) + '%', end: 'top 66%', scrub: 0.5 } }));
+
+    // 5) Risk türü çipleri dönerek gelir
+    const chips = $$('.home-chips span', view);
+    if (chips.length) g.from(chips, { rotation: () => g.utils.random(-25, 25), scale: 0.5, opacity: 0, duration: 0.7, stagger: 0.06, ease: 'back.out(2)',
+      scrollTrigger: { trigger: chips[0].parentNode, start: 'top 88%', once: true } });
+
+    // 6) Son çağrı: başlık büyüyerek gelir
+    const fin = $('.home-final h2', view);
+    if (fin) g.fromTo(fin, { scale: 0.8, opacity: 0.2 }, { scale: 1, opacity: 1, ease: 'power2.out',
+      scrollTrigger: { trigger: fin, start: 'top 95%', end: 'top 60%', scrub: 0.5 } });
   }
 
   /* =================== HERO FİLMİ, ÜST ÇUBUK, İMLEÇ =================== */
@@ -399,7 +466,7 @@
     };
     if (vid) {
       vid.muted = true; vid.defaultMuted = true; vid.playsInline = true;
-      new IntersectionObserver((ents) => { seen = ents[0].isIntersecting; sync(); }, { threshold: 0.05 }).observe(hero);
+      new IntersectionObserver((ents) => { seen = ents[0].isIntersecting; hero.classList.toggle('on', seen); sync(); }, { threshold: 0.05 }).observe(hero);
       document.addEventListener('visibilitychange', sync);
       window.addEventListener('hashchange', () => setTimeout(sync, 60));
     }
@@ -429,7 +496,14 @@
       const kids = $$(':scope > *', tr); kids.slice(kids.length / 2).forEach((el) => el.setAttribute('aria-hidden', 'true'));
       const tw = g.to(tr, { xPercent: -50, duration: 38, ease: 'none', repeat: -1 });
       // ekranda değilken boşuna çalışmasın
-      if (window.ScrollTrigger) ScrollTrigger.create({ trigger: tr, start: 'top bottom', end: 'bottom top', onToggle: (s) => tw.paused(!s.isActive) });
+      // kaydırma hızına göre hızlanır, yukarı kaydırınca ters yöne akar, sonra sakinleşir
+      let dir = 1;
+      if (window.ScrollTrigger) ScrollTrigger.create({ trigger: tr, start: 'top bottom', end: 'bottom top', onToggle: (s) => tw.paused(!s.isActive),
+        onUpdate: (s) => {
+          const v = s.getVelocity(); if (Math.abs(v) < 30) return;
+          dir = v < 0 ? -1 : 1;
+          g.to(tw, { timeScale: dir * Math.min(1 + Math.abs(v) / 220, 7), duration: 0.2, overwrite: true, onComplete: () => g.to(tw, { timeScale: dir, duration: 1.4, ease: 'power2.out' }) });
+        } });
     });
   }
 
