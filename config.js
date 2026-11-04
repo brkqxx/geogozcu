@@ -7,7 +7,7 @@ window.CONFIG = {
   // Gizlilik metninde görünecek iletişim adresi (boş bırakılırsa "okul yönetimi" yazar)
   CONTACT_EMAIL: "",
   // Proje sayfasında görünür. Boş bırakılan alan sayfada hiç gösterilmez.
-  SCHOOL: "EGEV 100. Yıl Lisesi",
+  SCHOOL: "EGEV 100. Yıl Anadolu Lisesi",
   PROJECT_TITLE: "Vatandaş bilimiyle orman yangını riski taşıyan alanların haritalanması: Gaziemir örneği",
   TEAM: [],          // ör. ["Ad Soyad (11-A)", "Ad Soyad (11-B)"]
   ADVISOR: "",       // ör. "Danışman öğretmen: Ad Soyad"

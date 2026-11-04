@@ -1,7 +1,7 @@
 // İndirilebilir kaynak kod paketini hazırlar: araclar/kaynak-tmp/geogozcu-kaynak/
 // Gizli bilgi içermez: config.js boş şablon, kötü söz listesi çıkarılmış.
 const f = require('fs'), p = require('path');
-const src = 'C:/Users/uberk/Downloads/files/';
+const src = require('path').join(__dirname, '..') + '/';
 const out = p.join(__dirname, 'kaynak-tmp', 'geogozcu-kaynak');
 f.rmSync(p.join(__dirname, 'kaynak-tmp'), { recursive: true, force: true });
 f.mkdirSync(p.join(out, 'veritabani', 'fonksiyonlar'), { recursive: true });

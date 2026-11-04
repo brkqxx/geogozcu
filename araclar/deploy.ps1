@@ -3,7 +3,7 @@
 param([switch]$Derle)
 $ErrorActionPreference = 'Stop'
 $sp = Split-Path -Parent $MyInvocation.MyCommand.Path
-Set-Location C:\Users\uberk\Downloads\files
+Set-Location (Split-Path -Parent $sp)
 if (-not $Derle) { node "$sp\bump.js" }
 node --check app.js
 node --check harita-araclari.js

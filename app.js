@@ -178,7 +178,11 @@
     return { os, browser, standalone, touch, label: OSN[os] + ' · ' + BRN[browser] + (standalone ? ' (uygulama)' : '') };
   })();
   // Dar ekran veya dokunmatik telefon → telefon arayüzü
-  const isMobileUI = () => window.innerWidth < 760 || (DEVICE.touch && window.innerWidth < 1000 && /ios|android/.test(DEVICE.os));
+  // (iPad kendini "ipados" olarak bildirir; dikey iPad Pro 1024 px olduğu için sınır 1100)
+  const isMobileUI = () => window.innerWidth < 760 || (DEVICE.touch && window.innerWidth < 1100 && /ios|ipados|android/.test(DEVICE.os));
+  // Dokunmatik ekranda (iPad yatay, akıllı tahta, dokunmatik dizüstü) bildirim ayrıntısı küçük harita
+  // balonu yerine tam ekran açılır: balon kısa ekranda üst çubuğun altında kalıp fotoğrafı gizliyordu.
+  const detailsAsSheet = () => document.documentElement.dataset.ui === 'mobile' || window.matchMedia('(pointer: coarse)').matches;
   function applyDevice() {
     const d = document.documentElement.dataset;
     d.os = DEVICE.os; d.browser = DEVICE.browser;
@@ -324,7 +328,7 @@
     const [r, g, b] = hex2rgb(h).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
     return (0.2126 * r + 0.7152 * g + 0.0722 * b) > 0.4 ? '#14201B' : '#ffffff';
   };
-  const theme = Object.assign({ mode: 'auto', accent: 'forest', custom: '#1F4D3A', contrast: 'off' },
+  const theme = Object.assign({ mode: 'auto', accent: 'forest', custom: '#1F4D3A', contrast: 'off', text: 'md' },
     JSON.parse(localStorage.getItem(THEME_KEY) || '{}'));
 
   function applyTheme() {
@@ -344,6 +348,8 @@
       root.style.removeProperty('--accent-ink');
     }
     root.dataset.contrast = theme.contrast;
+    root.dataset.text = theme.text || 'md';
+    $$('#set-text .chip').forEach((b) => { const on = b.dataset.text === root.dataset.text; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); });
     $$('#mode-chips .chip').forEach((b) => b.classList.toggle('on', b.dataset.mode === theme.mode));
     $$('#accent-swatches .sw[data-accent]').forEach((b) => b.classList.toggle('on', b.dataset.accent === theme.accent));
     $('#sw-custom').classList.toggle('on', theme.accent === 'custom');
@@ -718,6 +724,7 @@
       '<p class="pop-who small">👤 ' + esc(observerOf(r)) + whoSuffix(r) + '</p>' +
       '<p class="pop-date small muted">📅 Haritaya eklendi: ' + esc(fmtDate(r.created_at)) + ' <b>(' + esc(timeAgo(r.created_at)) + ')</b></p>' +
       voteHtml(r) +
+      '<button type="button" class="btn ghost pop-open" data-rvopen="' + esc(r.id) + '">⤢ Büyük görünümde aç' + (profile && profile.is_admin ? ' · yönetici işlemleri' : '') + '</button>' +
       (profile && profile.is_admin ? '<button type="button" class="linkish small pop-admin" data-photos="' + esc(r.id) + '">Fotoğrafları düzenle (yönetici)</button>' : '') +
       '</div></div>';
   }
@@ -847,6 +854,7 @@
     opts = opts || {};
     const max = Math.max(1, ...rows.map((r) => r.value));
     const body = $('.chart-body', el);
+    el._rows = rows; el._kind = 'bar';
     if (!rows.length || rows.every((r) => !r.value)) { body.innerHTML = '<p class="muted small">Henüz veri yok.</p>'; return; }
     body.innerHTML = '<div class="hbars">' + rows.map((r) =>
       '<div class="hbar" data-tip="' + esc(r.label + ': ' + r.value + ' bildirim' + (r.extra ? ' · ' + r.extra : '')) + '">' +
@@ -860,6 +868,7 @@
     const max = Math.max(1, ...rows.map((r) => r.value));
     const peak = rows.reduce((a, r) => (r.value > a.value ? r : a), rows[0] || { value: 0 });
     const body = $('.chart-body', el);
+    el._rows = rows; el._kind = 'col';
     body.innerHTML = '<div class="vcols' + (opts.labels ? ' labeled' : '') + '" data-css="--n:' + rows.length + '">' + rows.map((r) =>
       '<div class="vcol" data-tip="' + esc(r.label + ': ' + r.value) + '"><i class="' + (r.cls || '') + '" data-css="height:' + (r.value ? Math.max(4, r.value / max * 100) : 0) + '%">' +
       (opts.labels && r.value ? '<b>' + r.value + '</b>' : '') + '</i>' +
@@ -876,6 +885,12 @@
     const team = (cfg.TEAM || []).filter(Boolean);
     $('#pj-team').textContent = (team.length ? 'Proje ekibi: ' + team.join(', ') + '. ' : '') + (cfg.ADVISOR || '');
     show($('#pj-team'), !!(team.length || cfg.ADVISOR));
+    // her grafiğin başlığına "PNG indir" düğmesi (bir kez)
+    $$('#view-project .chart').forEach((el) => {
+      if (el._title) return;
+      el._title = $('figcaption', el).textContent.trim();
+      $('figcaption', el).insertAdjacentHTML('beforeend', '<button type="button" class="ch-dl" data-chartpng aria-label="' + esc(el._title) + ' grafiğini resim olarak indir">⬇ Resim</button>');
+    });
     const R = approved;
     const fire = R.filter((r) => catOf(r) === 'fire');
     const median = (a) => { if (!a.length) return 0; const s = a.slice().sort((x, y) => x - y); return s[Math.floor(s.length / 2)]; };
@@ -890,7 +905,7 @@
     $('#ch-risk .chart-body').insertAdjacentHTML('beforeend', '<p class="chart-key"><span class="k lv-low">Düşük 0-33</span><span class="k lv-mid">Orta 34-66</span><span class="k lv-high">Yüksek 67-100</span></p>');
     barChart($('#ch-cat'), Object.entries(CATS).map(([k, c]) => {
       const list = R.filter((r) => catOf(r) === k);
-      return { label: c.short, value: list.length, extra: list.length ? 'ortalama risk ' + Math.round(list.reduce((a, r) => a + (r.risk_score || 0), 0) / list.length) : '' };
+      return { label: c.short, value: list.length, color: c.color, extra: list.length ? 'ortalama risk ' + Math.round(list.reduce((a, r) => a + (r.risk_score || 0), 0) / list.length) : '' };
     }).sort((a, b) => b.value - a.value));
     const hoods = {};
     R.forEach((r) => { const k = r.neighborhood || r.district || 'Bilinmiyor'; hoods[k] = (hoods[k] || 0) + 1; });
@@ -919,13 +934,75 @@
   function exportOpenCsv() {
     const rows = openDataRows(); if (!rows.length) return toast('İndirilecek bildirim yok.');
     const cols = Object.keys(rows[0]);
-    const q = (v) => { const t = String(v == null ? '' : v); return /[";\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+    // Excel'de formül olarak çalışmasın diye =,+,-,@ ile başlayan metinlerin önüne ' eklenir (CSV enjeksiyonu)
+    const q = (v) => { let t = String(v == null ? '' : v); if (typeof v === 'string' && /^[=+\-@\t\r]/.test(t)) t = "'" + t; return /[";\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
     download('geogozcu-veri-' + new Date().toISOString().slice(0, 10) + '.csv', '\ufeff' + [cols.join(';')].concat(rows.map((r) => cols.map((c) => q(r[c])).join(';'))).join('\n'), 'text/csv;charset=utf-8');
   }
   function exportGeoJson() {
     const rows = openDataRows(); if (!rows.length) return toast('İndirilecek bildirim yok.');
     const fc = { type: 'FeatureCollection', features: rows.map((r) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [r.boylam, r.enlem] }, properties: r })) };
     download('geogozcu-veri-' + new Date().toISOString().slice(0, 10) + '.geojson', JSON.stringify(fc, null, 1), 'application/geo+json');
+  }
+  // Gerçek Excel dosyası (.xlsx): 1. sayfa bildirimler, sonraki sayfalar her grafiğin tablosu
+  async function exportOpenXlsx() {
+    const rows = openDataRows(); if (!rows.length) return toast('İndirilecek bildirim yok.');
+    busy(true);
+    try { await loadXlsxLib(); } catch (e) { busy(false); return toast(e.message); }
+    try {
+      const wb = XLSX.utils.book_new(), used = {};
+      const sheet = (name) => { let n = String(name).replace(/[[\]:*?/\\]/g, '').slice(0, 28) || 'Sayfa'; while (used[n]) n += '_'; used[n] = 1; return n; };
+      const ws = XLSX.utils.json_to_sheet(rows);
+      ws['!cols'] = Object.keys(rows[0]).map((k) => ({ wch: Math.max(10, k.length + 2, ...rows.slice(0, 200).map((r) => String(r[k]).length + 1)) }));
+      XLSX.utils.book_append_sheet(wb, ws, sheet('Bildirimler'));
+      $$('#view-project .chart').forEach((el) => {
+        if (!el._rows || !el._rows.length) return;
+        const s = XLSX.utils.json_to_sheet(el._rows.map((r) => ({ 'Değer': r.label, 'Bildirim sayısı': r.value })));
+        s['!cols'] = [{ wch: 28 }, { wch: 16 }];
+        XLSX.utils.book_append_sheet(wb, s, sheet(el._title || 'Grafik'));
+      });
+      XLSX.writeFile(wb, 'geogozcu-veri-' + new Date().toISOString().slice(0, 10) + '.xlsx');
+    } finally { busy(false); }
+  }
+  // Grafiği resim (PNG) olarak indir: sayfadaki değerler ve renklerle tuvale yeniden çizilir (dış kütüphane yok)
+  const BAR_COLOR = { 'lv-low': '#3F9B62', 'lv-mid': '#E0A526', 'lv-high': '#D2452F' };
+  function chartPng(el) {
+    const rows = el._rows || [];
+    if (!rows.length || rows.every((r) => !r.value)) return toast('Bu grafikte henüz veri yok.');
+    const horiz = el._kind === 'bar', W = 1400, pad = 56, top = 130;
+    const H = horiz ? top + rows.length * 62 + 60 : 720;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const x = c.getContext('2d');
+    const F = (w, s) => w + ' ' + s + 'px "Instrument Sans", "Segoe UI", Arial, sans-serif';
+    const fit = (t, w) => { t = String(t); if (x.measureText(t).width <= w) return t; while (t.length > 1 && x.measureText(t + '…').width > w) t = t.slice(0, -1); return t + '…'; };
+    x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, W, H);
+    x.fillStyle = '#03080B'; x.font = '600 38px Poppins, "Segoe UI", Arial, sans-serif'; x.textBaseline = 'alphabetic';
+    x.fillText(fit(el._title || 'Grafik', W - pad * 2), pad, 70);
+    x.fillStyle = '#5B6B64'; x.font = F(400, 20);
+    x.fillText((cfg.APP_NAME || 'GeoGözcü') + ' · ' + new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }) + ' · geogozcu.pages.dev', pad, 104);
+    const max = Math.max(1, ...rows.map((r) => r.value));
+    if (horiz) {
+      const lw = 330, bw = W - pad * 2 - lw - 80;
+      rows.forEach((r, i) => {
+        const y = top + i * 62; x.textBaseline = 'middle';
+        x.fillStyle = '#03080B'; x.font = F(500, 22); x.fillText(fit(r.label, lw - 20), pad, y + 22);
+        x.fillStyle = '#EEF1EA'; x.fillRect(pad + lw, y + 6, bw, 32);
+        x.fillStyle = r.color || BAR_COLOR[r.cls] || '#E0A526'; x.fillRect(pad + lw, y + 6, r.value ? Math.max(3, bw * r.value / max) : 0, 32);
+        x.fillStyle = '#03080B'; x.font = F(700, 22); x.fillText(String(r.value), pad + lw + bw + 16, y + 22);
+      });
+    } else {
+      const bottom = H - 80, ch = bottom - top - 40, n = rows.length, gw = (W - pad * 2) / n, bw = gw * 0.72;
+      x.fillStyle = '#C9D2CD'; x.fillRect(pad, bottom, W - pad * 2, 2);
+      x.textAlign = 'center';
+      rows.forEach((r, i) => {
+        const h = r.value ? Math.max(4, ch * r.value / max) : 0, x0 = pad + i * gw + (gw - bw) / 2;
+        x.fillStyle = BAR_COLOR[r.cls] || '#E0A526'; x.fillRect(x0, bottom - h, bw, h);
+        x.textBaseline = 'alphabetic';
+        if (r.value && (n <= 12 || r.value === max)) { x.fillStyle = '#03080B'; x.font = F(700, 20); x.fillText(String(r.value), x0 + bw / 2, bottom - h - 10); }
+        if (r.tick) { x.fillStyle = '#5B6B64'; x.font = F(400, 18); x.fillText(r.tick, x0 + bw / 2, bottom + 32); }
+      });
+      x.textAlign = 'left';
+    }
+    c.toBlob((b) => { if (b) download('geogozcu-' + (el.id || 'grafik') + '-' + new Date().toISOString().slice(0, 10) + '.png', b, 'image/png'); }, 'image/png');
   }
 
   // Ana sayfa göstergesi: açık orman yangını riski bildirimlerinin ortanca puanı
@@ -1016,7 +1093,8 @@
     if (useCanvas && !canvasR) canvasR = L.canvas({ padding: 0.3 });
     const desktop = document.documentElement.dataset.ui !== 'mobile';
     // balon haritadan uzun olmasın; sığmazsa içinde kaydırılır
-    const popMaxH = Math.max(280, mainMap.getSize().y - 150);
+    // (üstte odak düğmeleri, altta ölçek/uydu tarihi şeridi var; balon ikisinin arasına sığar, içi kayar)
+    const popMaxH = Math.max(220, mainMap.getSize().y - 250);
     const ms = shown.map((r, i) => {
       const color = r.resolved_at ? '#64748B' : CATS[catOf(r)].color;
       const m = useCanvas
@@ -1025,7 +1103,7 @@
           icon: isUrgentOpen(r) ? urgentIcon() : pinIcon(color, r.resolved_at ? 0 : r.risk_score, Math.min(i, 30) * 35, !animate),
           title: subLabel(r), zIndexOffset: isUrgentOpen(r) ? 1000 : 0, riseOnHover: true,
         });
-      m.bindPopup(() => popupHtml(r), { maxWidth: 320, minWidth: 260, maxHeight: popMaxH, className: 'gg-popup', autoPan: desktop, autoPanPaddingTopLeft: [40, 70], autoPanPaddingBottomRight: [40, 40] });
+      m.bindPopup(() => popupHtml(r), { maxWidth: 320, minWidth: 260, maxHeight: popMaxH, className: 'gg-popup', autoPan: desktop, autoPanPaddingTopLeft: [40, 90], autoPanPaddingBottomRight: [40, 70] });
       if (desktop) m.bindTooltip('<b>' + esc(subLabel(r)) + '</b><span>' + esc(placeOf(r)) + ' · risk ' + (r.risk_score || 0) + '</span>', { direction: 'top', offset: [0, useCanvas ? -8 : -36], className: 'gg-tip', opacity: 1 });
       m._rid = r.id; m._risk = r.risk_score || 0; markerById[r.id] = m;
       return m;
@@ -1125,10 +1203,10 @@
   // Haritada bir bildirime git ve balonunu aç
   function focusReport(r) {
     const m = markerById[r.id]; if (!m) return;
-    if (document.documentElement.dataset.ui === 'mobile') {
+    if (detailsAsSheet()) {
       // telefonda ayrıntı ekranın üstünde tam ekran açılır; harita arkada konuma gider
       // harita yakınlaşmaz; "Haritada göster" ile gidilir
-      setSheet('peek');
+      if (document.documentElement.dataset.ui === 'mobile') setSheet('peek');
       openReport(r);
       return;
     }
@@ -1163,7 +1241,12 @@
         (profile && profile.is_admin ? '<button type="button" class="btn ghost big" data-photos="' + esc(r.id) + '">Fotoğrafları düzenle</button>' : '') +
         (session && r.user_id === session.user.id
           ? '<div class="rv-owner"><span class="muted small">Bu senin bildirimin · ' + esc(r.resolved_at ? 'Çözüldü' : STATUS[r.status] || r.status) + '</span>' +
-            '<button type="button" class="btn danger" data-act="delete" data-id="' + esc(r.id) + '">Bildirimi sil</button></div>' : '') +
+            '<button type="button" class="btn danger" data-act="delete" data-id="' + esc(r.id) + '">Bildirimi sil</button></div>'
+          : profile && profile.is_admin
+            ? '<div class="rv-owner rv-admin"><span class="muted small">Yönetici işlemleri</span><div class="row-gap">' +
+              (r.resolved_at ? '' : '<button type="button" class="btn ghost" data-rvadmin="resolve" data-id="' + esc(r.id) + '">✓ Çözüldü olarak işaretle</button>') +
+              '<button type="button" class="btn ghost" data-rvadmin="rejected" data-id="' + esc(r.id) + '">Yayından kaldır</button>' +
+              '<button type="button" class="btn danger" data-act="delete" data-id="' + esc(r.id) + '">Kalıcı olarak sil</button></div></div>' : '') +
       '</div></article>';
   }
   function openReport(r) {
@@ -1363,9 +1446,20 @@
     shots = []; renderShots();
   }
 
+  // Fotoğrafı çöz: önce createImageBitmap (EXIF yönüne göre döndürür); olmazsa tarayıcının <img> çözücüsü
+  // (bazı iPhone HEIC dosyaları ve eski tarayıcılar yalnız bu yolla açılır)
+  async function decodeImage(file) {
+    try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (_) { /* yedek yol */ }
+    const url = URL.createObjectURL(file);
+    try {
+      const im = new Image(); im.src = url;
+      await (im.decode ? im.decode() : new Promise((ok, bad) => { im.onload = ok; im.onerror = bad; }));
+      return im;
+    } finally { setTimeout(() => URL.revokeObjectURL(url), 2000); }
+  }
   async function compress(file) {
     try {
-      const bmp = await createImageBitmap(file);
+      const bmp = await decodeImage(file);
       const max = 1600, scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
       const c = document.createElement('canvas');
       c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
@@ -2656,7 +2750,8 @@
       '<section class="imp">' +
       '<header class="imp-head"><h2>Veri içe aktar</h2><p class="muted">Proje öncesinde toplanan saha gözlemlerini haritaya ekle. Excel (.xlsx), CSV ya da GeoJSON yükle; konum dosyadaki koordinattan ya da Google / Apple Haritalar bağlantısının işaret ettiği noktadan alınır. Gözlemci adları herkese maskeli görünür, kullanıcı adı yerine “Yönetici tarafından eklendi” yazar. Bu kayıtlar puan ve lider tablosuna sayılmaz.</p></header>' +
       '<div class="imp-step"><b>1</b><div><label class="btn ghost imp-file"><input type="file" id="imp-file" accept=".xlsx,.xls,.csv,.json,.geojson" hidden>' + (imp.file ? 'Başka dosya seç' : 'Dosya seç') + '</label>' +
-        (imp.file ? '<span class="imp-fname">' + esc(imp.file) + ' · ' + imp.data.length + ' satır, ' + imp.head.length + ' sütun</span>' : '<span class="muted small">Google Forms yanıtlarını “Yanıtlar → E-Tablolar → Dosya → İndir → Excel” ile alabilirsin.</span>') + '</div></div>' +
+        (imp.file ? '<span class="imp-fname">' + esc(imp.file) + ' · ' + imp.data.length + ' satır, ' + imp.head.length + ' sütun</span>' : '<span class="muted small">Google Forms yanıtlarını “Yanıtlar → E-Tablolar → Dosya → İndir → Excel” ile alabilirsin.</span>') +
+        ' <button type="button" class="btn ghost sm" id="imp-template">Örnek Excel şablonu indir</button></div></div>' +
       (imp.file ? '<div class="imp-step"><b>2</b><div><p class="imp-sub">Sütunları kontrol et</p><div class="imp-map">' +
         IMP_FIELDS.map(([f, label]) => '<label><span>' + esc(label) + '</span><select data-impf="' + f + '">' + fieldOpts(f) + '</select></label>').join('') +
         '<label><span>Ana başlık</span><select id="imp-cat">' + catOpts + '</select></label>' +
@@ -2682,6 +2777,16 @@
         '</div></div>' : '') +
       '</section>';
 
+    $('#imp-template').addEventListener('click', async () => {
+      try { busy(true); await loadXlsxLib(); } catch (err) { return toast(err.message); } finally { busy(false); }
+      const head = ['Gözlem tarihi', 'Gözlemci adı', 'Enlem', 'Boylam', 'Harita bağlantısı', 'Açık adres', 'Bitki örtüsü yoğunluğu', 'Riskli unsurlar', 'İtfaiye erişimi (1-5)', 'Notlar', 'Fotoğraf bağlantısı'];
+      const ex = ['30.09.2026 11:08', 'Ad Soyad', 38.309587, 27.170948, '', 'Ege Cd., Gaziemir', 'Orta', 'Kuru ot, atık', 4, 'Piknik alanı yakınında yanıcı atık', ''];
+      const ws = XLSX.utils.aoa_to_sheet([head, ex]);
+      ws['!cols'] = head.map((h) => ({ wch: Math.max(14, h.length + 2) }));
+      const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Gözlemler');
+      XLSX.writeFile(wb, 'geogozcu-iceaktarma-sablonu.xlsx');
+      toast('Şablon indirildi. Örnek satırı silip kendi gözlemlerini yaz; enlem/boylam ya da harita bağlantısından biri yeterli.');
+    });
     $('#imp-file').addEventListener('change', async (e) => {
       const f = e.target.files[0]; if (!f) return;
       try { await readImportFile(f); } catch (err) { toast('Dosya okunamadı: ' + err.message); }
@@ -3033,6 +3138,20 @@
   }
 
   async function onOwnerAction(e) {
+    // yönetici: haritadaki ayrıntıdan doğrudan yayından kaldır / çözüldü işaretle (yetki veritabanında da denetlenir)
+    const ab = e.target.closest('[data-rvadmin]');
+    if (ab && profile && profile.is_admin) {
+      const act = ab.dataset.rvadmin, id = ab.dataset.id;
+      if (act === 'rejected' && !confirm('Bu bildirim haritadan kaldırılsın mı? Yönetici panelinden yeniden yayına alabilirsin.')) return;
+      ab.disabled = true;
+      const patch = act === 'resolve' ? { resolved_at: new Date().toISOString(), resolved_by: session.user.id }
+        : { status: 'rejected', reviewed_at: new Date().toISOString() };
+      const { error } = await sb.from('reports').update(patch).eq('id', id);
+      if (error) { toast('Güncellenemedi: ' + error.message); ab.disabled = false; return; }
+      toast(act === 'resolve' ? 'Çözüldü olarak işaretlendi; 2 gün sonra haritadan kalkar.' : 'Bildirim yayından kaldırıldı.');
+      closeReport(); loadApproved();
+      return;
+    }
     const btn = e.target.closest('[data-act="delete"]'); if (!btn) return;
     if (!confirm('Bu bildirim ve fotoğrafları kalıcı olarak silinsin mi?')) return;
     btn.disabled = true;
@@ -3040,7 +3159,7 @@
     if (data) { const ps = photosOf(data); if (ps.length) await sb.storage.from(BUCKET).remove(withThumbs(ps)); }
     const { error } = await sb.from('reports').delete().eq('id', btn.dataset.id);
     if (error) { toast('Silinemedi: ' + error.message); btn.disabled = false; return; }
-    toast('Bildirimin silindi.'); show($('#report-view'), false); openRid = null; loadMine(); loadApproved();
+    toast('Bildirim silindi.'); closeReport(); if (session) loadMine(); loadApproved();
   }
 
   async function onAdminAction(e) {
@@ -3393,7 +3512,7 @@
   }
   // Kare kırp + 256 px'e küçült
   async function squareAvatar(file) {
-    const bmp = await createImageBitmap(file);
+    const bmp = await decodeImage(file);
     const s = Math.min(bmp.width, bmp.height), c = document.createElement('canvas');
     c.width = c.height = 256;
     c.getContext('2d').drawImage(bmp, (bmp.width - s) / 2, (bmp.height - s) / 2, s, s, 0, 0, 256, 256);
@@ -4030,11 +4149,11 @@
 
   /* =================== GİZLİLİK VE KOŞULLAR =================== */
   const LEGAL_DATE = '11 Ekim 2026';
-  const contact = () => cfg.CONTACT_EMAIL ? '<a href="mailto:' + esc(cfg.CONTACT_EMAIL) + '">' + esc(cfg.CONTACT_EMAIL) + '</a>' : 'EGEV 100. Yıl Lisesi proje ekibi (okul yönetimi aracılığıyla)';
+  const contact = () => cfg.CONTACT_EMAIL ? '<a href="mailto:' + esc(cfg.CONTACT_EMAIL) + '">' + esc(cfg.CONTACT_EMAIL) + '</a>' : 'EGEV 100. Yıl Anadolu Lisesi proje ekibi (okul yönetimi aracılığıyla)';
   const LEGAL = {
     gizlilik: ['Gizlilik Politikası', () => `
       <p class="muted small">Son güncelleme: ${LEGAL_DATE}</p>
-      <p><b>${esc(cfg.APP_NAME || 'GeoGözcü')}</b>, EGEV 100. Yıl Lisesi öğrencilerinin TÜBİTAK kapsamında geliştirdiği, orman yangını riski taşıyan alanları ve çevresel riskleri haritalayan gönüllü bir vatandaş bilimi projesidir. Gizliliğine önem veriyoruz; bu metin hangi bilgileri neden topladığımızı açıklar.</p>
+      <p><b>${esc(cfg.APP_NAME || 'GeoGözcü')}</b>, EGEV 100. Yıl Anadolu Lisesi öğrencilerinin TÜBİTAK kapsamında geliştirdiği, orman yangını riski taşıyan alanları ve çevresel riskleri haritalayan gönüllü bir vatandaş bilimi projesidir. Gizliliğine önem veriyoruz; bu metin hangi bilgileri neden topladığımızı açıklar.</p>
       <h3>Kim sorumlu?</h3><p>Veri sorumlusu proje ekibidir. İletişim: ${contact()}.</p>
       <h3>Herkese ne görünür?</h3>
       <ul><li><b>Görünür:</b> kullanıcı adın, avatarın, rozetlerin, puanın, yayındaki bildirimlerin (fotoğraf, konum, anket cevapları, notlar).</li>
@@ -4375,6 +4494,7 @@
     $('#set-motion').addEventListener('change', (e) => { prefs.motion = e.target.checked ? 'on' : 'off'; savePrefs(); logEvent('settings_update', 'Animasyonlar: ' + (e.target.checked ? 'açık' : 'kapalı')); });
     $('#set-sound').addEventListener('change', (e) => { prefs.sound = e.target.checked ? 'on' : 'off'; savePrefs(); if (e.target.checked) ding(); });
     $('#set-contrast').addEventListener('change', (e) => { theme.contrast = e.target.checked ? 'on' : 'off'; applyTheme(); });
+    $('#set-text').addEventListener('click', (e) => { const b = e.target.closest('[data-text]'); if (!b) return; theme.text = b.dataset.text; applyTheme(); });
 
     // şifre göster/gizle, güç, caps lock
     document.addEventListener('click', (e) => {
@@ -4454,6 +4574,8 @@
     $('#f-reset').addEventListener('click', (e) => { e.preventDefault(); resetFilters(); });
     $('#btn-near').addEventListener('click', showNearby);
     $('#pj-csv').addEventListener('click', exportOpenCsv);
+    $('#pj-xlsx').addEventListener('click', exportOpenXlsx);
+    $('#view-project').addEventListener('click', (e) => { const b = e.target.closest('[data-chartpng]'); if (b) chartPng(b.closest('.chart')); });
     $('#pj-geo').addEventListener('click', exportGeoJson);
     // proje sayfası içindekiler: adres çubuğu (#/proje) bozulmadan bölüme kaydır
     $('.proj-toc').addEventListener('click', (e) => { const a = e.target.closest('[data-jump]'); if (!a) return; e.preventDefault(); const t = $(a.getAttribute('href')); if (t) t.scrollIntoView({ behavior: calm() ? 'auto' : 'smooth', block: 'start' }); });
@@ -4532,6 +4654,11 @@
       const r = mineReports.find((x) => x.id === row.dataset.mine); if (r) openReport(r);
     });
     $('#rv-body').addEventListener('click', onOwnerAction);
+    document.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-rvopen]'); if (!b) return;
+      const r = approved.find((x) => x.id === b.dataset.rvopen); if (!r) return;
+      if (mainMap) mainMap.closePopup(); openReport(r);
+    });
     $('#admin-body').addEventListener('focusout', saveNote);
     $('#btn-export').addEventListener('click', exportCsv);
     $('#btn-refresh').addEventListener('click', loadAdmin);
@@ -4770,8 +4897,8 @@
     // bir bildirim balonu açılınca gösterge onu kapatmasın
     mainMap.on('popupopen', (e) => {
       qSet('explore');
-      // telefonda küçük balon yerine tam ekran ayrıntı açılır
-      if (document.documentElement.dataset.ui === 'mobile') {
+      // telefonda ve dokunmatik ekranda (iPad, akıllı tahta) küçük balon yerine tam ekran ayrıntı açılır
+      if (detailsAsSheet()) {
         const rid = e.popup._source && e.popup._source._rid, r = approved.find((x) => x.id === rid);
         mainMap.closePopup();
         if (r) { if (document.documentElement.dataset.ui === 'mobile') setSheet('peek'); openReport(r); }

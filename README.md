@@ -1,8 +1,18 @@
-# GeoGözcü — Gaziemir'in dijital yangın gözcüsü (EGEV 100. Yıl Lisesi TÜBİTAK)
+# GeoGözcü — Gaziemir'in dijital yangın gözcüsü (EGEV 100. Yıl Anadolu Lisesi TÜBİTAK)
 
 Canlı site: **https://geogozcu.pages.dev**
 
 ---
+
+## SÜRÜM 50 — güvenlik, iPad, 50+ okunabilirlik, indirmeler (4 Kasım 2026)
+- **Güvenlik (guncelleme16.sql):** `reports_aa_sanitize` tetikleyicisi yönetici olmayanların bildiriminde kullanıcı adı/kimliği, tarih, yönetici notu, durum ve kaynak alanlarını sunucuda zorlar (sahte ad/tarih/not enjekte edilemez). `activity_log` kullanıcı adı profilden gelir. anon/authenticated için TRUNCATE/TRIGGER/REFERENCES yetkileri kaldırıldı. CSV dışa aktarmada formül enjeksiyonu engellendi.
+- **iPad:** iPadOS artık telefon/tablet arayüzü alır (eskiden masaüstü açılıyor, açılır pencere üst çubuğun altında kalıyordu). Fotoğraf büyütme ekrana sığar; masaüstü açılır penceresi haritanın dışına taşmaz.
+- **Akıllı tahta:** fare olmayan büyük dokunmatik Windows/Linux ekranlarda hafif mod kendiliğinden açılır.
+- **Ana sayfa videosu:** yeniden kodlandı (webm yuv420p — eskisi donanımda çözülemiyor, kasıyordu). Kaynak 720p; daha iyi kalite için 1080p+ yeni çekim gerekir.
+- **50+ kullanıcılar:** Ayarlar'da *Yazı boyutu* (Normal/Büyük/Çok büyük), büyük dokunma alanları, daha okunur küçük yazılar.
+- **Proje sayfası:** grafikler resim (PNG) olarak, veriler Excel (.xlsx) olarak indirilebilir; Türkiye CBS ve uydu araçları bölümü; geliştirme notu (EGEV 100. Yıl Anadolu Lisesi öğrenci projesi; arayüz ve kodlamada yardımcı olarak Claude Code ve Gemini kullanıldı).
+- **Yönetici:** bildirim büyük görünümünde *Çözüldü / Reddet / Kalıcı olarak sil*; içe aktarmada örnek Excel şablonu; fotoğraf yükleme eski tarayıcılarda da çalışır (createImageBitmap yedekli).
+- Derleme betikleri bilgisayardan bağımsız (sabit klasör yolu yok). Kaynak kod GitHub'da **herkese açık** depoda (brkqxx/geogozcu); içinde gizli anahtar yok (yalnız herkese açık anon anahtar).
 
 ## SÜRÜM 48–49 — ilk boyama ince ayarı (13 Ekim 2026)
 - Yazı tipi tanımları (@font-face) `style.css`'in başında; ayrı `fonts/fonts.css` isteği yok (Lighthouse benzetiminde ilk boyamayı geciktiren ek engelleyici istek kalktı).
@@ -65,7 +75,7 @@ Dış tarama (HostedScan: Nmap + OWASP ZAP pasif tarama) bulguları ve durumlar�
 - **Canlı durum:** risk kadranı ve canlı sayılar hero'nun hemen altında ayrı bölümde.
 - **Anlatıcı:** tur ve tanıtım videosu yeniden sakin erkek sesinde (tur doğal hızda ~1 dk). Medya dosyaları sürüm numarasıyla istenir (önbellekte eski ses kalmaz).
 - Görüntü başlıkları Poppins 300.
-- Kaynak kod özel GitHub deposunda (brkqxx/geogozcu).
+- Kaynak kod GitHub deposunda (brkqxx/geogozcu, herkese açık).
 
 ## SÜRÜM 40 — harita sayfası, 1 dakikalık tur, yeni anlatıcı (11 Ekim 2026)
 - **Harita (masaüstü):** sayfa artık kaymıyor; üst çubuk + harita/panel ekranı tam doldurur, alt bilgi gizli (panel kendi içinde kayar).

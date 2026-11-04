@@ -1,6 +1,6 @@
 // index.html ve sw.js içindeki sürüm numarasını 1 artırır
 const f = require('fs');
-const dir = 'C:/Users/uberk/Downloads/files/';
+const dir = require('path').join(__dirname, '..') + '/';
 let h = f.readFileSync(dir + 'index.html', 'utf8');
 const cur = Number((h.match(/app\.js\?v=(\d+)/) || [])[1]);
 const n = cur + 1;

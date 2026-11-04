@@ -1,6 +1,6 @@
 // Gerçek veritabanıyla yerel deneme sayfası: önbellek görevlisi kapalı, her dosya taze (?v=zaman)
 const f = require('fs');
-process.chdir('C:/Users/uberk/Downloads/files');
+process.chdir(require('path').join(__dirname, '..'));
 let h = f.readFileSync('index.html', 'utf8');
 const t = Date.now();
 h = h.replace(/\?v=\d+"/g, '?v=' + t + '"');

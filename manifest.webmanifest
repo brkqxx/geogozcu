@@ -1,7 +1,7 @@
 {
   "name": "GeoGözcü · Gaziemir yangın risk haritası",
   "short_name": "GeoGözcü",
-  "description": "Orman yangını riski taşıyan alanları ve acil altyapı sorunlarını birlikte haritalıyoruz. EGEV 100. Yıl Lisesi TÜBİTAK projesi.",
+  "description": "Orman yangını riski taşıyan alanları ve acil altyapı sorunlarını birlikte haritalıyoruz. EGEV 100. Yıl Anadolu Lisesi TÜBİTAK projesi.",
   "lang": "tr",
   "start_url": "./#/harita",
   "scope": "./",

@@ -21,7 +21,9 @@
     return !!(c.saveData || /(^|-)2g$/.test(c.effectiveType || '') ||
       (n.deviceMemory && n.deviceMemory <= 2) || (n.hardwareConcurrency && n.hardwareConcurrency <= 2) ||
       (chrome && chrome < 80) ||
-      (/Android/i.test(ua) && !/Mobile/i.test(ua) && (window.devicePixelRatio || 1) <= 1.5 && big >= 1280)); // Android tahta / TV
+      (/Android/i.test(ua) && !/Mobile/i.test(ua) && (window.devicePixelRatio || 1) <= 1.5 && big >= 1280) || // Android tahta / TV
+      // Windows/Linux akıllı tahta: dokunmatik, fare yok, büyük ekran (tahtaların işlemcisi genelde zayıf)
+      (!/Android|iPhone|iPad|Mac/i.test(ua) && matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches && big >= 1600));
   }
   var qLite = (location.search.match(/[?&]hafif=([01])/) || [])[1], liteRef = null;
   try { if (qLite) localStorage.setItem(LITE_KEY, qLite); liteRef = localStorage.getItem(LITE_KEY); } catch (e) { liteRef = qLite || null; }
