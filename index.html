@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- GeoGözcü · EGEV 100. Yıl Anadolu Lisesi TÜBİTAK projesi · https://geogozcu.pages.dev Eğitim amaçlı serbestçe kullanabilirsin; kaynak göstermen rica olunur. Öğreniyorsan BENI-ILK-OKU.md dosyasından başla. -->
 <html lang="tr">
 <head>
 <meta charset="utf-8">
@@ -17,7 +18,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231F4D3A'/%3E%3Cpath d='M16 6c1.5 4 5 6 5 11a5 5 0 0 1-10 0c0-2.5 1.2-4 2.5-5 0 2.5 1 3 1 3 0-4 0-6 1.5-9z' fill='%23fff'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="vendor/leaflet.css">
 <link rel="stylesheet" href="vendor/markercluster.css">
-<link rel="stylesheet" href="style.css?v=52">
+<link rel="stylesheet" href="style.css?v=53">
 </head>
 <body>
 
@@ -31,7 +32,7 @@
     <button type="button" id="splash-retry">Yeniden dene</button>
   </div>
 </div>
-<script src="splash.js?v=52"></script>
+<script src="splash.js?v=53"></script>
 <div id="topbar" aria-hidden="true"><i></i></div>
 
 <header class="top">
@@ -80,6 +81,7 @@
       </label>
     </div>
     <label class="check"><input type="checkbox" id="chk-contrast">Yüksek kontrast</label>
+    <label class="check"><input type="checkbox" id="chk-motion">Animasyonlar</label>
   </div>
 
 </header>
@@ -221,9 +223,9 @@
   <section id="view-home" class="view page home" hidden>
     <div class="home-hero hx">
       <div class="hero-film" aria-hidden="true">
-        <video id="hero-video" muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=52" disablepictureinpicture>
-          <source src="media/hero.webm?v=52" type="video/webm">
-          <source src="media/hero.mp4?v=52" type="video/mp4">
+        <video id="hero-video" muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=53" disablepictureinpicture>
+          <source src="media/hero.webm?v=53" type="video/webm">
+          <source src="media/hero.mp4?v=53" type="video/mp4">
         </video>
         <div class="hx-glow"></div>
         <div class="hx-embers"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
@@ -248,9 +250,10 @@
         <svg viewBox="0 0 400 400">
           <defs><path id="say-arc" d="M200 200 m-164 0 a164 164 0 1 1 328 0 a164 164 0 1 1 -328 0"/><radialGradient id="say-core"><stop offset="0" stop-color="#FF8A3D" stop-opacity=".55"/><stop offset=".55" stop-color="#C2410C" stop-opacity=".14"/><stop offset="1" stop-color="#C2410C" stop-opacity="0"/></radialGradient></defs>
           <circle class="say-glow" cx="200" cy="200" r="130" fill="url(#say-core)"/>
-          <g class="say-out"><text><textPath href="#say-arc" textLength="1020" lengthAdjust="spacing">BİTKİ ÖRTÜSÜ ✦ ORMANA UZAKLIK ✦ EĞİM ✦ SU KAYNAĞI ✦ İTFAİYE ERİŞİMİ ✦ RÜZGÂR ✦</textPath></text></g>
+          <g class="say-spin"><g class="say-out"><text><textPath href="#say-arc" textLength="1020" lengthAdjust="spacing">BİTKİ ÖRTÜSÜ ✦ ORMANA UZAKLIK ✦ EĞİM ✦ SU KAYNAĞI ✦ İTFAİYE ERİŞİMİ ✦ RÜZGÂR ✦</textPath></text></g></g>
           <g class="say-in"><circle class="say-tk" cx="200" cy="200" r="122"/><circle class="say-tk2" cx="200" cy="200" r="98"/><circle class="say-dot" cx="200" cy="78" r="5"/></g>
-          <g class="say-flame" transform="translate(164 160) scale(3)"><path d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-2 1-3 2-4 0 2 1 2 1 2 0-3 0-5 1-7z"/></g>
+          <g class="say-look"><path class="say-arrow" d="M200 62l9 17h-18z"/><path class="say-beam" d="M200 84v28"/></g>
+          <g class="say-fl"><g class="say-flame" transform="translate(164 160) scale(3)"><path d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-2 1-3 2-4 0 2 1 2 1 2 0-3 0-5 1-7z"/></g></g>
         </svg>
       </div>
     </section>
@@ -278,17 +281,13 @@
     <div class="mq" aria-hidden="true"><div class="mq-track"><span>KURU OT BİRİKİMİ</span><i>✦</i><span>ORMAN–YERLEŞİM ARAYÜZÜ</span><i>✦</i><span>KONTROLSÜZ YAKIM</span><i>✦</i><span>HİDRANT EKSİKLİĞİ</span><i>✦</i><span>CAM ŞİŞE · MERCEK ETKİSİ</span><i>✦</i><span>SARKMIŞ ELEKTRİK HATTI</span><i>✦</i><span>TAHLİYE YOLU ENGELİ</span><i>✦</i></div></div>
 
     <section class="gd-wrap" id="rehber" aria-labelledby="gd-h">
-      <header class="gd-head"><span class="mono-k">TANITIM · 37 SANİYE</span><h2 id="gd-h">Bir kıvılcımdan önce.</h2><p>GeoGözcü'nün sahadan haritaya nasıl çalıştığını izle: sitenin gerçek kaydı, Türkçe anlatım ve altyazıyla.</p></header>
-      <video class="pv" controls preload="none" playsinline width="1280" height="720" data-poster="media/giris-kapak.jpg?v=52" aria-describedby="hm-pv-not">
-        <source src="media/giris-480.mp4?v=52" type="video/mp4" media="(max-width: 700px)">
-        <source src="media/giris.mp4?v=52" type="video/mp4">
-        Tarayıcın videoyu oynatamıyor. <a href="media/giris.mp4" download>Videoyu indir (MP4)</a>.
+      <header class="gd-head"><span class="mono-k">PROJE VİDEOSU</span><h2 id="gd-h">Bir kıvılcımdan önce.</h2><p>GeoGözcü'nün neden yapıldığını ve nasıl çalıştığını izle: sitenin gerçek kaydı, Türkçe anlatım ve altyazıyla.</p></header>
+      <video class="pv" controls preload="none" playsinline width="1920" height="1080" data-poster="media/proje-kapak.jpg?v=53" aria-describedby="hm-pv-not">
+        <source src="media/proje-480.mp4?v=53" type="video/mp4" media="(max-width: 700px)">
+        <source src="media/proje.mp4?v=53" type="video/mp4">
+        Tarayıcın videoyu oynatamıyor. <a href="media/proje.mp4" download>Videoyu indir (MP4)</a>.
       </video>
-      <p class="small muted pv-not" id="hm-pv-not">Tüm görüntüler bu sitenin gerçek kaydıdır; altyazı videonun içindedir. <a href="media/giris.mp4" download="GeoGozcu-tanitim.mp4">MP4 indir</a></p>
-      <details class="pv-metin">
-        <summary>Videonun metni</summary>
-        <p>Orman yangınları çoğu zaman, gözden kaçan küçük risklerle başlar. GeoGözcü, bu riskleri gönüllülerin gözüyle tek bir haritada topluyor. Riskli bir alan gördüğünde konumu haritada işaretle, fotoğrafını ekle ve birkaç kısa soruyu yanıtla. Her bildirim aynı ölçütlerle puanlanır ve herkese açık haritada yerini alır. Şu anda yanan bir yer görürsen bildirim yapma; hemen 112’yi ara. GeoGözcü: riski, yangın çıkmadan önce birlikte haritalıyoruz.</p>
-      </details>
+      <p class="small muted pv-not" id="hm-pv-not">Görüntüler bu sitenin gerçek kaydıdır; anlatım sesi yapay zekâ ile üretilmiştir. <a href="#/proje">Harita videosu ve daha fazlası</a></p>
     </section>
 
     <div class="home-rows" id="home-more">
@@ -331,6 +330,16 @@
     <div class="map-wrap">
       <div id="map" aria-label="Gaziemir uydu haritası"></div>
       <button type="button" class="map-list-btn" id="btn-list" aria-controls="panel" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span id="btn-list-n">Liste</span><i class="urg" aria-label="Acil durum var" hidden></i></button>
+      <button type="button" class="map-vid-btn" id="btn-map-video"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Nasıl kullanılır?</button>
+      <div class="vid-modal" id="map-video" role="dialog" aria-modal="true" aria-label="Harita videosu" hidden>
+        <div class="vid-box">
+          <button type="button" class="vid-x" id="map-video-x" aria-label="Videoyu kapat">×</button>
+          <video class="pv" controls preload="none" playsinline width="1920" height="1080" data-poster="media/harita-kapak.jpg?v=53">
+            <source src="media/harita-480.mp4?v=53" type="video/mp4" media="(max-width: 700px)">
+            <source src="media/harita.mp4?v=53" type="video/mp4">
+          </video>
+        </div>
+      </div>
       <div class="legend" id="legend" aria-label="Harita göstergesi">
         <button type="button" class="legend-head" id="legend-toggle" aria-expanded="true"><i class="lg-dots" aria-hidden="true"></i><strong>Risk türleri</strong><span aria-hidden="true"><svg viewBox="0 0 10 6"><path d="M1 5 5 1l4 4"/></svg></span></button>
         <div class="legend-body" id="legend-body"></div>
@@ -645,7 +654,7 @@
   <!-- KAYIT / GİRİŞ -->
   <section id="view-auth" class="view auth" hidden>
     <div class="auth-side">
-      <div class="auth-film" aria-hidden="true"><video data-film muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=52" disablepictureinpicture><source src="media/hero.webm?v=52" type="video/webm"><source src="media/hero.mp4?v=52" type="video/mp4"></video><i></i></div>
+      <div class="auth-film" aria-hidden="true"><video data-film muted loop playsinline preload="none" poster="media/hero-kapak.jpg?v=53" disablepictureinpicture><source src="media/hero.webm?v=53" type="video/webm"><source src="media/hero.mp4?v=53" type="video/mp4"></video><i></i></div>
       <div class="brand"><span class="logo" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 3 4 5 4 9a4 4 0 0 1-8 0c0-2 1-3 2-4 0 2 1 2 1 2 0-3 0-5 1-7z"/></svg></span><span class="brand-name" data-appname>GeoGözcü</span></div>
       <div class="about">
         <span class="kicker reveal">Küresel sorun · Yerel çözüm</span>
@@ -843,31 +852,49 @@
     <header class="proj-head">
       <p class="proj-school" id="pj-school"></p>
       <h1 id="pj-title">Proje hakkında</h1>
-      <p class="proj-lede">GeoGözcü, Gaziemir'de orman yangını riski taşıyan alanları <b>yangın çıkmadan önce</b> belirlemek için geliştirilen bir vatandaş bilimi uygulamasıdır. Gönüllüler sahada gördükleri riskleri fotoğraflı ve konumlu olarak bildirir; her bildirim aynı ölçütlerle puanlanır ve herkese açık bir haritada toplanır.</p>
+      <p class="proj-lede">GeoGözcü, <b>EGEV 100. Yıl Anadolu Lisesi</b> öğrencilerinin geliştirdiği bir vatandaş bilimi projesidir. Gaziemir'de orman yangını riski taşıyan alanları <b>yangın çıkmadan önce</b> görünür kılar: gönüllüler sahada gördükleri riskleri fotoğraflı ve konumlu olarak bildirir, her bildirim aynı ölçütlerle puanlanır ve herkese açık bir haritada toplanır.</p>
       <p class="proj-team" id="pj-team" hidden></p>
+      <dl class="proj-facts">
+        <div><dt>Soru</dt><dd>Gönüllü gözlemlerle mahalle ölçeğinde yangın riski haritası çıkarılabilir mi?</dd></div>
+        <div><dt>Yöntem</dt><dd>Fotoğraf, konum ve standart sorularla 0-100 risk puanı</dd></div>
+        <div><dt>Çıktı</dt><dd>Herkese açık harita, canlı grafikler, indirilebilir veri seti</dd></div>
+      </dl>
     </header>
 
     <nav class="proj-toc" aria-label="Bölümler">
-      <a href="#pj-video" data-jump>Tanıtım videosu</a><a href="#pj-problem" data-jump>Problem</a><a href="#pj-method" data-jump>Yöntem</a><a href="#pj-score" data-jump>Risk puanı</a><a href="#pj-results" data-jump>Bulgular</a><a href="#pj-data" data-jump>Veri seti</a><a href="#pj-tools" data-jump>CBS araçları</a><a href="#pj-credits" data-jump>Geliştirme</a><a href="#pj-ethics" data-jump>Gizlilik</a><a href="#pj-code" data-jump>Kaynak kod</a>
+      <a href="#pj-video" data-jump>Videolar</a><a href="#pj-problem" data-jump>Problem</a><a href="#pj-method" data-jump>Yöntem</a><a href="#pj-score" data-jump>Risk puanı</a><a href="#pj-results" data-jump>Bulgular</a><a href="#pj-data" data-jump>Veri seti</a><a href="#pj-limits" data-jump>Sınırlılıklar</a><a href="#pj-tools" data-jump>CBS araçları</a><a href="#pj-credits" data-jump>Geliştirme</a><a href="#pj-learn" data-jump>Öğrenciler için</a><a href="#pj-ethics" data-jump>Gizlilik</a><a href="#pj-code" data-jump>Kaynak kod</a>
     </nav>
 
     <section class="proj-sec" id="pj-video">
-      <h2>Tanıtım videosu</h2>
-      <div>
-        <video class="pv" controls preload="none" playsinline width="1920" height="1080" data-poster="media/tanitim-kapak.jpg?v=52" aria-describedby="pv-not">
-          <source src="media/tanitim.mp4?v=52" type="video/mp4">
-          Tarayıcın videoyu oynatamıyor. <a href="media/tanitim.mp4" download>Videoyu indir (MP4)</a>.
-        </video>
-        <p class="small muted pv-not" id="pv-not">1 dk · Türkçe anlatımlı ve altyazılı. Tüm görüntüler bu sitenin gerçek kaydıdır.
-          <a href="media/tanitim.mp4" download="GeoGozcu-tanitim.mp4">MP4 indir</a> · <a href="media/altyazi.srt" download="GeoGozcu-tanitim.srt">Altyazı (SRT)</a></p>
+      <h2>Videolar</h2>
+      <div class="pv-grid">
+        <figure>
+          <figcaption><b>Proje videosu</b><span>Sorun, yöntem, puanlama ve bulgular</span></figcaption>
+          <video class="pv" controls preload="none" playsinline width="1920" height="1080" data-poster="media/proje-kapak.jpg?v=53" aria-describedby="pv-not">
+            <source src="media/proje-480.mp4?v=53" type="video/mp4" media="(max-width: 700px)">
+            <source src="media/proje.mp4?v=53" type="video/mp4">
+            Tarayıcın videoyu oynatamıyor. <a href="media/proje.mp4" download>Videoyu indir (MP4)</a>.
+          </video>
+          <p class="small"><a href="media/proje.mp4" download="GeoGozcu-proje-videosu.mp4">MP4 indir</a> · <a href="media/proje.srt" download="GeoGozcu-proje-videosu.srt">Altyazı (SRT)</a></p>
+        </figure>
+        <figure id="pj-map-video">
+          <figcaption><b>Harita videosu</b><span>Harita nasıl okunur, bildirim nasıl yapılır</span></figcaption>
+          <video class="pv" controls preload="none" playsinline width="1920" height="1080" data-poster="media/harita-kapak.jpg?v=53" aria-describedby="pv-not">
+            <source src="media/harita-480.mp4?v=53" type="video/mp4" media="(max-width: 700px)">
+            <source src="media/harita.mp4?v=53" type="video/mp4">
+            Tarayıcın videoyu oynatamıyor. <a href="media/harita.mp4" download>Videoyu indir (MP4)</a>.
+          </video>
+          <p class="small"><a href="media/harita.mp4" download="GeoGozcu-harita-videosu.mp4">MP4 indir</a> · <a href="media/harita.srt" download="GeoGozcu-harita-videosu.srt">Altyazı (SRT)</a></p>
+        </figure>
+        <p class="small muted pv-not" id="pv-not">Türkçe anlatımlı ve altyazılı. Görüntüler bu sitenin gerçek kaydıdır; anlatım sesi yapay zekâ ile üretilmiştir.</p>
       </div>
     </section>
 
     <section class="proj-sec" id="pj-problem">
       <h2>Problem</h2>
       <div>
-        <p>Akdeniz iklim kuşağında yer alan İzmir, yaz aylarında orman yangınlarından sıkça etkilenen illerden biridir. Gaziemir'in kent dokusu, kuzey ve doğusundaki ormanlık alanlara doğrudan temas eder. Bu geçiş kuşağında biriken kuru ot, budama atıkları, kontrolsüz yakma ve eksik yangın altyapısı, küçük bir kıvılcımın yerleşim alanına ulaşma ihtimalini artırır.</p>
-        <p>Bu riskler çoğu zaman yangından <b>önce</b> görülebilir, ama sistematik olarak kaydedilmez. Projemizin sorusu şudur: <b>Gönüllülerin topladığı standart gözlemlerle, mahalle ölçeğinde yangın riski haritası çıkarılabilir mi?</b></p>
+        <p>Akdeniz iklim kuşağında yer alan İzmir, yaz aylarında orman yangınlarından sıkça etkilenir. Gaziemir'in kent dokusu, kuzey ve doğusundaki ormanlık alanlara doğrudan temas eder. Bu geçiş kuşağında biriken kuru ot, budama atıkları, kontrolsüz yakma ve eksik yangın altyapısı, küçük bir kıvılcımın yerleşim alanına ulaşma ihtimalini artırır.</p>
+        <p>Uydu ve resmî yangın haritaları genellikle bölge ölçeğinde çalışır; bir bahçenin kenarındaki ot yığınını ya da kapanmış bir yangın yolunu göstermez. Bu ayrıntılar yangından <b>önce</b> görülebilir ama sistematik olarak kaydedilmez. Projemizin sorusu şudur: <b>Gönüllülerin topladığı standart gözlemlerle, mahalle ölçeğinde yangın riski haritası çıkarılabilir mi?</b></p>
       </div>
     </section>
 
@@ -875,10 +902,11 @@
       <h2>Yöntem</h2>
       <div>
         <ol class="proj-steps">
-          <li><b>Gözlem</b><span>Gönüllü, riskli alanı güvenli bir mesafeden fotoğraflar. Konum telefonun GPS'inden alınır; ilçe ve mahalle OpenStreetMap ile otomatik bulunur.</span></li>
-          <li><b>Standart sorular</b><span>Her kategori için aynı sorular sorulur (bitki örtüsü yoğunluğu, ormana uzaklık, eğim, su kaynağı, itfaiye erişimi, yapı sayısı). Serbest metin yerine seçenekler kullanıldığı için gözlemler karşılaştırılabilir.</span></li>
-          <li><b>Puanlama</b><span>Cevaplar aşağıdaki tabloya göre 0-100 arası bir risk puanına çevrilir. 0-33 düşük, 34-66 orta, 67-100 yüksek risk sayılır.</span></li>
-          <li><b>Doğrulama</b><span>Uygunsuz ya da anlamsız içerik otomatik olarak incelemeye düşer. Haritadaki her bildirim için diğer gönüllüler “sorun düzeldi mi?” oyu verir; çoğunluk düzeldi derse yönetici sahayı kontrol eder.</span></li>
+          <li><b>Gözlem</b><span>Gönüllü, riskli alanı güvenli bir mesafeden fotoğraflar. Konum telefonun GPS'inden alınır ya da haritada işaretlenir; ilçe ve mahalle OpenStreetMap ile otomatik bulunur.</span></li>
+          <li><b>Standart sorular</b><span>Her kategoride aynı sorular sorulur: bitki örtüsü yoğunluğu, ormana uzaklık, eğim, su kaynağı, itfaiye erişimi, yapı sayısı. Serbest metin yerine seçenekler kullanıldığı için gözlemler birbiriyle karşılaştırılabilir.</span></li>
+          <li><b>Puanlama</b><span>Cevaplar aşağıdaki tabloya göre 0-100 arası bir risk puanına çevrilir. 0-33 düşük, 34-66 orta, 67-100 yüksek risk sayılır. Puan, bildirim gönderilmeden önce gönüllüye de gösterilir.</span></li>
+          <li><b>Doğrulama</b><span>Uygunsuz ya da anlamsız içerik otomatik olarak incelemeye düşer. Yayındaki her bildirim için oradan geçen gönüllüler “sorun düzeldi mi?” oyu verir; çoğunluk düzeldi derse yönetici durumu kontrol eder.</span></li>
+          <li><b>Analiz</b><span>Yayındaki bildirimler kategori, mahalle, puan ve tarihe göre canlı grafiklere dönüşür. Aynı veriler Excel, CSV ve GeoJSON olarak indirilip CBS yazılımlarında incelenebilir.</span></li>
         </ol>
       </div>
     </section>
@@ -926,6 +954,17 @@
       </div>
     </section>
 
+    <section class="proj-sec" id="pj-limits">
+      <h2>Sınırlılıklar</h2>
+      <div>
+        <ul class="proj-list">
+          <li><b>Gönüllü verisi eşit dağılmaz.</b> Gönüllülerin gidebildiği yerlerden daha çok bildirim gelir; bildirim olmayan bir mahalle risksiz demek değildir.</li>
+          <li><b>Puan bir karar aracı değil, öncelik göstergesidir.</b> Ağırlıklar literatüre ve ekibin değerlendirmesine dayanır; saha verisi arttıkça gözden geçirilmelidir.</li>
+          <li><b>Harita aktif yangın göstermez.</b> Bir yangın görüldüğünde bildirim yapılmaz, <b>112</b> aranır.</li>
+        </ul>
+      </div>
+    </section>
+
     <section class="proj-sec" id="pj-tools">
       <h2>Türkiye CBS ve uydu araçları</h2>
       <div>
@@ -948,8 +987,23 @@
       <h2>Geliştirme</h2>
       <div>
         <p>GeoGözcü, <b>EGEV 100. Yıl Anadolu Lisesi</b> öğrencilerinin projesidir.</p>
-        <p>Sitenin arayüz tasarımında ve kodlanmasında yardımcı araç olarak yapay zekâ (<b>Claude Code</b> ve <b>Gemini</b>) kullanılmıştır. Proje fikri, saha gözlemleri, risk ölçütleri ve toplanan veriler proje ekibine aittir.</p>
-        <p class="muted small">Harita: Leaflet ve OpenStreetMap · Uydu görüntüsü: Esri · Veritabanı: Supabase · Barındırma: Cloudflare Pages.</p>
+        <p>Sitenin arayüz tasarımında, kodlanmasında ve tanıtım videolarının hazırlanmasında yardımcı araç olarak yapay zekâ (<b>Claude Code</b> ve <b>Gemini</b>) kullanılmıştır. Proje fikri, saha gözlemleri, risk ölçütleri ve toplanan veriler proje ekibine aittir.</p>
+        <p class="muted small">Harita: Leaflet ve OpenStreetMap · Uydu görüntüsü: Esri · Veritabanı: Supabase · Barındırma: Cloudflare Pages · Animasyon: GSAP · Anlatım sesi: Microsoft Ahmet (yapay ses).</p>
+      </div>
+    </section>
+
+    <section class="proj-sec" id="pj-learn">
+      <h2>Öğrenciler için</h2>
+      <div>
+        <p>Bu site, kodlamayı gerçek bir projede öğrenmek isteyenler için açıktır. Hiç bilmiyorsan da başlayabilirsin; paketteki <b>BENİ İLK OKU</b> rehberi seni adım adım götürür.</p>
+        <ol class="learn-steps">
+          <li><b>Aç ve bak</b><span>Paketi indir, klasörü VS Code ile aç, siteyi kendi bilgisayarında çalıştır.</span></li>
+          <li><b>Küçük bir şey değiştir</b><span><code>index.html</code> içinde bir başlığı, <code>style.css</code> içinde bir rengi değiştir; sonucu hemen gör.</span></li>
+          <li><b>Mantığı oku</b><span><code>app.js</code> içindeki <code>scoreOf</code> fonksiyonu risk puanını hesaplar. Bir ağırlığı değiştirip ne olduğunu izle.</span></li>
+          <li><b>Veritabanını kur</b><span>Ücretsiz bir Supabase projesi açıp kendi ilçenin haritasını başlat.</span></li>
+          <li><b>Yayınla</b><span>Ücretsiz bir statik barındırmaya yükle ve kendi okulunla paylaş.</span></li>
+        </ol>
+        <div class="row-gap"><a class="btn fire" href="BENI-ILK-OKU.md" download="BENI-ILK-OKU.md">BENİ İLK OKU rehberini indir</a><a class="btn ghost" href="#pj-code" data-learn-code>Kaynak koda git</a></div>
       </div>
     </section>
 
@@ -969,7 +1023,7 @@
         <ol class="aims">
           <li><b>Yangından önce görmek.</b><span>Gaziemir'in ormana dayanan mahallelerinde kuru ot, atık ve eksik altyapı gibi riskleri yangın çıkmadan haritalamak.</span></li>
           <li><b>Herkesin katılabildiği bilim.</b><span>Öğrenciler ve mahalle sakinleri aynı sorularla, karşılaştırılabilir veri toplar.</span></li>
-          <li><b>Açık veri.</b><span>Belediye, itfaiye ve araştırmacılar verileri CSV ya da GeoJSON olarak indirip kendi analizlerinde kullanabilir.</span></li>
+          <li><b>Açık veri.</b><span>Belediye, itfaiye ve araştırmacılar verileri Excel, CSV ya da GeoJSON olarak indirip kendi analizlerinde kullanabilir.</span></li>
           <li><b>Afet bilinci.</b><span>Coğrafya ve CBS derslerinde gerçek, yerel veriyle çalışmayı sağlamak.</span></li>
           <li><b>Kopyalanabilirlik.</b><span>Başka okullar aynı sistemi kendi ilçeleri için ücretsiz araçlarla kurabilsin.</span></li>
         </ol>
@@ -985,9 +1039,10 @@
 ├─ config.js           kendi Supabase bilgilerin
 ├─ vendor/             Leaflet, GSAP, Supabase istemcisi
 ├─ veritabani/         kurulum SQL dosyaları
+├─ BENI-ILK-OKU.md     öğrenciler için adım adım rehber
 └─ OKU-BENI.md         kurulum adımları</pre>
           <div class="row-gap"><a class="btn fire" href="geogozcu-kaynak.zip" download>Kaynak kodu indir</a><a class="btn ghost" href="site-tek-dosya.html" download="geogozcu-tek-dosya.html">Tek dosya sürümü</a></div>
-          <p class="muted small">Paket gizli anahtar içermez; kendi Supabase projeni bağlamak için <code>config.js</code> dosyasını doldurman yeterli. Kötü söz filtresinin kelime listesi güvenlik için pakete konmadı. Eğitim amaçlı serbestçe kullanabilirsin; kaynak göstermen rica olunur.</p>
+          <p class="muted small">Paket gizli anahtar içermez; kendi Supabase projeni bağlamak için <code>config.js</code> dosyasını doldurman yeterli. Kötü söz filtresinin kelime listesi güvenlik için pakete konmadı. Eğitim amaçlı serbestçe kullanabilirsin; kullanırken “GeoGözcü · EGEV 100. Yıl Anadolu Lisesi” kaynağını belirtmen rica olunur.</p>
         </div>
       </div>
     </section>
@@ -1277,13 +1332,13 @@
 <script src="vendor/leaflet.js"></script>
 <script src="vendor/markercluster.js"></script>
 <script src="vendor/supabase.js"></script>
-<script src="config.js?v=52"></script>
-<script src="sinirlar.js?v=52"></script>
-<script src="harita-araclari.js?v=52"></script>
-  <script src="app.js?v=52"></script>
+<script src="config.js?v=53"></script>
+<script src="sinirlar.js?v=53"></script>
+<script src="harita-araclari.js?v=53"></script>
+  <script src="app.js?v=53"></script>
 <script src="vendor/gsap.min.js"></script>
 <script src="vendor/ScrollTrigger.min.js"></script>
 <script src="vendor/SplitText.min.js"></script>
-<script src="sinema.js?v=52"></script>
+<script src="sinema.js?v=53"></script>
 </body>
 </html>

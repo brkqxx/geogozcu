@@ -1,0 +1,75 @@
+1
+00:00:00,350 --> 00:00:07,296
+Orman yangınlarının çoğu, büyük bir alevle değil,
+gözden kaçan küçük bir riskle başlar.
+
+2
+00:00:07,336 --> 00:00:12,982
+Kuru bir ot yığını, ormana dayanan bir bahçe,
+kapanmış bir yangın yolu.
+
+3
+00:00:14,072 --> 00:00:21,725
+GeoGözcü, EGEV 100. Yıl Anadolu Lisesi öğrencilerinin
+geliştirdiği bir vatandaş bilimi projesi.
+
+4
+00:00:21,765 --> 00:00:27,208
+Amacımız çok açık: bu riskleri,
+yangın çıkmadan önce görünür kılmak.
+
+5
+00:00:28,298 --> 00:00:34,548
+Resmî haritalar bölgeyi gösterir,
+ama bir bahçenin kenarındaki ot yığınını göstermez.
+
+6
+00:00:34,588 --> 00:00:42,634
+Biz de şunu sorduk: gönüllülerin topladığı gözlemlerle,
+mahalle ölçeğinde bir risk haritası çıkarılabilir mi?
+
+7
+00:00:43,724 --> 00:00:51,523
+Yöntemimiz basit. Gönüllü, riskli alanı
+güvenli bir mesafeden fotoğraflıyor, konumu işaretliyor
+
+8
+00:00:51,563 --> 00:00:55,276
+ve herkes için aynı olan soruları yanıtlıyor.
+
+9
+00:00:56,366 --> 00:01:05,303
+Bitki örtüsü, ormana uzaklık, eğim, su kaynağı ve itfaiye erişimi,
+0-100 arası bir risk puanına dönüşüyor.
+
+10
+00:01:05,343 --> 00:01:10,006
+Böylece her gözlem, diğerleriyle karşılaştırılabiliyor.
+
+11
+00:01:11,096 --> 00:01:18,227
+Haritadaki her bildirim, grafiklere anında yansıyor.
+Riskin hangi mahallelerde biriktiğini
+
+12
+00:01:18,267 --> 00:01:22,336
+ve zamanla nasıl değiştiğini buradan görebiliyoruz.
+
+13
+00:01:23,426 --> 00:01:34,498
+Veriler açık. Excel, CSV ya da GeoJSON olarak indirilebiliyor
+ve Türkiye’nin coğrafi bilgi sistemleriyle birlikte kullanılabiliyor.
+
+14
+00:01:35,588 --> 00:01:42,732
+Kaynak kodu da herkese açık.
+Başka okullar aynı sistemi kendi ilçesi için kurabilir.
+
+15
+00:01:42,772 --> 00:01:49,396
+Kodlamayı öğrenmek isteyen öğrenciler için
+adım adım bir rehber de hazırladık.
+
+16
+00:01:50,486 --> 00:01:57,190
+Riski, yangın çıkmadan önce, birlikte haritalıyoruz.

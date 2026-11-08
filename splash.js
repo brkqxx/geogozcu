@@ -1,3 +1,5 @@
+/*! GeoGözcü · EGEV 100. Yıl Anadolu Lisesi TÜBİTAK projesi · https://geogozcu.pages.dev
+   Eğitim amaçlı serbestçe kullanabilirsin; kaynak göstermen rica olunur. Öğreniyorsan BENI-ILK-OKU.md dosyasından başla. */
 // Açılış ekranı: uygulama 12 saniyede açılmazsa yeniden deneme seçeneği çıkar. Gövdenin başında, açılış ekranının hemen ardından yüklenir:
 // tarayıcıya açılış ekranını erken boyama fırsatı verir (ölçüldü: ilk boyama ~140 ms daha erken) ve yamalar/hafif mod uygulama betiklerinden önce hazır olur.
 // (Satır içi betik yerine ayrı dosya: içerik güvenlik politikası satır içi betiklere izin vermez.)

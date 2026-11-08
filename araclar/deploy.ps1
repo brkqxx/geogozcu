@@ -10,7 +10,7 @@ node --check harita-araclari.js
 node --check sinema.js
 node --check splash.js
 node "$sp\build.js"
-$files = 'index.html','style.css','app.js','harita-araclari.js','sinema.js','splash.js','config.js','sinirlar.js','site-tek-dosya.html','manifest.webmanifest','sw.js','_headers'
+$files = 'index.html','style.css','app.js','harita-araclari.js','sinema.js','splash.js','config.js','sinirlar.js','site-tek-dosya.html','manifest.webmanifest','sw.js','_headers','BENI-ILK-OKU.md'
 New-Item -ItemType Directory -Force "$sp\cf" | Out-Null; Copy-Item $files "$sp\cf" -Force
 Copy-Item icons,vendor,media,fonts "$sp\cf" -Recurse -Force
 # yayın kopyası: küçült + eski tarayıcılar için sözdizimini indir (kaynak dosyalar okunur kalır)

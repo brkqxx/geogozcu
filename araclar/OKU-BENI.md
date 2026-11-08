@@ -1,8 +1,10 @@
 # GeoGözcü · kaynak kod
 
-EGEV 100. Yıl Lisesi TÜBİTAK projesi. Gaziemir'de orman yangını riski taşıyan alanları
+EGEV 100. Yıl Anadolu Lisesi TÜBİTAK projesi. Gaziemir'de orman yangını riski taşıyan alanları
 vatandaş bilimiyle, **yangın çıkmadan önce** haritalayan web uygulaması.
 Canlı site: https://geogozcu.pages.dev
+
+> Kodlamayı bu projeyle öğrenmek istiyorsan önce **BENI-ILK-OKU.md** dosyasını oku.
 
 ## Ne amaçlıyoruz?
 1. **Yangından önce görmek:** ormana dayanan mahallelerdeki kuru ot, atık ve eksik altyapıyı haritalamak.

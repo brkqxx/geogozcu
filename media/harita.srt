@@ -1,0 +1,59 @@
+1
+00:00:00,350 --> 00:00:08,751
+GeoGözcü haritasına hoş geldin.
+Buradaki her nokta, bir gönüllünün sahada fotoğrafladığı bir risk.
+
+2
+00:00:08,791 --> 00:00:13,798
+Kümeler, riskin hangi mahallelerde biriktiğini gösteriyor.
+
+3
+00:00:14,888 --> 00:00:21,568
+Renkler, risk türünü anlatır.
+Orman yangını riski kırmızıyla işaretlenir.
+
+4
+00:00:21,608 --> 00:00:26,608
+Risk türleri anahtarından diğerlerine de bakabilirsin.
+
+5
+00:00:27,698 --> 00:00:33,790
+Bir noktaya dokununca, fotoğrafını
+ve 0-100 arası risk puanını görürsün.
+
+6
+00:00:33,830 --> 00:00:38,626
+Oradan geçenler, sorunun düzelip düzelmediğini de oylar.
+
+7
+00:00:39,716 --> 00:00:45,949
+Listede bütün bildirimler durur.
+İstersen yalnızca bir risk türünü seçebilir,
+
+8
+00:00:45,989 --> 00:00:49,828
+bir kayda dokunup haritada yerine gidebilirsin.
+
+9
+00:00:50,918 --> 00:00:57,294
+Ölçüm araçlarıyla iki nokta arasındaki mesafeyi,
+bir alanın büyüklüğünü ve koordinatları
+
+10
+00:00:57,334 --> 00:00:58,990
+kolayca öğrenebilirsin.
+
+11
+00:01:00,080 --> 00:01:07,140
+Riskli bir alan gördüğünde, bildir düğmesine bas.
+Risk türünü seç, konumu işaretle,
+
+12
+00:01:07,180 --> 00:01:13,720
+fotoğrafını ekle ve birkaç kısa soruyu yanıtla.
+Risk puanın hemen hesaplanır.
+
+13
+00:01:14,810 --> 00:01:22,186
+Unutma. Şu anda yanan bir yer görürsen
+bildirim yapma, hemen 112’yi ara.

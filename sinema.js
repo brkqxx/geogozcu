@@ -1,3 +1,5 @@
+/*! GeoGözcü · EGEV 100. Yıl Anadolu Lisesi TÜBİTAK projesi · https://geogozcu.pages.dev
+   Eğitim amaçlı serbestçe kullanabilirsin; kaynak göstermen rica olunur. Öğreniyorsan BENI-ILK-OKU.md dosyasından başla. */
 // GeoGözcü · hareket katmanı (GSAP + ScrollTrigger + SplitText)
 // 1) Ana sayfa girişi: başlık satır satır, eş yükselti çizgileri, imleci izleyen ışık, kayan şerit
 // 2) "Rehber": video gibi oynayan, bölümlü, istenirse sesli anlatımlı tanıtım (ana sayfa + proje sayfası)
@@ -7,7 +9,7 @@
   'use strict';
   const g = window.gsap;
   const root = document.documentElement;
-  const calm = () => root.dataset.motion === 'off' || root.dataset.motion === 'calm' || root.classList.contains('lite') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const calm = () => root.dataset.motion === 'off' || root.dataset.motion === 'calm' || root.classList.contains('lite');
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 
@@ -447,6 +449,77 @@
     const fin = $('.home-final h2', view);
     if (fin) g.fromTo(fin, { scale: 0.8, opacity: 0.2 }, { scale: 1, opacity: 1, ease: 'power2.out',
       scrollTrigger: { trigger: fin, start: 'top 95%', end: 'top 60%', scrub: 0.5 } });
+
+    pointerMotion(hero);
+  }
+
+  /* =================== ANA SAYFA: FAREYİ TAKİP EDEN HAREKET =================== */
+  // Daire fareye doğru eğilir ve kayar, ok imleci gösterir, alev ve ışık imlece kaçar; gösterge kartı ve başlık da hafifçe tepki verir.
+  // Yalnız fareli cihazlarda ve ilgili bölüm ekrandayken çalışır; pointermove kare başına en fazla bir kez işlenir.
+  function pointerMotion(hero) {
+    if (!matchMedia('(pointer:fine)').matches) return;
+    const view = $('#view-home');
+    const clamp = (v, a) => Math.max(-a, Math.min(a, v));
+    const quick = (el, props, duration = 0.7) => props.reduce((o, p) => { o[p] = g.quickTo(el, p, { duration, ease: 'power3' }); return o; }, {});
+    const watch = (el) => { const st = { on: false }; new IntersectionObserver((e) => { st.on = e[0].isIntersecting; }).observe(el); return st; };
+    const scenes = [];
+
+    const say = $('.hm-say', view), ring = say && $('.say-ring', say), svg = ring && $('svg', ring);
+    if (svg) {
+      const st = watch(say);
+      g.set(svg, { transformPerspective: 800 });
+      g.set($$('.say-look, .say-spin', svg), { svgOrigin: '200 200' });
+      const body = quick(svg, ['x', 'y', 'rotationX', 'rotationY']);
+      const flame = quick($('.say-fl', svg), ['x', 'y'], 0.45);
+      const glow = quick($('.say-glow', svg), ['x', 'y'], 0.9);
+      const spin = quick($('.say-spin', svg), ['rotation'], 1.2);
+      const look = quick($('.say-look', svg), ['rotation'], 0.35);
+      let ang = 0; // açı birikimli tutulur: ok -180/180 sınırında ters yönden dönmesin
+      scenes.push((mx, my) => {
+        if (!st.on) return;
+        const r = ring.getBoundingClientRect(), dx = mx - (r.left + r.width / 2), dy = my - (r.top + r.height / 2);
+        body.x(clamp(dx * 0.1, 70)); body.y(clamp(dy * 0.1, 70));
+        body.rotationY(clamp(dx / 16, 26)); body.rotationX(clamp(-dy / 16, 26));
+        flame.x(clamp(dx * 0.05, 26)); flame.y(clamp(dy * 0.05, 26));
+        glow.x(clamp(dx * 0.09, 46)); glow.y(clamp(dy * 0.09, 46));
+        spin.rotation(dx / innerWidth * 150);
+        const want = Math.atan2(dy, dx) * 180 / Math.PI + 90;
+        ang += ((want - ang + 540) % 360) - 180;
+        look.rotation(ang);
+      });
+    }
+
+    const dial = $('#hm-dial', view), dialSvg = dial && $('svg', dial);
+    if (dialSvg) {
+      const st = watch(dial);
+      g.set(dialSvg, { transformPerspective: 700 });
+      const t = quick(dialSvg, ['rotationX', 'rotationY', 'x', 'y']);
+      scenes.push((mx, my) => {
+        if (!st.on) return;
+        const r = dial.getBoundingClientRect(), dx = mx - (r.left + r.width / 2), dy = my - (r.top + r.height / 2);
+        t.rotationY(clamp(dx / 22, 16)); t.rotationX(clamp(-dy / 22, 16)); t.x(clamp(dx * 0.03, 12)); t.y(clamp(dy * 0.03, 12));
+      });
+    }
+
+    const copy = $('.hx-copy', hero), embers = $('.hx-embers', hero), light = $('.hx-glow', hero);
+    if (copy) {
+      const st = watch(hero);
+      const c = quick(copy, ['x', 'y'], 1), e = embers && quick(embers, ['x', 'y'], 1.3), l = light && quick(light, ['x', 'y'], 1.1);
+      scenes.push((mx, my) => {
+        if (!st.on) return;
+        const nx = mx / innerWidth - 0.5, ny = my / innerHeight - 0.5;
+        c.x(nx * 18); c.y(ny * 12);
+        if (e) { e.x(-nx * 70); e.y(-ny * 40); }
+        if (l) { l.x(nx * innerWidth * 0.5 - innerWidth * 0.12); l.y(ny * innerHeight * 0.5); }
+      });
+    }
+
+    let mx = 0, my = 0, raf = 0;
+    addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse' || root.dataset.route !== 'ana') return;
+      mx = e.clientX; my = e.clientY;
+      if (!raf) raf = requestAnimationFrame(() => { raf = 0; scenes.forEach((f) => f(mx, my)); });
+    }, { passive: true });
   }
 
   /* =================== HERO FİLMİ, ÜST ÇUBUK, İMLEÇ =================== */

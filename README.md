@@ -4,6 +4,13 @@ Canlı site: **https://geogozcu.pages.dev**
 
 ---
 
+## SÜRÜM 53 — animasyonlar, fareyi takip eden daire, yeni videolar, öğrenci rehberi (8 Kasım 2026)
+- **Animasyon kararı sitenin ayarında:** Windows'ta "animasyon efektleri" kapalıyken tarayıcı her siteye "az hareket" diyordu; site de filmi ve bütün kaydırma sahnelerini kapatıyordu. Artık üst menüdeki "Animasyonlar" ve Ayarlar → Görünüm belirler; eski ve yavaş cihazlarda hafif mod aynen çalışır.
+- **Ana sayfa:** daire fareye eğilir ve kayar, ok imleci gösterir, alev ve ışık takip eder; gösterge kartı ve başlık da tepki verir (`sinema.js` → `pointerMotion`).
+- **Videolar:** Proje videosu ve Harita videosu ayrı (`media/proje*.mp4`, `media/harita*.mp4`), Türkçe erkek sesi (Microsoft Ahmet, yapay ses), altyazı ve filigran. Harita sayfasında "Nasıl kullanılır?" düğmesi. Üretim: `araclar/videolar.js`.
+- **Proje sayfası** metinleri güncellendi; Sınırlılıklar ve Öğrenciler için bölümleri eklendi.
+- **Kaynak kod:** `BENI-ILK-OKU.md` öğrenci rehberi, dosyalarda ve grafik resimlerinde kaynak filigranı.
+
 ## SÜRÜM 51–52 — hareketli ana sayfa, renk tutarlılığı, güvenlik (4 Kasım 2026)
 - **Ana sayfa (v51):** film kaydırınca yuvarlak köşeli karta küçülür, kor parçacıkları ve sıcak ışık; kaydırdıkça kelime kelime aydınlanan metin, kaydırmayla dönen ölçüt halkası, 3B açılan adım kartları, kaydırma hızına duyarlı şerit. Az hareket / hafif modda kapalı.
 - **Renk (v52):** logo her yerde uygulama simgesiyle aynı (orman yeşili + turuncu alev). Birincil renk yeniden Ayarlar'daki vurgu rengi. Açık temada üst çubuk beyaz haplar; ana sayfada hero üstündeki açık gri şerit ve okunmayan logo yazısı düzeltildi. Harita paneli başlığı kesilmiyor, form kartlarındaki başlıklar kartın içinde, "uygulama gibi kullan" bandı düzgün.

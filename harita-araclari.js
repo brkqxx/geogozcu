@@ -1,3 +1,5 @@
+/*! GeoGözcü · EGEV 100. Yıl Anadolu Lisesi TÜBİTAK projesi · https://geogozcu.pages.dev
+   Eğitim amaçlı serbestçe kullanabilirsin; kaynak göstermen rica olunur. Öğreniyorsan BENI-ILK-OKU.md dosyasından başla. */
 // @ts-check
 /**
  * GeoGözcü · harita çekirdeği ve coğrafi araçlar
@@ -66,7 +68,7 @@
   })();
   /** @type {any} */ (window).GG = GG;
 
-  const reduceMotion = () => document.documentElement.dataset.motion === 'calm' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduceMotion = () => document.documentElement.dataset.motion === 'calm' || document.documentElement.dataset.motion === 'off';
   const isMobile = () => document.documentElement.dataset.ui === 'mobile';
   const toast = (/** @type {string} */ m) => (GG.hooks().toast || console.info)(m);
   /** @param {string} s */

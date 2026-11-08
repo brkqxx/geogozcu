@@ -1,7 +1,8 @@
 // Ortak Playwright başlatıcı (küresel @playwright/cli içindeki playwright modülü, Edge ile)
 const path = require('path');
 const G = path.join(process.env.APPDATA || '', 'npm/node_modules/@playwright/cli/node_modules/playwright');
-const { chromium, devices } = require(G);
+let pw; try { pw = require('playwright-core'); } catch (e) { pw = require(G); } // önce araclar/node_modules, yoksa küresel kurulum
+const { chromium, devices } = pw;
 const SITE = process.env.GG_SITE || 'http://localhost:8000/';
 async function open({ mobile = false, w = 1366, h = 800, geo = null, bypassCSP = false, dark = false, dsf = 1 } = {}) {
   const browser = await chromium.launch({ channel: 'msedge', headless: true });

@@ -1,3 +1,5 @@
+/*! GeoGözcü · EGEV 100. Yıl Anadolu Lisesi TÜBİTAK projesi · https://geogozcu.pages.dev
+   Eğitim amaçlı serbestçe kullanabilirsin; kaynak göstermen rica olunur. Öğreniyorsan BENI-ILK-OKU.md dosyasından başla. */
 (function () {
   'use strict';
 
@@ -210,7 +212,9 @@
 
   /* =================== EFEKTLER =================== */
   const lite = () => !!(window.GGLite && GGLite.on());
-  const calm = () => prefs.motion === 'off' || lite() || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Windows'ta "animasyon efektleri" kapalıysa tarayıcı her siteye "az hareket" der; okul ve ev bilgisayarlarında bu çoğu zaman yalnız performans ayarıdır.
+  // Bu yüzden karar sitenin kendi ayarında: üst menü → "Animasyonlar" ya da Ayarlar → Görünüm.
+  const calm = () => prefs.motion === 'off' || lite();
 
   // Başlıkları kelime kelime yavaşça aç
   function splitWords(root = document) {
@@ -914,7 +918,7 @@
     columnChart($('#ch-time'), days.map((d, i) => ({
       label: d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' }),
       value: R.filter((r) => { const c = new Date(r.created_at); return c >= d && c < new Date(d.getTime() + 864e5); }).length,
-      tick: i % 7 === 0 || i === 29 ? d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : '',
+      tick: (i % 7 === 0 && i < 26) || i === 29 ? d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : '', // son iki etiket üst üste binmesin
     })));
   }
   // Açık veri: gözlemci bilgisi içermez
@@ -1002,6 +1006,10 @@
       });
       x.textAlign = 'left';
     }
+    // filigran: grafik başka yere taşınsa da kaynağı üstünde kalsın
+    x.save(); x.textAlign = 'right'; x.textBaseline = 'alphabetic'; x.fillStyle = 'rgba(31,77,58,.62)'; x.font = F(600, 18);
+    x.fillText('GeoGözcü · ' + (cfg.SCHOOL || 'EGEV 100. Yıl Anadolu Lisesi') + ' · geogozcu.pages.dev', W - pad, 34);
+    x.restore();
     c.toBlob((b) => { if (b) download('geogozcu-' + (el.id || 'grafik') + '-' + new Date().toISOString().slice(0, 10) + '.png', b, 'image/png'); }, 'image/png');
   }
 
@@ -4539,6 +4547,20 @@
     $('#mode-chips').addEventListener('click', (e) => { const b = e.target.closest('[data-mode]'); if (b) { theme.mode = b.dataset.mode; applyTheme(); } });
     $('#accent-swatches').addEventListener('click', (e) => { const b = e.target.closest('[data-accent]'); if (b) { theme.accent = b.dataset.accent; applyTheme(); } });
     $('#chk-contrast').addEventListener('change', (e) => { theme.contrast = e.target.checked ? 'on' : 'off'; applyTheme(); });
+    // harita videosu penceresi
+    (() => {
+      const box = $('#map-video'), vid = $('video', box), opener = $('#btn-map-video');
+      const close = () => { vid.pause(); box.hidden = true; opener.focus(); };
+      opener.addEventListener('click', () => { box.hidden = false; $('#map-video-x').focus(); const p = vid.play(); if (p && p.catch) p.catch(() => {}); });
+      $('#map-video-x').addEventListener('click', close);
+      box.addEventListener('click', (e) => { if (e.target === box) close(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !box.hidden) close(); });
+      window.addEventListener('hashchange', () => { if (!box.hidden) close(); });
+    })();
+    $('[data-learn-code]').addEventListener('click', (e) => { e.preventDefault(); $('#pj-code').scrollIntoView({ behavior: calm() ? 'auto' : 'smooth', block: 'start' }); });
+    // hızlı animasyon anahtarı (giriş yapmamış ziyaretçi de kullanabilsin); sahneler sayfa açılırken kurulduğu için yenilenir
+    $('#chk-motion').checked = prefs.motion !== 'off';
+    $('#chk-motion').addEventListener('change', (e) => { prefs.motion = e.target.checked ? 'on' : 'off'; savePrefs(); location.reload(); });
 
     // mahalleler
 
