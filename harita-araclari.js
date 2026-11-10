@@ -301,6 +301,7 @@
 
     function openSearch(/** @type {boolean} */ on) {
       sbox.hidden = !on; bar.classList.toggle('searching', on);
+      root.classList.toggle('gg-searching', on); // arama açıkken üstteki odak ve katman düğmeleri gizlenir (kutunun önünde kalmasın)
       bar.querySelector('[data-tool=search]').classList.toggle('on', on);
       if (on) { setTimeout(() => input.focus(), 30); } else { input.value = ''; render([]); }
     }

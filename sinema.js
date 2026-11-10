@@ -391,13 +391,13 @@
     // 1) Hero: film yuvarlak köşeli bir karta küçülüp geriye yatar, başlık satırları farklı hızlarda yukarı süzülür
     const film = $('.hero-film', hero);
     const ht = g.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.6 } });
-    if (film) ht.fromTo(film, { clipPath: 'inset(0% 0% 0% 0% round 0px)', scale: 1, rotationX: 0, transformPerspective: 1400 },
-      { clipPath: 'inset(6% 5% 10% 5% round 40px)', scale: 0.94, rotationX: 9, yPercent: 6 }, 0);
-    $$('.hx-ln', hero).forEach((ln, i) => ht.to(ln, { yPercent: -(70 + i * 55), opacity: 0 }, 0));
-    ht.to($('.hx-brand', hero), { y: -60, opacity: 0 }, 0)
-      .to($('.hx-lede', hero), { y: -40, opacity: 0, duration: 0.7 }, 0)
-      .to($('.hx-act', hero), { y: -20, opacity: 0, duration: 0.6 }, 0)
-      .to($$('.hx-cue, .hero-note', hero), { opacity: 0, duration: 0.3 }, 0);
+    // Yazı tek blok hâlinde solar (satırlar ayrı hızda kayınca üst üste biniyordu). Filmin karta küçülmesi yalnız fareli cihazda:
+    // telefonda video üstünde clip-path animasyonu kaydırmayı takıltıyordu.
+    // Yazı, üst çubuğun altına girmeden (kaydırmanın ilk beşte birinde) kaybolur.
+    if (film && matchMedia('(pointer:fine)').matches) ht.fromTo(film, { clipPath: 'inset(0% 0% 0% 0% round 0px)' }, { clipPath: 'inset(4% 4% 8% 4% round 32px)', duration: 1 }, 0);
+    ht.to($('.hx-copy', hero), { y: -40, opacity: 0, duration: 0.2 }, 0)
+      .to($$('.hx-cue, .hero-note', hero), { opacity: 0, duration: 0.12 }, 0)
+      .to({}, { duration: 1 }, 0); // zaman çizgisi her cihazda aynı uzunlukta kalsın
 
     // 2) "Ne yapar" metni: kelimeler kaydırdıkça sırayla aydınlanır; ölçüt halkası kaydırmayla döner
     const say = $('.hm-say', view);
@@ -501,14 +501,13 @@
       });
     }
 
-    const copy = $('.hx-copy', hero), embers = $('.hx-embers', hero), light = $('.hx-glow', hero);
-    if (copy) {
+    const embers = $('.hx-embers', hero), light = $('.hx-glow', hero);
+    if (embers || light) {
       const st = watch(hero);
-      const c = quick(copy, ['x', 'y'], 1), e = embers && quick(embers, ['x', 'y'], 1.3), l = light && quick(light, ['x', 'y'], 1.1);
+      const e = embers && quick(embers, ['x', 'y'], 1.3), l = light && quick(light, ['x', 'y'], 1.1);
       scenes.push((mx, my) => {
         if (!st.on) return;
         const nx = mx / innerWidth - 0.5, ny = my / innerHeight - 0.5;
-        c.x(nx * 18); c.y(ny * 12);
         if (e) { e.x(-nx * 70); e.y(-ny * 40); }
         if (l) { l.x(nx * innerWidth * 0.5 - innerWidth * 0.12); l.y(ny * innerHeight * 0.5); }
       });
@@ -546,19 +545,6 @@
     // üst çubuk: hero geçilince opak
     const top = () => root.classList.toggle('top-solid', root.dataset.route === 'ana' && scrollY > hero.offsetHeight - 90);
     addEventListener('scroll', top, { passive: true }); addEventListener('hashchange', () => setTimeout(top, 60)); top();
-    // özel imleç: yalnız ince işaretçi, yalnız ana sayfa
-    if (!matchMedia('(pointer:fine)').matches || calm()) return;
-    const dot = document.createElement('div'); dot.className = 'gg-dot'; dot.setAttribute('aria-hidden', 'true'); document.body.appendChild(dot);
-    g.set(dot, { x: -100, y: -100 });
-    const dx = g.quickTo(dot, 'x', { duration: 0.25, ease: 'power3' }), dy = g.quickTo(dot, 'y', { duration: 0.25, ease: 'power3' });
-    addEventListener('pointermove', (e) => {
-      const on = root.dataset.route === 'ana' && e.pointerType === 'mouse';
-      dot.classList.toggle('on', on); if (!on) return;
-      dx(e.clientX); dy(e.clientY);
-      dot.classList.toggle('wide', !!(e.target.closest && e.target.closest('a,button,[role=button],.gd-track')));
-    }, { passive: true });
-    document.addEventListener('pointerleave', () => dot.classList.remove('on'));
-    addEventListener('hashchange', () => dot.classList.remove('on'));
   }
 
   // Kayan şerit (sonsuz)

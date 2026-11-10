@@ -1246,7 +1246,7 @@
         '<div class="rv-card rv-who"><p>👤 ' + who + '</p><p class="muted small">Haritaya eklendi: ' + esc(fmtDate(r.created_at)) + ' · ' + esc(timeAgo(r.created_at)) + '</p></div>' +
         voteHtml(r) +
         '<button type="button" class="btn ghost big rv-map" data-rvmap="' + esc(r.id) + '">🗺️ Haritada göster</button>' +
-        (profile && profile.is_admin ? '<button type="button" class="btn ghost big" data-photos="' + esc(r.id) + '">Fotoğrafları düzenle</button>' : '') +
+        (profile && profile.is_admin ? '<button type="button" class="btn ghost big rv-map" data-photos="' + esc(r.id) + '">Fotoğrafları düzenle</button>' : '') +
         (session && r.user_id === session.user.id
           ? '<div class="rv-owner"><span class="muted small">Bu senin bildirimin · ' + esc(r.resolved_at ? 'Çözüldü' : STATUS[r.status] || r.status) + '</span>' +
             '<button type="button" class="btn danger" data-act="delete" data-id="' + esc(r.id) + '">Bildirimi sil</button></div>'
@@ -4547,16 +4547,6 @@
     $('#mode-chips').addEventListener('click', (e) => { const b = e.target.closest('[data-mode]'); if (b) { theme.mode = b.dataset.mode; applyTheme(); } });
     $('#accent-swatches').addEventListener('click', (e) => { const b = e.target.closest('[data-accent]'); if (b) { theme.accent = b.dataset.accent; applyTheme(); } });
     $('#chk-contrast').addEventListener('change', (e) => { theme.contrast = e.target.checked ? 'on' : 'off'; applyTheme(); });
-    // harita videosu penceresi
-    (() => {
-      const box = $('#map-video'), vid = $('video', box), opener = $('#btn-map-video');
-      const close = () => { vid.pause(); box.hidden = true; opener.focus(); };
-      opener.addEventListener('click', () => { box.hidden = false; $('#map-video-x').focus(); const p = vid.play(); if (p && p.catch) p.catch(() => {}); });
-      $('#map-video-x').addEventListener('click', close);
-      box.addEventListener('click', (e) => { if (e.target === box) close(); });
-      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !box.hidden) close(); });
-      window.addEventListener('hashchange', () => { if (!box.hidden) close(); });
-    })();
     $('[data-learn-code]').addEventListener('click', (e) => { e.preventDefault(); $('#pj-code').scrollIntoView({ behavior: calm() ? 'auto' : 'smooth', block: 'start' }); });
     // hızlı animasyon anahtarı (giriş yapmamış ziyaretçi de kullanabilsin); sahneler sayfa açılırken kurulduğu için yenilenir
     $('#chk-motion').checked = prefs.motion !== 'off';

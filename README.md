@@ -4,6 +4,12 @@ Canlı site: **https://geogozcu.pages.dev**
 
 ---
 
+## SÜRÜM 54 — sadeleştirme ve telefon düzeltmeleri (10 Kasım 2026)
+- **Harita (telefon):** arama açıkken "Gaziemir / İzmir" düğmeleri kutunun önünde kalmıyor. "Nasıl kullanılır?" düğmesi haritadan kaldırıldı (harita videosu Proje sayfasında).
+- **Bildirim ayrıntısı:** "Fotoğrafları düzenle" kartların üstüne binmiyor. Kök neden: telefonda bütün büyük düğmeler ekrana yapışıyordu; artık yalnız formdaki "Bildirimi gönder".
+- **Üst çubuk:** ana sayfada film üstünde de aşağıda da aynı görünüm (aynı haplar, aynı turuncu düğme). Özel imleç noktası kaldırıldı (logonun üstünde leke gibi duruyordu).
+- **Geçişler:** telefonda sayfa geçişi yalnız kısa bir belirme; hero yazısı tek blok solar, filmin karta küçülmesi yalnız fareli cihazda.
+
 ## SÜRÜM 53 — animasyonlar, fareyi takip eden daire, yeni videolar, öğrenci rehberi (8 Kasım 2026)
 - **Animasyon kararı sitenin ayarında:** Windows'ta "animasyon efektleri" kapalıyken tarayıcı her siteye "az hareket" diyordu; site de filmi ve bütün kaydırma sahnelerini kapatıyordu. Artık üst menüdeki "Animasyonlar" ve Ayarlar → Görünüm belirler; eski ve yavaş cihazlarda hafif mod aynen çalışır.
 - **Ana sayfa:** daire fareye eğilir ve kayar, ok imleci gösterir, alev ve ışık takip eder; gösterge kartı ve başlık da tepki verir (`sinema.js` → `pointerMotion`).
