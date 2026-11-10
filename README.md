@@ -4,10 +4,10 @@ Canlı site: **https://geogozcu.pages.dev**
 
 ---
 
-## SÜRÜM 55 — sokak görünümü ve 3B arazi görünümü (10 Kasım 2026)
+## SÜRÜM 55–56 — sokak görünümü (10 Kasım 2026)
 - **Sokak görünümü:** her bildirimde, konuma en yakın Google Street View fotoğrafını açan bağlantı (yeni sekme / Google Haritalar uygulaması). Anahtar gerekmez: Google'ın resmî "Maps URLs" biçimi. Görüntünün tarihi Google'a bağlıdır.
-- **3B arazi görünümü** (`bakis3b.js`): bildirimin çevresi sitenin içinde üç boyutlu açılır; uydu görüntüsü araziye giydirilir, OpenStreetMap'te kayıtlı binalar yükseltilir. Gezinti bildirimin 350 m çevresiyle sınırlıdır. Bilgisayarda W A S D / ok tuşları gezer, Q E döndürür, R F eğer. Kütüphane (MapLibre GL, `vendor/`) yalnız düğmeye basılınca indirilir.
-- **Anahtar yok:** uydu Esri, yükseklik Mapzen (AWS açık veri), binalar OpenFreeMap; hiçbiri API anahtarı istemez. Depoda ve geçmişte yalnız Supabase'in herkese açık `anon` anahtarı bulunur.
+- v55'te denenen site içi 3B arazi görünümü v56'da kaldırıldı (istenen sokak seviyesi görüntüydü; kütüphanesi de silindi).
+- **Anahtar yok:** depoda ve geçmişte yalnız Supabase'in herkese açık `anon` anahtarı bulunur.
 
 ## SÜRÜM 54 — sadeleştirme ve telefon düzeltmeleri (10 Kasım 2026)
 - **Harita (telefon):** arama açıkken "Gaziemir / İzmir" düğmeleri kutunun önünde kalmıyor. "Nasıl kullanılır?" düğmesi haritadan kaldırıldı (harita videosu Proje sayfasında).
