@@ -6,7 +6,7 @@ const out = p.join(__dirname, 'kaynak-tmp', 'geogozcu-kaynak');
 f.rmSync(p.join(__dirname, 'kaynak-tmp'), { recursive: true, force: true });
 f.mkdirSync(p.join(out, 'veritabani', 'fonksiyonlar'), { recursive: true });
 const cp = (a, b) => f.cpSync(src + a, p.join(out, b || a), { recursive: true });
-['index.html', 'style.css', 'app.js', 'harita-araclari.js', 'sinema.js', 'splash.js', 'sinirlar.js', 'sw.js', 'manifest.webmanifest', '_headers', 'vendor', 'icons', 'fonts'].forEach((x) => cp(x));
+['index.html', 'style.css', 'app.js', 'harita-araclari.js', 'bakis3b.js', 'sinema.js', 'splash.js', 'sinirlar.js', 'sw.js', 'manifest.webmanifest', '_headers', 'vendor', 'icons', 'fonts'].forEach((x) => cp(x));
 cp('araclar/OKU-BENI.md', 'OKU-BENI.md');
 cp('BENI-ILK-OKU.md');
 // config.js: kendi projenin bilgilerini yazacağın boş şablon

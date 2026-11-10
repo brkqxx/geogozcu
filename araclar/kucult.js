@@ -8,7 +8,7 @@ const esbuild = require('esbuild');
 
 const DIR = path.resolve(process.argv[2] || path.join(__dirname, 'cf'));
 const TARGET = ['chrome70', 'firefox68', 'safari12', 'edge79'];
-const JS = ['app.js', 'sinema.js', 'harita-araclari.js', 'splash.js', 'sinirlar.js', 'config.js', 'vendor/supabase.js'];
+const JS = ['app.js', 'sinema.js', 'harita-araclari.js', 'bakis3b.js', 'splash.js', 'sinirlar.js', 'config.js', 'vendor/supabase.js'];
 const CSS = ['style.css', 'fonts/fonts.css', 'vendor/leaflet.css', 'vendor/markercluster.css'];
 
 let before = 0, after = 0;

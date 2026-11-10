@@ -718,6 +718,10 @@
     if (realNames[r.id]) return ' <span class="muted">(@' + esc(r.username || '?') + ' · yalnızca yöneticiler görür)</span>';
     return r.username ? ' · <a href="#/profil/' + encodeURIComponent(r.username) + '">@' + esc(r.username) + '</a>' : '';
   }
+  // Google Sokak Görünümü bağlantısı: anahtar gerekmez (Google'ın resmî 'Maps URLs' biçimi). Yeni sekmede / Google Haritalar uygulamasında açılır;
+  // bildirimin konumuna en yakın sokak fotoğrafını gösterir, o noktada fotoğraf yoksa Google bunu kendisi söyler.
+  const streetUrl = (r) => 'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=' + (+r.lat).toFixed(6) + ',' + (+r.lng).toFixed(6);
+  const streetLink = (r, cls) => '<a class="' + cls + '" href="' + esc(streetUrl(r)) + '" target="_blank" rel="noopener noreferrer" title="Google Haritalar’da açılır">Sokak görünümü ↗</a>';
   function popupHtml(r) {
     return '<div class="pop">' + shotsHtml(r) + '<div class="body">' +
       '<div class="tags">' + catBadge(r) + scoreTag(r) + '</div>' +
@@ -729,6 +733,7 @@
       '<p class="pop-date small muted">📅 Haritaya eklendi: ' + esc(fmtDate(r.created_at)) + ' <b>(' + esc(timeAgo(r.created_at)) + ')</b></p>' +
       voteHtml(r) +
       '<button type="button" class="btn ghost pop-open" data-rvopen="' + esc(r.id) + '">⤢ Büyük görünümde aç' + (profile && profile.is_admin ? ' · yönetici işlemleri' : '') + '</button>' +
+      streetLink(r, 'btn ghost pop-open') +
       (profile && profile.is_admin ? '<button type="button" class="linkish small pop-admin" data-photos="' + esc(r.id) + '">Fotoğrafları düzenle (yönetici)</button>' : '') +
       '</div></div>';
   }
@@ -1245,7 +1250,9 @@
         (r.notes ? '<div class="rv-card"><small>Not</small><p>' + esc(r.notes) + '</p></div>' : '') +
         '<div class="rv-card rv-who"><p>👤 ' + who + '</p><p class="muted small">Haritaya eklendi: ' + esc(fmtDate(r.created_at)) + ' · ' + esc(timeAgo(r.created_at)) + '</p></div>' +
         voteHtml(r) +
-        '<button type="button" class="btn ghost big rv-map" data-rvmap="' + esc(r.id) + '">🗺️ Haritada göster</button>' +
+        '<div class="rv-acts"><button type="button" class="btn ghost big" data-rvmap="' + esc(r.id) + '">Haritada göster</button>' +
+        streetLink(r, 'btn ghost big') +
+        '<button type="button" class="btn ghost big" data-view3d="' + esc(r.id) + '">3B arazi görünümü</button></div>' +
         (profile && profile.is_admin ? '<button type="button" class="btn ghost big rv-map" data-photos="' + esc(r.id) + '">Fotoğrafları düzenle</button>' : '') +
         (session && r.user_id === session.user.id
           ? '<div class="rv-owner"><span class="muted small">Bu senin bildirimin · ' + esc(r.resolved_at ? 'Çözüldü' : STATUS[r.status] || r.status) + '</span>' +
@@ -4593,6 +4600,14 @@
     // proje sayfası içindekiler: adres çubuğu (#/proje) bozulmadan bölüme kaydır
     $('.proj-toc').addEventListener('click', (e) => { const a = e.target.closest('[data-jump]'); if (!a) return; e.preventDefault(); const t = $(a.getAttribute('href')); if (t) t.scrollIntoView({ behavior: calm() ? 'auto' : 'smooth', block: 'start' }); });
     document.addEventListener('click', (e) => { const b = e.target.closest('[data-photos]'); if (b) { e.preventDefault(); openPhotoEditor(b.dataset.photos); } });
+    // 3B bakış: bildirimin çevresi üç boyutlu açılır (bakis3b.js; kütüphane ilk tıklamada indirilir)
+    document.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-view3d]'); if (!b) return;
+      e.preventDefault();
+      const r = approved.find((x) => x.id === b.dataset.view3d);
+      if (!r || !window.GG3B) { toast('3B bakış şu an açılamıyor.'); return; }
+      window.GG3B.open({ lat: r.lat, lng: r.lng, title: subLabel(r), place: placeOf(r), color: (CATS[catOf(r)] || {}).color }, { calm: calm(), toast });
+    });
     $('#near-x').addEventListener('click', clearNearby);
     document.addEventListener('click', (e) => { if (e.target.closest('[data-reset-filters]')) resetFilters(); });
     let st; $('#f-search').addEventListener('input', (e) => { clearTimeout(st); st = setTimeout(() => { filt.q = e.target.value.trim(); renderMap({ fit: true }); }, 250); });
